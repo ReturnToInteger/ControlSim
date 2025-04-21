@@ -1,68 +1,86 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="model\Bicycle.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\Car.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\Cone.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\Item.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\VehicleBase.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\World.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="ControlSim.cpp" />
-    <ClCompile Include="model\ObstacleBase.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\Point.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="model\World.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\Bicycle.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\Car.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\Cone.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\Item.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\VehicleBase.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\ObstacleBase.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\Point.h">
-      <Filter>model</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="model">
-      <UniqueIdentifier>{d03cae04-90c6-4fcd-887f-727df772ebcc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="controller">
       <UniqueIdentifier>{f97c4503-032b-4729-9100-8ccc5cb2937f}</UniqueIdentifier>
     </Filter>
     <Filter Include="view">
       <UniqueIdentifier>{c480099f-ef09-4b91-9ee4-18a338105308}</UniqueIdentifier>
     </Filter>
+    <Filter Include="model">
+      <UniqueIdentifier>{6109aa85-0efb-46b2-9e3f-000fc20892ec}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ControlSim.cpp" />
+    <ClCompile Include="src\model\Cone.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Item.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\ObstacleBase.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Point.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Vehicle.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\World.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\Controller.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\View.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\BicycleModel.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\IMovementModel.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Vec3.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\model\Cone.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Item.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\ObstacleBase.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Point.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Vehicle.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\World.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\controller\Controller.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\View.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\BicycleModel.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\IMovementModel.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Vec3.h">
+      <Filter>model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

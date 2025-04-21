@@ -18,6 +18,36 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\controller\Controller.cpp" />
+    <ClCompile Include="src\ControlSim.cpp" />
+    <ClCompile Include="src\model\BicycleModel.cpp" />
+    <ClCompile Include="src\model\Cone.cpp" />
+    <ClCompile Include="src\model\IMovementModel.cpp" />
+    <ClCompile Include="src\model\Item.cpp" />
+    <ClCompile Include="src\model\ObstacleBase.cpp" />
+    <ClCompile Include="src\model\Point.cpp" />
+    <ClCompile Include="src\model\Vec3.cpp" />
+    <ClCompile Include="src\model\Vehicle.cpp" />
+    <ClCompile Include="src\model\World.cpp" />
+    <ClCompile Include="src\view\View.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\controller\Controller.h" />
+    <ClInclude Include="src\model\BicycleModel.h" />
+    <ClInclude Include="src\model\Cone.h" />
+    <ClInclude Include="src\model\IMovementModel.h" />
+    <ClInclude Include="src\model\Item.h" />
+    <ClInclude Include="src\model\ObstacleBase.h" />
+    <ClInclude Include="src\model\Point.h" />
+    <ClInclude Include="src\model\Vec3.h" />
+    <ClInclude Include="src\model\Vehicle.h" />
+    <ClInclude Include="src\model\World.h" />
+    <ClInclude Include="src\view\View.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -130,30 +160,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="ControlSim.cpp" />
-    <ClCompile Include="model\Bicycle.cpp" />
-    <ClCompile Include="model\Car.cpp" />
-    <ClCompile Include="model\Cone.cpp" />
-    <ClCompile Include="model\Item.cpp" />
-    <ClCompile Include="model\ObstacleBase.cpp" />
-    <ClCompile Include="model\Point.cpp" />
-    <ClCompile Include="model\VehicleBase.cpp" />
-    <ClCompile Include="model\World.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="model\Bicycle.h" />
-    <ClInclude Include="model\Car.h" />
-    <ClInclude Include="model\Cone.h" />
-    <ClInclude Include="model\Item.h" />
-    <ClInclude Include="model\ObstacleBase.h" />
-    <ClInclude Include="model\Point.h" />
-    <ClInclude Include="model\VehicleBase.h" />
-    <ClInclude Include="model\World.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
