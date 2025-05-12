@@ -157,7 +157,7 @@ for i=1:deltaSize(1)
    else
        NextPoint.ud=sign(CurrentPoint.ud+delta(i))*pi/2;
    end
-   NextPoint.uv=max(min(2,CurrentPoint.uv+cos(NextPoint.ud*2)/10),2);
+   NextPoint.uv=CurrentPoint.uv;
    NextPoint.heading=CurrentPoint.heading+NextPoint.uv*sin(NextPoint.ud)/2;
    NextPoint.x=[CurrentPoint.x(1)+CurrentPoint.uv*cos(NextPoint.heading),CurrentPoint.x(2)+CurrentPoint.uv*sin(NextPoint.heading)];
    NextPoint.discpos=cont2disc(NextPoint.x);

@@ -9,7 +9,7 @@ classdef car < matlab.mixin.Copyable
         h = 0.005
         dt= 0
         f 
-        M
+        Map
         j=1;
     end
     methods
@@ -34,7 +34,7 @@ classdef car < matlab.mixin.Copyable
                 if size(M,2)~=2
                     M=M';
                 end
-                obj.M=M;
+                obj.Map=M;
 
                 obj.f=costFun(obj);
                 
@@ -67,7 +67,7 @@ classdef car < matlab.mixin.Copyable
             obj.SteeringAngle(2)=sign(ddelta)*min(pi/4,abs(ddelta));
         end
         function g=costFun(obj)
-            [d,o]=obj.dist(obj.M);
+            [d,o]=obj.dist(obj.Map);
 
             g=log(d^2)+tan(abs(o)/2)+tan(obj.SteeringAngle(1)*2)^2;
 

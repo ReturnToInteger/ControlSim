@@ -5,7 +5,7 @@ SensDist=10;
 j=1;
 theta=0;
 Angle=(-pi/6:pi/18:pi/6)';
-step_size = 0.5; 
+step_size = 1; 
 StartPos=VehiclePos(j,:);
 
 
@@ -27,13 +27,13 @@ ax=gca;
 ax.NextPlot='replaceChildren';
 
 % loops=round(length(VehiclePos(:,1))/100);
-loops=1000;
+loops=4000;
 
 F(loops) = struct('cdata',[],'colormap',[]);
 
 
 % VhclRelPos=zeros(loops,2);
-it=2;
+it=5;
 U=[1 0];
 [points,~,U]=planPath(CurrentlySeen,Angle,[0 0],0,U,it);
 plot(points(:,1),points(:,2))
@@ -65,15 +65,16 @@ for j=1:loops
     while (cost(costi)==Inf)
         iter=min(iter+0.01,0.4);
         disp(Orient+" before")
-        Orient_temp=Orient+sign(rand-0.5)*(1-rand/2)*pi*iter;
+        Orient_temp=Orient+(0.5-rand)*pi*iter;
         disp(Orient_temp+" after")
 
         [points(:,:,1), cost(1),U]=planPath(CurrentlySeen,Angle,[0 0],Orient_temp,U(end-1,1:2),it);
-        [~, costi]=min(cost);    
+        [~, costi]=min(cost);
+        iter=iter*1.5;
     end
    
-    Orient=sum(points(:,3,costi))/sum(1:size(points,1))*step_size;
-    VhclRelPos(j+1,:)=VhclRelPos(j,:)+sum(points(:,1:2,costi),1)/sum(1:size(points,1))*step_size;
+    Orient=points(end-1,3,costi);
+    VhclRelPos(j+1,:)=VhclRelPos(j,:)+points(end-1,1:2,costi)*step_size;
     hold on;
     fnplt(cscvn(points(1:end,:,costi)'))
     axis equal;
