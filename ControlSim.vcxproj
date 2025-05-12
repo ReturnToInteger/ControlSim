@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\controller\Controller.cpp" />
+    <ClCompile Include="src\controller\KeyboardControl.cpp" />
     <ClCompile Include="src\ControlSim.cpp" />
     <ClCompile Include="src\model\BicycleModel.cpp" />
     <ClCompile Include="src\model\Cone.cpp" />
@@ -27,15 +27,19 @@
     <ClCompile Include="src\model\Item.cpp" />
     <ClCompile Include="src\model\ObstacleBase.cpp" />
     <ClCompile Include="src\model\Point.cpp" />
+    <ClCompile Include="src\model\utils\ModelUtils.cpp" />
     <ClCompile Include="src\model\Vec3.cpp" />
     <ClCompile Include="src\model\Vehicle.cpp" />
     <ClCompile Include="src\model\World.cpp" />
     <ClCompile Include="src\view\View.cpp" />
+    <ClCompile Include="src\model\VehicleState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\controller\KeyboardControl.h" />
     <ClInclude Include="src\controller\Controller.h" />
     <ClInclude Include="src\model\BicycleModel.h" />
     <ClInclude Include="src\model\Cone.h" />
+    <ClInclude Include="src\model\utils\ModelUtils.h" />
     <ClInclude Include="src\model\IMovementModel.h" />
     <ClInclude Include="src\model\Item.h" />
     <ClInclude Include="src\model\ObstacleBase.h" />
@@ -44,6 +48,7 @@
     <ClInclude Include="src\model\Vehicle.h" />
     <ClInclude Include="src\model\World.h" />
     <ClInclude Include="src\view\View.h" />
+    <ClInclude Include="src\model\VehicleState.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
