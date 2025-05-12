@@ -8,7 +8,12 @@ class KeyboardControl :
 	public Controller  
 {  
 	// Inherited via Controller  
-	void drive(model::VehicleState& state) override;  
+	void drive(model::VehicleState& state) override;
+
+	double detectSpeed();
+
+	double detectAngle();
+
 
 };  
 }

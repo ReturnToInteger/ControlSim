@@ -6,6 +6,14 @@
 
 void controller::KeyboardControl::drive(model::VehicleState& state)
 {
+
+	state.setTargetSpeed(detectSpeed());
+	state.setTargetSteeringAngle(detectAngle());
+
+}
+
+double controller::KeyboardControl::detectSpeed()
+{
 	double speed;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && !sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
 		speed = 1.0;
@@ -16,7 +24,10 @@ void controller::KeyboardControl::drive(model::VehicleState& state)
 	else {
 		speed = 0.0;
 	}
-	state.setTargetSpeed(speed * state.getMaxSpeed());
+	return speed;
+}
+
+double controller::KeyboardControl::detectAngle() {
 
 	double angle;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
@@ -28,6 +39,5 @@ void controller::KeyboardControl::drive(model::VehicleState& state)
 	else {
 		angle = 0.0;
 	}
-	state.setTargetSteeringAngle(angle * state.getMaxSteeringAngle());
-
+	return angle;
 }

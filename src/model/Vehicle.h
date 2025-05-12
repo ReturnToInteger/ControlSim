@@ -19,10 +19,10 @@ namespace model {
        Vehicle(std::unique_ptr<controller::Controller> carControl);
 
        void update(double dt);
-       void steer();
-       void drive();
-       void brake();
        Point getPosition() const override;
+	   double getOrientation() const;
+	   double getLength() const { return _state->getLength(); }
+
 
        ~Vehicle() = default;  
 

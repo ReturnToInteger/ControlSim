@@ -1,6 +1,7 @@
 #pragma once
 #include "VehicleState.h"
 #include <cmath>
+#include <iostream>
 
 namespace model
 {
@@ -11,7 +12,11 @@ namespace model
 		_rear{ -DEF_LENGTH / 2,0,0,0,0,0 },
 		_speed(0),
 		_steeringAngle(0),
-		_steeringRate(0)
+		_steeringRate(0),
+		_acceleration(0),
+		_targetSpeed(0),
+		_targetSteeringAngle(0),
+		_brakeAcceleration(0)
 	{
 	}
 	std::array<Point, 3> VehicleState::getAllPositions() const
@@ -37,6 +42,14 @@ namespace model
 	std::array<double, 6> VehicleState::getCenter() const
 	{
 		return _center;
+	}
+	void VehicleState::setTargetSpeed(double input)
+	{
+		_targetSpeed = clamp(input, -1, 1)*_maxSpeed;
+	}
+	void VehicleState::setTargetSteeringAngle(double input)
+	{
+		_targetSteeringAngle = clamp(input, -1, 1) * _maxSteeringAngle;
 	}
 	void VehicleState::updateState(double dt) {
 
@@ -103,16 +116,19 @@ namespace model
 	void VehicleState::_setSteeringAngle(double angle)
 	{
 		_steeringAngle = clamp(angle, -_maxSteeringAngle, _maxSteeringAngle);
+		std::cout << "steering angle: " << _steeringAngle << std::endl;
 	}
 
 	void VehicleState::_setSteeringRate(double rate)
 	{
 		_steeringRate = clamp(rate, -_maxSteeringRate, _maxSteeringRate);
+		std::cout << "steering rate: " << _steeringRate << std::endl;
 	}
 
 	void VehicleState::_setSpeed(double speed)
 	{
 		_speed = clamp(speed, -_maxSpeed, _maxSpeed);
+		std::cout << "speed: " << _speed << std::endl;
 	}
 
 	void VehicleState::_setAcceleration(double acceleration, double brake)
@@ -126,10 +142,11 @@ namespace model
 		else if (_speed < 0) {
 			_acceleration += brake;
 		}
+		std::cout << "acceleration: " << _acceleration << std::endl;
 		/* if (_speed == 0)
 		{
 			_acceleration = ;
 		}*/
 	}
 
-	}
+}

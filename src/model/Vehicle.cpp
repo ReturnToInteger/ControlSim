@@ -26,27 +26,17 @@ namespace model {
 	   _state->updateState(dt);
    }
 
-   void Vehicle::steer()
-   {
-
-	   //_targetSteeringAngle = _carControl->steer() * _maxSteeringAngle;
-   }
-
-   void Vehicle::drive()
-   {
-
-	   //_targetSpeed = _carControl->drive() * _maxSpeed;
-   }
-
-   void Vehicle::brake()
-   {
-	   //_brakeAcceleration = _carControl->brake() * _maxBrake;
-   }
 
    Point Vehicle::getPosition() const
    {
 	   return _state->getPosition();
    }
+
+   double Vehicle::getOrientation() const
+   {
+	   return _state->getOrientation();
+   }
+
 
 
 

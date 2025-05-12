@@ -20,13 +20,13 @@
 #define DEF_MAX_STEERING_ANGLE M_PI /6.0 
 #endif // !DEF_MAX_STEERING_ANGLE  
 #ifndef DEF_MAX_STEERING_RATE  
-#define DEF_MAX_STEERING_RATE M_PI / 3.0
+#define DEF_MAX_STEERING_RATE M_PI / 6.0
 #endif // !DEF_MAX_STEERING_RATE  
 #ifndef DEF_MAX_SPEED  
 #define DEF_MAX_SPEED 15.0  
 #endif // !DEF_MAX_SPEED  
 #ifndef DEF_MAX_ACCELERATION
-#define DEF_MAX_ACCELERATION 5.0
+#define DEF_MAX_ACCELERATION 15.0
 #endif // !DEF_MAX_ACCELERATION
 #ifndef DEF_MAX_BRAKE
 #define DEF_MAX_BRAKE 10.0
@@ -55,8 +55,8 @@ namespace model
         double getMaxSteeringAngle() const { return _maxSteeringAngle; }
         double getMaxSteeringRate() const { return _maxSteeringRate; }
         double getMaxSpeed() const { return _maxSpeed; }
-		void setTargetSpeed(double speed) { _targetSpeed = speed; }
-		void setTargetSteeringAngle(double angle) { _targetSteeringAngle = angle; }
+        void setTargetSpeed(double input);
+        void setTargetSteeringAngle(double input);
         void updateState(double dt);
 
     private:

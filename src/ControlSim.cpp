@@ -23,24 +23,24 @@ int main() {
 	model::Vehicle vehicle(std::make_unique<controller::KeyboardControl>());
 
 	std::array<model::Cone, 18> map({
-		model::Cone(0, 0, 0.5),
-		model::Cone(0, 6, 0.5),
-		model::Cone(8, 0, 0.5),
-		model::Cone(8, 6, 0.5),
-		model::Cone(16, 0, 0.5),
-		model::Cone(16, 6, 0.5),
-		model::Cone(24, 0, 0.5),
-		model::Cone(24, 6, 0.5),
-		model::Cone(32, 0, 0.5),
-		model::Cone(32, 6, 0.5),
-		model::Cone(40, 0, 0.5),
-		model::Cone(40, 6, 0.5),
-		model::Cone(48, 0, 0.5),
-		model::Cone(48, 6, 0.5),
-		model::Cone(56, 0, 0.5),
-		model::Cone(56, 6, 0.5),
-		model::Cone(64, 0, 0.5),
-		model::Cone(64, 6, 0.5),
+		model::Cone(0, 0, 0.3),
+		model::Cone(0, 3, 0.3),
+		model::Cone(5, 0, 0.3),
+		model::Cone(5, 3, 0.3),
+		model::Cone(10, 0, 0.3),
+		model::Cone(10, 3, 0.3),
+		model::Cone(15, 0, 0.3),
+		model::Cone(15, 3, 0.3),
+		model::Cone(20, 0, 0.3),
+		model::Cone(20, 3, 0.3),
+		model::Cone(25, 0, 0.3),
+		model::Cone(25, 3, 0.3),
+		model::Cone(30, 0, 0.3),
+		model::Cone(30, 3, 0.3),
+		model::Cone(35, 0, 0.3),
+		model::Cone(35, 3, 0.3),
+		model::Cone(40, 0, 0.3),
+		model::Cone(40, 3, 0.3),
 		});
 
 	
@@ -90,14 +90,16 @@ int main() {
 		// Draw the vehicle
 		auto position = vehicle.getPosition();
 
-		sf::CircleShape vehicleShape(0.7 * zoom);
+		sf::RectangleShape vehicleShape(sf::Vector2f(vehicle.getLength()*zoom,0.75*zoom));
+		vehicleShape.setOrigin(vehicle.getLength() * zoom / 2, 0.75 * zoom /2);
 		vehicleShape.setFillColor(sf::Color::Red);
 		vehicleShape.setPosition(videoWidth / 2, videoHeight / 2);
+		vehicleShape.setRotation(vehicle.getOrientation() / M_PI * 180);
 		window.draw(vehicleShape);
 
 		// Draw the map
 		for (auto& cone : map) {
-			sf::CircleShape shape(0.5 * zoom);
+			sf::CircleShape shape(0.3 * zoom);
 			//model::Point realPos = (cone.getPosition() - positions[1] )* zoom + startPos;
 			model::Point realPos = (cone.getPosition() - position) * zoom + startPos;
 			realPos.setX(Mod(realPos.X(), videoWidth));
