@@ -7,8 +7,10 @@ namespace model {
 	public:
 		Cone(model::Point position, double radius) : ObstacleBase(position), _radius(radius) {}
 		Cone(double positionX, double positionY, double radius) : ObstacleBase(positionX, positionY), _radius(radius) {}
+		double getRadius() const { return _radius; }
 
 	private:
 		double _radius;
+
 	};
 }

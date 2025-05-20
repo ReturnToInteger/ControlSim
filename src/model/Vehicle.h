@@ -22,6 +22,7 @@ namespace model {
        Point getPosition() const override;
 	   double getOrientation() const;
 	   double getLength() const { return _state->getLength(); }
+	   double getWidth() const { return _state->getWidth(); }
 
 
        ~Vehicle() = default;  

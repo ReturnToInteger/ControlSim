@@ -28,10 +28,10 @@
     <ClCompile Include="src\model\Vehicle.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\World.cpp">
+    <ClCompile Include="src\model\App.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="src\view\View.cpp">
+    <ClCompile Include="src\view\AppView.cpp">
       <Filter>view</Filter>
     </ClCompile>
     <ClCompile Include="src\model\BicycleModel.cpp">
@@ -46,6 +46,9 @@
     <ClCompile Include="src\controller\KeyboardControl.cpp" />
     <ClCompile Include="src\model\VehicleState.cpp" />
     <ClCompile Include="src\model\utils\ModelUtils.cpp" />
+    <ClCompile Include="src\model\mapReaders\ManualMapReader.cpp" />
+    <ClCompile Include="src\view\VehicleView.cpp" />
+    <ClCompile Include="src\view\ConeView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\model\Cone.h">
@@ -63,13 +66,13 @@
     <ClInclude Include="src\model\Vehicle.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="src\model\World.h">
+    <ClInclude Include="src\model\App.h">
       <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="src\controller\Controller.h">
       <Filter>controller</Filter>
     </ClInclude>
-    <ClInclude Include="src\view\View.h">
+    <ClInclude Include="src\view\AppView.h">
       <Filter>view</Filter>
     </ClInclude>
     <ClInclude Include="src\model\BicycleModel.h">
@@ -84,6 +87,11 @@
     <ClInclude Include="src\controller\KeyboardControl.h" />
     <ClInclude Include="src\model\VehicleState.h" />
     <ClInclude Include="src\model\utils\ModelUtils.h" />
+    <ClInclude Include="src\model\mapReaders\IMapReader.h" />
+    <ClInclude Include="src\model\mapReaders\ManualMapReader.h" />
+    <ClInclude Include="src\model\ObstacleData.h" />
+    <ClInclude Include="src\view\VehicleView.h" />
+    <ClInclude Include="src\view\ConeView.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
