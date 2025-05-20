@@ -1,7 +1,7 @@
 #include "ConeView.h"
 #include <cassert>
 
-void ConeView::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void view::ConeView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	if (_cone == nullptr) {
 		return;
@@ -9,20 +9,20 @@ void ConeView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	auto position = _cone->getPosition();
 	sf::CircleShape coneShape(_cone->getRadius());
 	coneShape.setOrigin(_cone->getRadius(), _cone->getRadius());
-	coneShape.setFillColor(sf::Color::Green);
+	coneShape.setFillColor(_color);
 	coneShape.setPosition(position.X(), position.Y());
 	target.draw(coneShape);
 }
 
-ConeView::ConeView(model::Cone* cone) : _cone(cone)
+view::ConeView::ConeView(model::Cone* cone, sf::Color color) : ItemView(color), _cone(cone)
 {
 }
 
-ConeView::ConeView() : _cone(nullptr)
+view::ConeView::ConeView() : ItemView(), _cone(nullptr)
 {
 }
 
-sf::Vector2f ConeView::getPosition() const
+sf::Vector2f view::ConeView::getPosition() const
 {
 	if (_cone == nullptr) {
 		return sf::Vector2f(0, 0);

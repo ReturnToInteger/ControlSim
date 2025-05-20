@@ -1,4 +1,5 @@
 #include "AppView.h" 
+#include <cassert>
  
 namespace view {
 	AppView::AppView()
@@ -33,7 +34,8 @@ namespace view {
 	{
 
 		_window.clear(sf::Color::Black);
-
+		_view.setCenter(_vehicleView.getPosition());
+		_window.setView(_view);
 		//Drawing
 		_window.draw(_vehicleView);
 		for (const auto& coneView : _coneViews) {
@@ -75,6 +77,7 @@ namespace view {
 
 	void AppView::setVehicle(model::Vehicle* vehicle)
 	{
+		assert(vehicle != nullptr && "Provide valid arguments.");
 		_vehicleView = VehicleView(vehicle);
 		_view.setCenter(_vehicleView.getPosition());
 	}
