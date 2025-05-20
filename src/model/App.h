@@ -5,6 +5,9 @@
 #include "mapReaders/IMapReader.h"
 #include "src/view/AppView.h"
 #include "Cone.h"
+#include "src/model/utils/Timer.h"
+
+
 namespace model {
     class App
     {

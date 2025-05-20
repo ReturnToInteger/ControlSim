@@ -92,6 +92,8 @@
     <ClInclude Include="src\model\ObstacleData.h" />
     <ClInclude Include="src\view\VehicleView.h" />
     <ClInclude Include="src\view\ConeView.h" />
+    <ClInclude Include="src\view\ItemView.h" />
+    <ClInclude Include="src\model\utils\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

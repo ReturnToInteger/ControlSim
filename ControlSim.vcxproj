@@ -38,6 +38,7 @@
     <ClCompile Include="src\view\VehicleView.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\model\utils\Timer.h" />
     <ClInclude Include="src\view\ConeView.h" />
     <ClInclude Include="src\model\mapReaders\ManualMapReader.h" />
     <ClInclude Include="src\model\mapReaders\IMapReader.h" />
@@ -56,6 +57,7 @@
     <ClInclude Include="src\model\App.h" />
     <ClInclude Include="src\view\AppView.h" />
     <ClInclude Include="src\model\VehicleState.h" />
+    <ClInclude Include="src\view\ItemView.h" />
     <ClInclude Include="src\view\VehicleView.h" />
   </ItemGroup>
   <ItemGroup>

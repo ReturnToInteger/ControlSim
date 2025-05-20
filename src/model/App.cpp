@@ -1,4 +1,3 @@
-
 #include "App.h"
 #include <cassert>
 
@@ -26,15 +25,20 @@ void model::App::run()
 	_view->init();
 	double frameTime = _view->getFrameTime();
 	// Run the game loop
+	double updateTime = 0;
+	Timer frameTimer;
 	while (_view->isOpen()) {
+		double deltaTime = frameTimer.elapsedSeconds();
+		frameTimer.reset();
 		// Update the state
-		_vehicle->update(frameTime);
+		_vehicle->update(deltaTime);
 		// Check for collisions with obstacles
 		//  TODO
 		_view->pollEvents();
 
 		// Render the simulation
 		_view->render();
+		// Update the vehicle
 	}
 }
 
