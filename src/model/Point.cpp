@@ -17,6 +17,10 @@ namespace model
 	{
 		_y = y;
 	}
+	double Point::magnitude() const
+	{
+		return std::sqrt(_x * _x + _y * _y);
+	}
 	Point::Point()
 		: _x(0), _y(0)
 	{

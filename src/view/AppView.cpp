@@ -10,12 +10,16 @@ namespace view {
 	{
 	}
 
-	AppView::AppView(model::Vehicle& vehicle, std::vector<model::Cone>& cones) : AppView()
+	AppView::AppView(model::Vehicle& vehicle, std::vector<model::Cone>& cones) 
+		: _videoWidth(1600),
+		_videoHeight(900),
+		_frameRate(144),
+		_zoom(1.0 / 25.0), 
+		_vehicleView(vehicle)
 	{
-		_vehicleView = VehicleView(&vehicle);
 		_coneViews.reserve(cones.size());
 		for (auto& cone : cones) {
-			_coneViews.emplace_back(ConeView(&cone));
+			_coneViews.emplace_back(ConeView(cone));
 		}
 
 	}
@@ -41,6 +45,12 @@ namespace view {
 		for (const auto& coneView : _coneViews) {
 			_window.draw(coneView);
 		}
+
+		//if (_drawables) {
+		//	for (const auto& drawable : _drawables) {
+		//		_window.draw(drawable);
+		//	}
+		//}
 
 		_window.display();
 	}
@@ -75,9 +85,8 @@ namespace view {
 		_window.close();
 	}
 
-	void AppView::setVehicle(model::Vehicle* vehicle)
+	void AppView::setVehicle(model::Vehicle& vehicle)
 	{
-		assert(vehicle != nullptr && "Provide valid arguments.");
 		_vehicleView = VehicleView(vehicle);
 		_view.setCenter(_vehicleView.getPosition());
 	}
@@ -87,8 +96,18 @@ namespace view {
 		_coneViews.clear();
 		_coneViews.reserve(cones.size());
 		for (auto& cone : cones) {
-			_coneViews.emplace_back(ConeView(&cone));
+			_coneViews.emplace_back(ConeView(cone));
 		}
 	}
 
+//	void AppView::addDrawable(sf::Drawable& drawable)
+//	{
+//		_drawables.emplace_back(drawable);
+//	}
+//
+//	void AppView::clearDrawables()
+//	{
+//		_drawables.clear();
+//	}
+//
 }

@@ -15,6 +15,7 @@ namespace model {
 		std::vector<Cone> _cones;
 		std::unique_ptr<view::AppView> _view;
 		std::unique_ptr<Vehicle> _vehicle;
+		std::unique_ptr<model::Perception> _perception;
 
 		// Need a reader, which will read the map 
 		std::unique_ptr<model::IMapReader> _mapReader;

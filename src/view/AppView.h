@@ -19,8 +19,12 @@ public:
 	bool isOpen() const;
 	double getFrameTime() const;
 	void close();
-	void setVehicle(model::Vehicle* vehicle);
+	void setVehicle(model::Vehicle& vehicle);
 	void setCones(std::vector<model::Cone>& cones);
+	void addDrawable(sf::Drawable& drawable);
+	void clearDrawables();
+	double getWidth() { return _videoWidth; }
+	double getHeight() { return _videoHeight; }
 
 private:
     sf::RenderWindow _window;
@@ -33,6 +37,7 @@ private:
 	VehicleView _vehicleView;
 	std::vector<ConeView> _coneViews;
 	sf::View _view;
+	//std::vector<sf::Drawable> _drawables;
 
 };
 } // namespace view 

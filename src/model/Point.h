@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 
 namespace model {
 	class Point
@@ -19,6 +20,7 @@ namespace model {
 		double Y() const;
 		void setX(double x);
 		void setY(double y);
+		double magnitude() const;
 
 	};
 }

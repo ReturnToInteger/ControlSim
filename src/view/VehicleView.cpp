@@ -23,8 +23,8 @@ view::VehicleView::VehicleView()
 {
 }
 
-view::VehicleView::VehicleView(model::Vehicle* vehicle, sf::Color color)
-	: ItemView(color),_vehicle(vehicle)
+view::VehicleView::VehicleView(model::Vehicle& vehicle, sf::Color color)
+	: ItemView(color),_vehicle(&vehicle)
 {
 }
 

@@ -16,7 +16,7 @@ namespace view {
 	public:
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 		VehicleView();
-		VehicleView(model::Vehicle* vehicle, sf::Color color = sf::Color::Red);
+		VehicleView(model::Vehicle& vehicle, sf::Color color = sf::Color::Red);
 		~VehicleView() = default;
 		sf::Vector2f getPosition() const override;
 		double getOrientation() const;

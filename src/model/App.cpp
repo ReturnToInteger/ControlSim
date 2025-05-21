@@ -20,23 +20,31 @@ void model::App::run()
 		_cones.emplace_back(data);
 	}
 
-	_view->setVehicle(_vehicle.get());
-	_view->setCones(_cones);
+	_perception = std::make_unique<model::Perception>(_cones);
+
+	_view->setVehicle(*_vehicle);
 	_view->init();
 	double frameTime = _view->getFrameTime();
 	// Run the game loop
 	double updateTime = 0;
 	Timer frameTimer;
 	while (_view->isOpen()) {
+		// Detect the cones
+		std::vector<model::Cone*> detectedCones = _perception->detect(_vehicle->getPosition(), _vehicle->getOrientation());
+		// Plan the path
+		// TODO
+		
+		// Update the state
 		double deltaTime = frameTimer.elapsedSeconds();
 		frameTimer.reset();
-		// Update the state
 		_vehicle->update(deltaTime);
+
 		// Check for collisions with obstacles
 		//  TODO
 		_view->pollEvents();
 
 		// Render the simulation
+		_view->setCones(_cones);
 		_view->render();
 		// Update the vehicle
 	}
