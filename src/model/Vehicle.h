@@ -3,12 +3,16 @@
 #include <memory>  
 #include "Vec3.h"  
 #include <cmath>  
+#include <cassert>
+#include "utils/ModelUtils.h"
+#include <optional>
 #include "src\controller\Controller.h"
 
 #ifndef M_PI  
 #define M_PI 3.14159265358979323846 // Define M_PI if not already defined  
 #endif  
 #include "VehicleState.h"
+#include "perception/Perception.h"
 
 
 
@@ -21,6 +25,7 @@ namespace model {
        void update(double dt);
        Point getPosition() const override;
 	   double getOrientation() const;
+	   void setPose(Point position, std::optional<double> orientation);
 	   double getLength() const { return _state->getLength(); }
 	   double getWidth() const { return _state->getWidth(); }
 
@@ -31,6 +36,7 @@ namespace model {
        Vehicle();
        std::unique_ptr<controller::Controller> _control; 
 	   std::unique_ptr<model::VehicleState> _state;
+	   std::unique_ptr<model::Perception> _perception;
 
    };  
 }

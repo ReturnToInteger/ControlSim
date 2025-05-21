@@ -44,6 +44,7 @@ namespace model
         std::array<double, 3> getAllOrientations() const;
         Point getPosition() const;
         double getOrientation() const;
+		void setPose(Point position, double orientation);
         std::array<double, 6> getCenter() const;
         std::array<double, 6> getFront() const;
         std::array<double, 6> getRear() const;

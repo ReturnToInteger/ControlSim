@@ -39,6 +39,19 @@ namespace model
 		return _center[2];
 	}
 
+	void VehicleState::setPose(Point position, double orientation)
+	{
+		_center[0] = position.X();
+		_center[1] = position.Y();
+		_center[2] = _validateOrientation(orientation);
+		_front[0] = _center[0] + _length / 2 * cos(_center[2]);
+		_front[1] = _center[1] + _length / 2 * sin(_center[2]);
+		_front[2] = _center[2] + _steeringAngle;
+		_rear[0] = _center[0] - _length / 2 * cos(_center[2]);
+		_rear[1] = _center[1] - _length / 2 * sin(_center[2]);
+		_rear[2] = _center[2];
+	}
+
 	std::array<double, 6> VehicleState::getCenter() const
 	{
 		return _center;
@@ -116,19 +129,19 @@ namespace model
 	void VehicleState::_setSteeringAngle(double angle)
 	{
 		_steeringAngle = clamp(angle, -_maxSteeringAngle, _maxSteeringAngle);
-		std::cout << "steering angle: " << _steeringAngle << std::endl;
+		//std::cout << "steering angle: " << _steeringAngle << std::endl;
 	}
 
 	void VehicleState::_setSteeringRate(double rate)
 	{
 		_steeringRate = clamp(rate, -_maxSteeringRate, _maxSteeringRate);
-		std::cout << "steering rate: " << _steeringRate << std::endl;
+		//std::cout << "steering rate: " << _steeringRate << std::endl;
 	}
 
 	void VehicleState::_setSpeed(double speed)
 	{
 		_speed = clamp(speed, -_maxSpeed, _maxSpeed);
-		std::cout << "speed: " << _speed << std::endl;
+		//std::cout << "speed: " << _speed << std::endl;
 	}
 
 	void VehicleState::_setAcceleration(double acceleration, double brake)
@@ -142,7 +155,7 @@ namespace model
 		else if (_speed < 0) {
 			_acceleration += brake;
 		}
-		std::cout << "acceleration: " << _acceleration << std::endl;
+		//std::cout << "acceleration: " << _acceleration << std::endl;
 		/* if (_speed == 0)
 		{
 			_acceleration = ;

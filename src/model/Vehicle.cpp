@@ -1,7 +1,5 @@
 #pragma once
 #include "Vehicle.h"
-#include <cassert>
-#include "utils/ModelUtils.h"
 
 
 
@@ -35,6 +33,16 @@ namespace model {
    double Vehicle::getOrientation() const
    {
 	   return _state->getOrientation();
+   }
+
+   void Vehicle::setPose(Point position, std::optional<double> orientation)
+   {
+	   if (orientation.has_value()) {
+		   _state->setPose(position, orientation.value());
+	   }
+	   else {
+		   _state->setPose(position, _state->getOrientation());
+	   }
    }
 
 
