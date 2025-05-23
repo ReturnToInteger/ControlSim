@@ -4,6 +4,7 @@
 #include "src/model/Point.h"
 #include "VehicleView.h"
 #include "ConeView.h"
+#include "PathView.h"
 
  
 namespace view { 
@@ -21,6 +22,7 @@ public:
 	void close();
 	void setVehicle(model::Vehicle& vehicle);
 	void setCones(std::vector<model::Cone>& cones);
+	void setPath(std::vector<model::Point>& path);
 	void addDrawable(sf::Drawable& drawable);
 	void clearDrawables();
 	double getWidth() { return _videoWidth; }
@@ -36,6 +38,7 @@ private:
 
 	VehicleView _vehicleView;
 	std::vector<ConeView> _coneViews;
+	PathView _pathView;
 	sf::View _view;
 	//std::vector<sf::Drawable> _drawables;
 

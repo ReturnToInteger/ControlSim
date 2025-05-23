@@ -45,6 +45,7 @@ namespace view {
 		for (const auto& coneView : _coneViews) {
 			_window.draw(coneView);
 		}
+		_window.draw(_pathView);
 
 		//if (_drawables) {
 		//	for (const auto& drawable : _drawables) {
@@ -54,7 +55,7 @@ namespace view {
 
 		_window.display();
 	}
-
+	//This should be in the controller
 	void AppView::pollEvents()
 	{
 		sf::Event event;
@@ -65,6 +66,12 @@ namespace view {
 			if (event.type == sf::Event::KeyPressed) {
 				if (event.key.code == sf::Keyboard::Escape)
 					_window.close();
+				if (event.key.code == sf::Keyboard::LShift) {
+					// Wait until released
+					while (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
+						// Do nothing
+					}
+				}
 			}
 
 		}
@@ -98,6 +105,11 @@ namespace view {
 		for (auto& cone : cones) {
 			_coneViews.emplace_back(ConeView(cone));
 		}
+	}
+
+	void AppView::setPath(std::vector<model::Point>& path)
+	{
+		_pathView = PathView(path);
 	}
 
 //	void AppView::addDrawable(sf::Drawable& drawable)
