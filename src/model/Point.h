@@ -15,6 +15,7 @@ namespace model {
 		double operator*(const Point& other) const;
 		Point operator*(const double& scale) const;
 		Point& operator+=(const Point& other);
+		bool operator==(const Point& other) const;
 
 		double X() const;
 		double Y() const;

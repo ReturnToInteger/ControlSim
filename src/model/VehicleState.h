@@ -17,10 +17,10 @@
 #define DEF_WIDTH 0.5  
 #endif // !DEF_WIDTH  
 #ifndef DEF_MAX_STEERING_ANGLE  
-#define DEF_MAX_STEERING_ANGLE M_PI /6.0 
+#define DEF_MAX_STEERING_ANGLE M_PI /6.0
 #endif // !DEF_MAX_STEERING_ANGLE  
 #ifndef DEF_MAX_STEERING_RATE  
-#define DEF_MAX_STEERING_RATE M_PI / 6.0
+#define DEF_MAX_STEERING_RATE M_PI /3.0
 #endif // !DEF_MAX_STEERING_RATE  
 #ifndef DEF_MAX_SPEED  
 #define DEF_MAX_SPEED 15.0  
@@ -73,8 +73,8 @@ namespace model
         double _steeringRate;
         double _brakeAcceleration;
         //geometric parameters  
-        const double _length;
-        const double _width;
+        double _length;
+        double _width;
 
         //constraints  
         double _maxSteeringAngle = DEF_MAX_STEERING_ANGLE;
@@ -86,9 +86,11 @@ namespace model
         double _targetSpeed = 0.0;
         double _targetSteeringAngle = 0.0;
 
+		void _updateControl(double dt);
         void _updateSteering(double dt);
         void _updateDriving(double dt);
-        void _updateCenter(double dt);
+		void _updateCoords(double speed,double dt);
+        void _updateCenter(double speed, double dt);
         void _updateFront(double dt);
         void _updateRear(double dt);
         double _validateOrientation(const double& orientation) const;

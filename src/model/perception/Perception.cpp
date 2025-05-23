@@ -13,7 +13,7 @@ std::vector<model::Cone*> model::Perception::detect(const model::Point& position
 			double angle = std::atan2(relativePos.Y(), relativePos.X());
 			if (angle > orientation - _angle / 2 && angle < orientation + _angle / 2) {
 				cone.setDetected(true);
-				detectedCones.emplace_back(*cone);
+				detectedCones.emplace_back(&cone);
 			}
 			else {
 				cone.setDetected(false);

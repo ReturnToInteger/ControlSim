@@ -56,4 +56,9 @@ namespace model
 		return *this;
 	}
 
+	bool Point::operator==(const Point& other) const
+	{
+		return _x == other._x && _y == other._y;
+	}
+
 } 

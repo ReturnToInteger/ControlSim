@@ -65,14 +65,16 @@ namespace model
 		_targetSteeringAngle = clamp(input, -1, 1) * _maxSteeringAngle;
 	}
 	void VehicleState::updateState(double dt) {
-
-		_updateSteering(dt);
-		_updateDriving(dt);
-		_updateCenter(dt);
-		_updateFront(dt);
-		_updateRear(dt);
+		_updateControl(dt);
+		_updateCoords(_speed, dt);
 	}
 
+
+	void VehicleState::_updateControl(double dt)
+	{
+		_updateSteering(dt);
+		_updateDriving(dt);
+	}
 
 	void model::VehicleState::_updateSteering(double dt)
 	{
@@ -82,12 +84,18 @@ namespace model
 
 	void VehicleState::_updateDriving(double dt)
 	{
-
 		_setAcceleration((_targetSpeed - _speed) / dt, 0);
 		_setSpeed(_speed + _acceleration * dt);
 	}
 
-	void VehicleState::_updateCenter(double dt)
+	void VehicleState::_updateCoords(double speed, double dt)
+	{
+		_updateCenter(speed, dt);
+		_updateFront(dt);
+		_updateRear(dt);
+	}
+
+	void model::VehicleState::_updateCenter(double speed, double dt)
 	{
 		double beta = atan(tan(_steeringAngle) / 2);
 		_center[5] = _speed * tan(_steeringAngle) * cos(beta) / _length;
