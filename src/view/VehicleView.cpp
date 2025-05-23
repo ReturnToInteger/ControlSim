@@ -10,7 +10,7 @@ void view::VehicleView::draw(sf::RenderTarget& target, sf::RenderStates states =
 
 	sf::RectangleShape vehicleShape(sf::Vector2f(_vehicle->getLength(),
 		_vehicle->getWidth()));
-	vehicleShape.setOrigin(_vehicle->getLength(), _vehicle->getWidth());
+	vehicleShape.setOrigin(_vehicle->getLength()/2.0, _vehicle->getWidth()/2.0);
 	vehicleShape.setFillColor(_color);
 	vehicleShape.setPosition(position.X(),position.Y());
 	vehicleShape.setRotation(_vehicle->getOrientation() / M_PI * 180);

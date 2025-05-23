@@ -41,9 +41,9 @@ sf::Color view::ConeView::_typeToColor(model::Cone* cone) const
 	switch (cone->getType())
 	{
 	case model::ConeType::LEFT:
-		return sf::Color::Blue;
-	case model::ConeType::RIGHT:
 		return sf::Color::Yellow;
+	case model::ConeType::RIGHT:
+		return sf::Color::Blue;
 	case model::ConeType::UNKNOWN:
 		return sf::Color::Green;
 	default:
