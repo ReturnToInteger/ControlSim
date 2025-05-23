@@ -49,6 +49,10 @@
     <ClCompile Include="src\model\mapReaders\ManualMapReader.cpp" />
     <ClCompile Include="src\view\VehicleView.cpp" />
     <ClCompile Include="src\view\ConeView.cpp" />
+    <ClCompile Include="src\model\perception\Perception.cpp" />
+    <ClCompile Include="src\model\pathPlanner\PathPlanner.cpp" />
+    <ClCompile Include="src\view\PathView.cpp" />
+    <ClCompile Include="src\view\PerceptionView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\model\Cone.h">
@@ -94,6 +98,10 @@
     <ClInclude Include="src\view\ConeView.h" />
     <ClInclude Include="src\view\ItemView.h" />
     <ClInclude Include="src\model\utils\Timer.h" />
+    <ClInclude Include="src\model\perception\Perception.h" />
+    <ClInclude Include="src\model\pathPlanner\PathPlanner.h" />
+    <ClInclude Include="src\view\PathView.h" />
+    <ClInclude Include="src\view\PerceptionView.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
