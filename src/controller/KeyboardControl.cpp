@@ -4,7 +4,7 @@
 
 
 
-void controller::KeyboardControl::drive(model::VehicleState& state)
+void controller::KeyboardControl::drive(model::VehicleState& state, model::PathPlanner& pathPlanner)
 {
 
 	state.setTargetSpeed(detectSpeed());

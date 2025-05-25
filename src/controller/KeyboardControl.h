@@ -1,14 +1,15 @@
 #pragma once  
-#include "Controller.h"  
+#include "src/model/controllerLogic/IControllerLogic.h"  
+#include <src/model/pathPlanner/PathPlanner.h>
 
 
 namespace controller  
 {  
 class KeyboardControl :  
-	public Controller  
+	public model::IControllerLogic  
 {  
-	// Inherited via Controller  
-	void drive(model::VehicleState& state) override;
+	// Inherited via IControllerLogic  
+	void drive(model::VehicleState& state, model::PathPlanner& pathPlanner) override;
 
 	double detectSpeed();
 
