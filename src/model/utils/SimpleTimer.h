@@ -3,9 +3,9 @@
 #include <chrono>
 #include <iostream>
 
-class Timer {
+class SimpleTimer {
 public:
-    Timer() { reset(); }
+    SimpleTimer() { reset(); }
     void reset() { _start = std::chrono::high_resolution_clock::now(); }
     double elapsedSeconds() const {
         auto now = std::chrono::high_resolution_clock::now();
