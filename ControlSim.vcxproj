@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
     <ClCompile Include="src\view\PathView.cpp" />
     <ClCompile Include="src\view\PerceptionView.cpp" />
     <ClCompile Include="src\model\pathPlanner\PathPlanner.cpp" />
@@ -42,16 +43,17 @@
     <ClCompile Include="src\view\VehicleView.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\model\controllerLogic\AIControl.h" />
     <ClInclude Include="src\view\PathView.h" />
     <ClInclude Include="src\view\PerceptionView.h" />
     <ClInclude Include="src\model\pathPlanner\PathPlanner.h" />
     <ClInclude Include="src\model\perception\Perception.h" />
-    <ClInclude Include="src\model\utils\Timer.h" />
+    <ClInclude Include="src\model\utils\SimpleTimer.h" />
     <ClInclude Include="src\view\ConeView.h" />
     <ClInclude Include="src\model\mapReaders\ManualMapReader.h" />
     <ClInclude Include="src\model\mapReaders\IMapReader.h" />
     <ClInclude Include="src\controller\KeyboardControl.h" />
-    <ClInclude Include="src\controller\Controller.h" />
+    <ClInclude Include="src\model\controllerLogic\IControllerLogic.h" />
     <ClInclude Include="src\model\BicycleModel.h" />
     <ClInclude Include="src\model\Cone.h" />
     <ClInclude Include="src\model\ObstacleData.h" />

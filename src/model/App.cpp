@@ -26,31 +26,53 @@ void model::App::run()
 	_view->setCones(_cones);
 	_view->init();
 	double frameTime = _view->getFrameTime();
+
+	// Run path planning thread
+	std::thread pathPlanningThread([this]() {
+		while (_view->isOpen()) {
+			_vehicle->clearPath();
+			_vehicle->planPath();
+			{
+				std::lock_guard<std::mutex> lock(_simLock);
+				_vehicle->setPlannedPath();
+			}
+		}
+		});
 	// Run the game loop
 	double updateTime = 0;
-	Timer frameTimer;
+	SimpleTimer frameTimer;
 	while (_view->isOpen()) {
+
 		// Detect the cones
 		std::vector<model::Cone*> detectedCones = _perception->detect(_vehicle->getPosition(), _vehicle->getOrientation());
-		// Plan the path
-		_vehicle->clearPath();
-		_vehicle->planPath(detectedCones);
+		//// Plan the path
+		//_vehicle->clearPath();
+		//timeFunction("Path planning", [this, &detectedCones]() {
+		//	_vehicle->planPath(detectedCones);
+		//	});
+
+		//timeFunction("Setting planned path", [this]() {
+		//	_vehicle->setPlannedPath();
+		//	});
+
 		// Update the state
+		// Update the vehicle
 		double deltaTime = frameTimer.elapsedSeconds();
 		frameTimer.reset();
 		_vehicle->update(deltaTime);
-
-		// Check for collisions with obstacles
-		//  TODO
+		
 		_view->pollEvents();
-        auto plannedPath = _vehicle->getPlannedPath();  
-        _view->setPath(plannedPath);
+		std::vector<model::Point> plannedPath;
+		{
+			std::lock_guard<std::mutex> lock(_simLock);
+			plannedPath = _vehicle->getPlannedPath();
+		}
+		_cones = _perception->getCones();
+		_view->setPath(plannedPath);
 		// Render the simulation
 		_view->render();
-		//if (abs(_vehicle->getSpeed() - 1.8 )<0.1) {
-		//	std::cout << "Vehicle stopped." << std::endl;
-		//}
-		// Update the vehicle
 	}
+
+	//pathPlanningThread.join();
 }
 

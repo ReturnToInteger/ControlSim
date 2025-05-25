@@ -10,9 +10,10 @@ namespace model {
 		const double _angle;
 		const double _depth;
 	public:
-		Perception(std::vector<model::Cone>& cones, double angle=M_PI, double depth=20);
+		Perception(std::vector<model::Cone>& cones, double angle=M_PI, double depth=40);
 		~Perception() = default;
 		std::vector<model::Cone*> detect(const model::Point& position, double orientation);
+		std::vector<model::Cone> getCones() { return _cones; }
 
 	};
 }

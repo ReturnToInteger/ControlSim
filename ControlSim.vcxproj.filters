@@ -53,6 +53,7 @@
     <ClCompile Include="src\model\pathPlanner\PathPlanner.cpp" />
     <ClCompile Include="src\view\PathView.cpp" />
     <ClCompile Include="src\view\PerceptionView.cpp" />
+    <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\model\Cone.h">
@@ -73,7 +74,7 @@
     <ClInclude Include="src\model\App.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="src\controller\Controller.h">
+    <ClInclude Include="src\model\controllerLogic\IControllerLogic.h">
       <Filter>controller</Filter>
     </ClInclude>
     <ClInclude Include="src\view\AppView.h">
@@ -97,11 +98,12 @@
     <ClInclude Include="src\view\VehicleView.h" />
     <ClInclude Include="src\view\ConeView.h" />
     <ClInclude Include="src\view\ItemView.h" />
-    <ClInclude Include="src\model\utils\Timer.h" />
+    <ClInclude Include="src\model\utils\SimpleTimer.h" />
     <ClInclude Include="src\model\perception\Perception.h" />
     <ClInclude Include="src\model\pathPlanner\PathPlanner.h" />
     <ClInclude Include="src\view\PathView.h" />
     <ClInclude Include="src\view\PerceptionView.h" />
+    <ClInclude Include="src\model\controllerLogic\AIControl.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

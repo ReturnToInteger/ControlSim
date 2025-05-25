@@ -5,7 +5,13 @@
 #include "mapReaders/IMapReader.h"
 #include "src/view/AppView.h"
 #include "Cone.h"
-#include "src/model/utils/Timer.h"
+#include "src/model/utils/SimpleTimer.h"
+#include "src/model/perception/Perception.h"
+#include "src/model/pathPlanner/PathPlanner.h"
+#include "src/model/mapReaders/ManualMapReader.h"
+#include "src/model/utils/ModelUtils.h"
+#include <mutex>
+#include <thread>
 
 
 namespace model {
@@ -16,6 +22,7 @@ namespace model {
 		std::unique_ptr<view::AppView> _view;
 		std::unique_ptr<Vehicle> _vehicle;
 		std::unique_ptr<model::Perception> _perception;
+		std::mutex _simLock;
 
 		// Need a reader, which will read the map 
 		std::unique_ptr<model::IMapReader> _mapReader;

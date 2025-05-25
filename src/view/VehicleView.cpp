@@ -15,6 +15,9 @@ void view::VehicleView::draw(sf::RenderTarget& target, sf::RenderStates states =
 	vehicleShape.setPosition(position.X(),position.Y());
 	vehicleShape.setRotation(_vehicle->getOrientation() / M_PI * 180);
 
+	sf::RectangleShape leftWheel(sf::Vector2f(_vehicle->getLength() / 4.0,
+		_vehicle->getWidth() / 4.0));
+
 	target.draw(vehicleShape);
 }
 

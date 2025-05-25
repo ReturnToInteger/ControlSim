@@ -1,7 +1,7 @@
 #include "PathPlanner.h"
 
 model::PathPlanner::PathPlanner(int iterations, double deltaSpace,double cellSize, double steeringStep) : 
-	_iterations(iterations), _deltaSpace(deltaSpace), _cellSize(cellSize), _steeringStep(steeringStep)
+	_iterations(iterations), _deltaSpace(deltaSpace), _cellSize(cellSize), _steeringStep(steeringStep), _goal(50.0, 5.0)
 {
 }
 
@@ -15,8 +15,11 @@ void model::PathPlanner::planPath(const std::vector<model::Cone*>& cones, const 
 	double x = vehicleState.getPosition().X();
 	double y = vehicleState.getPosition().Y();
 	double orientation = vehicleState.getOrientation();
-	Point goal(40.0, 0.0);
-	PathNode startNode(vehicleState, 0, _getHeuristics(vehicleState.getPosition(),goal), nullptr);
+	PathNode startNode(vehicleState, 0, _getHeuristics(vehicleState.getPosition(),_goal), nullptr);
+	if (startNode.heuristic < _deltaSpace / 2.0) {
+		std::cout << "Reached Goal" << std::endl;
+		return;
+	}
 	auto [isColliding, collisionPoint] = _detectCollision(startNode.state, cones);
 	// Check collision for start node
 	if (isColliding) {
@@ -24,8 +27,8 @@ void model::PathPlanner::planPath(const std::vector<model::Cone*>& cones, const 
 		return;
 	}
 	_openList.emplace(_discretizePoint(startNode.state.getPosition()), startNode);
-	while (!_openList.empty()&&_openList.size()< MAX_CONTAINER_SIZE && _closedList.size()< MAX_CONTAINER_SIZE) {
-
+	while (!_openList.empty()) {
+	//while (!_openList.empty() && _openList.size() < MAX_CONTAINER_SIZE && _closedList.size() < MAX_CONTAINER_SIZE) {
 		// Find the node with the lowest cost in the open list
 		auto minNodeIt = std::min_element(_openList.begin(), _openList.end(),
 			[](const auto& a, const auto& b) { return a.second < b.second; });
@@ -34,8 +37,8 @@ void model::PathPlanner::planPath(const std::vector<model::Cone*>& cones, const 
 		_closedList.emplace(minNodeIt->first, minNodeIt->second); // Add the node to the closed list
 		_openList.erase(minNodeIt); // Remove the node from the open list
 		// or (currentNode.cost > _iterations)
-		if ((currentNode.state.getPosition()-goal).magnitude()<_deltaSpace) {
-			_setPlannedPath(currentNode);
+		if (_getHeuristics(currentNode.state.getPosition(),_goal)<_deltaSpace/2.0) {
+			_currentNode=currentNode;
 			return;
 		}
 		else {
@@ -52,10 +55,12 @@ std::vector<model::Point> model::PathPlanner::getPlannedPath() const
 	return _plannedPath;
 }
 
-void model::PathPlanner::_setPlannedPath(PathNode& node)
+
+
+void model::PathPlanner::setPlannedPath()
 {
 	_plannedPath.clear();
-	PathNode* currentNode = &node;
+	PathNode* currentNode = &_currentNode;
 	_plannedPath.emplace_back(currentNode->state.getPosition());
 	currentNode = currentNode->parent.get();
 	while (currentNode != nullptr && currentNode->parent.get() !=currentNode) {
@@ -68,29 +73,43 @@ void model::PathPlanner::_setPlannedPath(PathNode& node)
 void model::PathPlanner::_updateNeightbours(const std::vector<model::Cone*>& cones, PathNode& node)
 {
 	double maxSteeringAngle = node.state.getMaxSteeringAngle();
-	Point goal(40.0, 0.0);
 
 	for (auto& steeringAngle: _steeringAngles) {
 		//std::cout << "steering angle: " << steeringAngle << std::endl;
 		PathNode newNode = node;
 		newNode.state = _stepByDistance(node.state, _deltaSpace, steeringAngle);
 		newNode.parent = std::make_shared<PathNode>(node);
-		newNode.cost = node.cost + _deltaSpace;
-		newNode.heuristic = newNode.cost + _getHeuristics(node.state.getPosition(),goal);
 
 		// Check if the new node is in the closed list
 		std::pair<int, int> newNodeKey = _discretizePoint(newNode.state.getPosition());
 		if (_closedList.find(newNodeKey) == _closedList.end()) {
-				// Collision check
-			auto collisionResult = _detectCollision(newNode.state, cones);
-			bool isColliding(collisionResult.first);
-			model::Point contactPoint(collisionResult.second);
+			// Collision check
+			//		Interpolate the path between the current node and the new node
+			std::vector<VehicleState> interpolatedState = _stepUntilNew(node.state, _cellSize * 2);
+			bool isColliding = false;
+			model::Point contactPoint;
+			for (auto& state : interpolatedState) {
+				auto collisionResult = _detectCollision(state, cones);
+				if (collisionResult.first) {
+					isColliding = true;
+					contactPoint = collisionResult.second;
+					break;
+				}
+			}
+			if (!isColliding) {
+				auto collisionResult = _detectCollision(newNode.state, cones);
+				isColliding=collisionResult.first;
+				contactPoint = collisionResult.second;
+			}
 			// if collision add to closed list
 			if (isColliding) {
 				std::pair<int, int> collidingKey = _discretizePoint(contactPoint);
 				_closedList.emplace(newNodeKey,newNode);
 			}
 			else {
+				//calculate cost and heuristics
+				newNode.cost = node.cost + _deltaSpace;
+				newNode.heuristic = newNode.cost + _getHeuristics(node.state.getPosition(),_goal);
 				// if not in open list, add it
 				auto [it,isInserted]=_openList.emplace(newNodeKey, newNode);
 
@@ -168,6 +187,20 @@ model::Point model::PathPlanner::_rotatePoint(const model::Point& point, double 
 double model::PathPlanner::_getHeuristics(const model::Point& point, const model::Point& goal=model::Point(10.0,10.0)) const
 {
 	return (point - goal).magnitude();
+}
+
+std::vector<model::VehicleState> model::PathPlanner::_stepUntilNew(VehicleState& state, double distanceStep)
+{
+	distanceStep = std::min(std::max(distanceStep, _cellSize * 1.5), _deltaSpace);
+
+	std::vector<VehicleState> states;
+	double currentStep = distanceStep;
+	while (currentStep < _deltaSpace-1e-8) {
+		//VehicleState currentState = _stepByDistance(state, currentStep, state.getSteeringAngle());
+		states.push_back(_stepByDistance(state, currentStep, state.getSteeringAngle()));
+		currentStep += distanceStep;
+	}
+	return states;
 }
 
 void model::PathPlanner::clear()

@@ -11,10 +11,10 @@
 #endif
 
 #ifndef DEF_LENGTH  
-#define DEF_LENGTH 1.5  
+#define DEF_LENGTH 3.0
 #endif // !DEF_LENGTH  
 #ifndef DEF_WIDTH  
-#define DEF_WIDTH 0.5  
+#define DEF_WIDTH 1.3  
 #endif // !DEF_WIDTH  
 #ifndef DEF_MAX_STEERING_ANGLE  
 #define DEF_MAX_STEERING_ANGLE M_PI /6.0
