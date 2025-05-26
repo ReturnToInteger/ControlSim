@@ -31,6 +31,10 @@ namespace model
 		setY(y);
 	}
 
+	model::Point::Point(const Pose& pose) : _x(pose.x), _y(pose.y)
+	{
+	}
+
 	Point Point::operator+(const Point& other) const
 	{
 		return Point(X() + other.X(), Y() + other.Y());

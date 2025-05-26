@@ -21,7 +21,7 @@ public:
 	void planPath(const std::vector<const model::Cone*>& cones, const model::VehicleState & vehicleState);
 	//Sets planned path based on current node
 	void setPlannedPath();
-	std::vector<model::Point> getPlannedPath() const;  
+	std::vector<model::Pose> getPlannedPath() const;  
 	void clear();
 
 private:
@@ -29,7 +29,7 @@ private:
 	std::unordered_map<std::pair<int,int>, PathNode> _openList;
 	std::unordered_map<std::pair<int,int>, PathNode> _closedList;
 	std::unordered_map<std::pair<int, int>, PathNode> _collidingList;
-	std::vector<model::Point> _plannedPath;
+	std::vector<model::Pose> _plannedPath;
 	std::vector<double> _plannedOrientation;
 	const int _iterations;  
 	const double _deltaSpace;  

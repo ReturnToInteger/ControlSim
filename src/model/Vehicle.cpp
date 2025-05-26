@@ -58,7 +58,7 @@ namespace model {
 	   _pathPlanner->setPlannedPath();
    }
 
-   std::vector<model::Point> Vehicle::getPlannedPath() const
+   std::vector<model::Pose> model::Vehicle::getPlannedPath() const
    {
 	   return _pathPlanner->getPlannedPath();
    }

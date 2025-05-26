@@ -23,7 +23,7 @@ public:
 	void close();
 	void setVehicle(const model::Vehicle & vehicle);
 	void setCones(const std::vector<model::Cone>& cones);
-	void setPath(std::vector<model::Point> path);
+	void setPath(std::vector<model::Pose> path);
 	void setConesDetectedFlag(std::vector<const model::Cone*> detectedCones);
 	double getWidth() const { return _videoWidth; }
 	double getHeight() const { return _videoHeight; }

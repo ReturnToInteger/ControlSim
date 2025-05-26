@@ -1,5 +1,7 @@
 #pragma once
 #include <cmath>
+#include "utils/ModelUtils.h"
+
 
 namespace model {
 	class Point
@@ -9,6 +11,7 @@ namespace model {
 	public:
 		Point();
 		Point(double x, double y);
+		Point(const Pose& pose);
 
 		Point operator+(const Point& other) const;
 		Point operator-(const Point& other) const;

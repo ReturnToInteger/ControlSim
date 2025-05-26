@@ -20,7 +20,43 @@ namespace model {
 		double y;
 		double theta;
         Pose(double x, double y, double theta) : x(x), y(y), theta(theta) {}
+        Pose(Point p, double theta) : x(p.X()), y(p.Y()), theta(theta) {}
         Pose() : x(0), y(0), theta(0) {}
+
+        double magnitude() const
+        {
+            return std::sqrt(x * x + y * y);
+        }
+
+
+        Pose operator+(const Pose& other) const
+        {
+            return Pose(x + other.x, y + other.y, theta + other.theta);
+        }
+        Pose operator-(const Pose& other) const
+        {
+            return Pose(x - other.x, y - other.y, theta - other.theta);
+        }
+        double operator*(const Pose& other) const
+        {
+            return x * other.x + y * other.y;
+        }
+
+
+        Pose& operator+=(const Pose& other)
+        {
+            x += other.x;
+            y += other.y;
+            theta += other.theta;
+            return *this;
+        }
+
+        bool operator==(const Pose& other) const
+        {
+            double dE = 1e-6;
+            return abs(x - other.x)<dE && abs(y - other.y) < dE && abs(theta - other.theta) < dE;
+        }
+
 	};
 
     struct Twist {

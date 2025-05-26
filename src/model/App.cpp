@@ -54,7 +54,7 @@ void model::App::run()
 	double updateTime = 0;
 	SimpleTimer frameTimer;
 	while (_view->isOpen()) {
-		std::vector<model::Point> plannedPathCopy;
+		std::vector<model::Pose> plannedPathCopy;
 
 		double deltaTime = frameTimer.elapsedSeconds();
 		_view->pollEvents();

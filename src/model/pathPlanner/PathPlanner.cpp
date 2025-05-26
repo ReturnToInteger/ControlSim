@@ -10,7 +10,6 @@ void model::PathPlanner::planPath(const std::vector<const model::Cone*>& cones, 
 	double maxSteeringAngle = vehicleState.getMaxSteeringAngle();
 	
 	_steeringAngles = { 0.0,maxSteeringAngle / 2.0,-maxSteeringAngle / 2 ,maxSteeringAngle,-maxSteeringAngle };
-	_plannedPath.reserve(_iterations);
 	
 	double x = vehicleState.getPosition().X();
 	double y = vehicleState.getPosition().Y();
@@ -47,10 +46,10 @@ void model::PathPlanner::planPath(const std::vector<const model::Cone*>& cones, 
 
 
 	}
-	_plannedPath.clear();
+	_currentNode = startNode;
 }
 
-std::vector<model::Point> model::PathPlanner::getPlannedPath() const
+std::vector<model::Pose> model::PathPlanner::getPlannedPath() const
 {
 	return _plannedPath;
 }
@@ -60,11 +59,12 @@ std::vector<model::Point> model::PathPlanner::getPlannedPath() const
 void model::PathPlanner::setPlannedPath()
 {
 	_plannedPath.clear();
+	_plannedPath.reserve(_iterations);
 	PathNode* currentNode = &_currentNode;
-	_plannedPath.emplace_back(currentNode->state.getPosition());
+	_plannedPath.emplace_back(currentNode->state.getPose());
 	currentNode = currentNode->parent.get();
 	while (currentNode != nullptr && currentNode->parent.get() !=currentNode) {
-		_plannedPath.emplace_back(currentNode->state.getPosition());
+		_plannedPath.emplace_back(currentNode->state.getPose());
 		currentNode = currentNode->parent.get();
 	}
 	std::reverse(_plannedPath.begin(), _plannedPath.end());

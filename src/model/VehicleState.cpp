@@ -53,6 +53,11 @@ namespace model
 		_rearPose.theta = _centerPose.theta;
 	}
 
+	Pose VehicleState::getPose() const
+	{
+		return _centerPose;
+	}
+
 	void VehicleState::setTargetSpeed(double input)
 	{
 		_targetSpeed = clamp(input, -1, 1)*_maxSpeed;

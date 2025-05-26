@@ -31,7 +31,7 @@ namespace model {
 	   double getOrientation() const;
 	   void planPath(const std::vector<const model::Cone*>& cones, const VehicleState & state);
 	   void setPlannedPath();
-	   std::vector<model::Point> getPlannedPath() const;
+	   std::vector<model::Pose> getPlannedPath() const;
 	   Pose getPose();
 	   void setPose(double x, double y, std::optional<double> orientation);
 	   double getLength() const { return _state->getLength(); }

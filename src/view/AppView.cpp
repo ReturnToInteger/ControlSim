@@ -74,6 +74,13 @@ namespace view {
 					}
 				}
 			}
+			if (event.mouseButton.button == sf::Mouse::Left)
+			{
+				std::cout << "the right button was pressed" << std::endl;
+				std::cout << "mouse x: " << event.mouseButton.x << std::endl;
+				std::cout << "mouse y: " << event.mouseButton.y << std::endl;
+			}
+
 
 		}
 	}
@@ -109,7 +116,7 @@ namespace view {
 		}
 	}
 
-	void view::AppView::setPath(std::vector<model::Point> path)
+	void view::AppView::setPath(std::vector<model::Pose> path)
 	{
 		_pathView = PathView(path);
 	}

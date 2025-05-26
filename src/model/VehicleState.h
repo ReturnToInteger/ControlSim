@@ -45,6 +45,7 @@ namespace model
         Point getPosition() const;
         double getOrientation() const;
 		void setPose(double x, double y, double orientation);
+        Pose getPose() const;
         double getSpeed() const { return _speed; }
         double getSteeringAngle() const { return _steeringAngle; }
         double getSteeringRate() const { return _steeringRate; }
