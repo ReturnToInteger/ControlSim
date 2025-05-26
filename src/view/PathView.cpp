@@ -1,14 +1,16 @@
 #include "PathView.h"
 
-view::PathView::PathView(std::vector<model::Point>& path, sf::Color color) 
-   : ItemView(color) // Store the color for later use
+view::PathView::PathView(const std::vector<model::Point>& path, sf::Color color)
+    : ItemView(color) // Store the color for later use
 {
-   _path.reserve(path.size());
+    _path.reserve(path.size());
    for (auto& point : path) {
        _path.emplace_back(sf::Vertex(sf::Vector2f(point.X(), point.Y()), _color));
    }
 }
 
+
+//Not using color? :|
 void view::PathView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
    target.draw(_path.data(), _path.size(), sf::PrimitiveType::LineStrip);

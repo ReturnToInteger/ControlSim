@@ -8,6 +8,8 @@
 #include "utils/ModelUtils.h"
 #include <optional>
 #include "src/model/controllerLogic/IControllerLogic.h"
+#include "src/model/controllerLogic/ControlCommand.h"
+
 
 #ifndef M_PI  
 #define M_PI 3.14159265358979323846 // Define M_PI if not already defined  
@@ -27,14 +29,16 @@ namespace model {
        void update(double dt);
        Point getPosition() const override;
 	   double getOrientation() const;
-	   void planPath(const std::vector<model::Cone*>& cones);
+	   void planPath(const std::vector<const model::Cone*>& cones, const VehicleState & state);
 	   void setPlannedPath();
 	   std::vector<model::Point> getPlannedPath() const;
-	   void setPose(Point position, std::optional<double> orientation);
+	   Pose getPose();
+	   void setPose(double x, double y, std::optional<double> orientation);
 	   double getLength() const { return _state->getLength(); }
 	   double getWidth() const { return _state->getWidth(); }
 	   void clearPath() { _pathPlanner->clear(); }
 	   double getSpeed() const { return _state->getSpeed(); }
+	   VehicleState getStateCopy() const;
 
 
        ~Vehicle() = default;  

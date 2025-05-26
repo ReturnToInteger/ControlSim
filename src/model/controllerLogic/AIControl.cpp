@@ -2,18 +2,16 @@
 
 
 namespace model {
-	void AIControl::drive(model::VehicleState& state, model::PathPlanner& pathPlanner)
+	ControlCommand model::AIControl::drive(const model::VehicleState & state, const model::PathPlanner & pathPlanner)
 	{
 		auto path = pathPlanner.getPlannedPath();
-		if (path.size()<_lookAhead+1) {
-			state.setTargetSpeed(0);
-			state.setTargetSteeringAngle(0);
-			return;
+		if (path.size() < _lookAhead + 1) {
+			return ControlCommand(0, 0);
 		}
-		auto targetPoint = path[_lookAhead];
+		auto& targetPoint = path[_lookAhead];
 		double targetAngle = atan2(targetPoint.Y() - state.getPosition().Y(), targetPoint.X() - state.getPosition().X());
-		double angleDiff = targetAngle - state.getOrientation();
-		state.setTargetSpeed(10000000); // Set a constant speed
-		state.setTargetSteeringAngle(angleDiff);
+		// This needs to be rewritten to min(
+		double angleDiff = validateOrientation(targetAngle - state.getOrientation());
+		return ControlCommand(state.getMaxSpeed(), angleDiff);
 	}
 }

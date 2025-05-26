@@ -4,11 +4,10 @@
 
 
 
-void controller::KeyboardControl::drive(model::VehicleState& state, model::PathPlanner& pathPlanner)
+model::ControlCommand controller::KeyboardControl::drive(const model::VehicleState& state, const model::PathPlanner& pathPlanner)
 {
 
-	state.setTargetSpeed(detectSpeed());
-	state.setTargetSteeringAngle(detectAngle());
+	return model::ControlCommand(detectSpeed(), detectAngle());
 
 }
 

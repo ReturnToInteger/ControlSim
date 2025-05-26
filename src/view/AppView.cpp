@@ -10,16 +10,17 @@ namespace view {
 	{
 	}
 
-	AppView::AppView(model::Vehicle& vehicle, std::vector<model::Cone>& cones) 
+	view::AppView::AppView(const model::Vehicle& vehicle, const std::vector<model::Cone>& map)
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
 		_zoom(1.0 / 25.0), 
 		_vehicleView(vehicle)
 	{
-		_coneViews.reserve(cones.size());
-		for (auto& cone : cones) {
+		_coneViews.reserve(map.size());
+		for (auto& cone : map) {
 			_coneViews.emplace_back(ConeView(cone));
+			_coneViewTable.emplace(&cone, &_coneViews.back());
 		}
 
 	}
@@ -92,24 +93,35 @@ namespace view {
 		_window.close();
 	}
 
-	void AppView::setVehicle(model::Vehicle& vehicle)
+	void view::AppView::setVehicle(const model::Vehicle& vehicle)
 	{
 		_vehicleView = VehicleView(vehicle);
 		_view.setCenter(_vehicleView.getPosition());
 	}
 
-	void AppView::setCones(std::vector<model::Cone>& cones)
+	void view::AppView::setCones(const std::vector<model::Cone>& cones)
 	{
 		_coneViews.clear();
 		_coneViews.reserve(cones.size());
-		for (auto& cone : cones) {
-			_coneViews.emplace_back(ConeView(cone));
+		for (const auto& cone : cones) {
+			_coneViews.emplace_back(ConeView(cone));	
+			_coneViewTable.emplace(&cone, &_coneViews.back());
 		}
 	}
 
-	void AppView::setPath(std::vector<model::Point>& path)
+	void view::AppView::setPath(std::vector<model::Point> path)
 	{
 		_pathView = PathView(path);
+	}
+
+	void view::AppView::setConesDetectedFlag(std::vector<const model::Cone*> detectedCones)
+	{
+		for (auto& coneView : _coneViews) {
+			coneView.isDetected = false;
+		}
+		for (const auto& cone : detectedCones) {
+			_coneViewTable[cone]->isDetected = true;
+		}
 	}
 
 //	void AppView::addDrawable(sf::Drawable& drawable)

@@ -1,11 +1,11 @@
 #include "PathPlanner.h"
 
 model::PathPlanner::PathPlanner(int iterations, double deltaSpace,double cellSize, double steeringStep) : 
-	_iterations(iterations), _deltaSpace(deltaSpace), _cellSize(cellSize), _steeringStep(steeringStep), _goal(50.0, 5.0)
+	_iterations(iterations), _deltaSpace(deltaSpace), _cellSize(cellSize), _steeringStep(steeringStep), _goal(37.5, 5.0)
 {
 }
 
-void model::PathPlanner::planPath(const std::vector<model::Cone*>& cones, const model::VehicleState& vehicleState)
+void model::PathPlanner::planPath(const std::vector<const model::Cone*>& cones, const model::VehicleState & vehicleState)
 {
 	double maxSteeringAngle = vehicleState.getMaxSteeringAngle();
 	
@@ -27,8 +27,8 @@ void model::PathPlanner::planPath(const std::vector<model::Cone*>& cones, const 
 		return;
 	}
 	_openList.emplace(_discretizePoint(startNode.state.getPosition()), startNode);
-	while (!_openList.empty()) {
-	//while (!_openList.empty() && _openList.size() < MAX_CONTAINER_SIZE && _closedList.size() < MAX_CONTAINER_SIZE) {
+	//while (!_openList.empty()) {
+	while (!_openList.empty() && _openList.size() < MAX_CONTAINER_SIZE && _closedList.size() < MAX_CONTAINER_SIZE) {
 		// Find the node with the lowest cost in the open list
 		auto minNodeIt = std::min_element(_openList.begin(), _openList.end(),
 			[](const auto& a, const auto& b) { return a.second < b.second; });
@@ -70,7 +70,7 @@ void model::PathPlanner::setPlannedPath()
 	std::reverse(_plannedPath.begin(), _plannedPath.end());
 }
 
-void model::PathPlanner::_updateNeightbours(const std::vector<model::Cone*>& cones, PathNode& node)
+void model::PathPlanner::_updateNeightbours(const std::vector<const model::Cone*>& cones, PathNode& node)
 {
 	double maxSteeringAngle = node.state.getMaxSteeringAngle();
 
@@ -152,7 +152,7 @@ std::pair<int, int> model::PathPlanner::_discretizePoint(const model::Point& poi
 	return std::make_pair(x, y);
 }
 
-std::pair<bool, model::Point> model::PathPlanner::_detectCollision(const VehicleState& state, const std::vector<model::Cone*>& cones) const
+std::pair<bool, model::Point> model::PathPlanner::_detectCollision(const VehicleState& state, const std::vector<const model::Cone*>& cones) const
 {
 	model::Point vehiclePosition(state.getPosition());
 	double vehicleOrientation = state.getOrientation();
@@ -207,7 +207,6 @@ void model::PathPlanner::clear()
 {
 	_openList.clear();
 	_closedList.clear();
-	_plannedPath.clear();
 	_openList.reserve(MAX_CONTAINER_SIZE);
 	_closedList.reserve(MAX_CONTAINER_SIZE);
 	//std::cout << "Cleared PathPlanner data" << std::endl;

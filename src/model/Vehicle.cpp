@@ -30,7 +30,9 @@ namespace model {
 	   if (dt <= 0) {
 		   dt = 0;
 	   }
-	   _control->drive(*_state, *_pathPlanner);
+	   model::ControlCommand command=_control->drive(*_state, *_pathPlanner);
+	   _state->setTargetSpeed(command.speed);
+	   _state->setTargetSteeringAngle(command.steeringAngle);
 	   _state->updateState(dt);
    }
 
@@ -45,9 +47,10 @@ namespace model {
 	   return _state->getOrientation();
    }
 
-   void Vehicle::planPath(const std::vector<model::Cone*>& cones)
+   void model::Vehicle::planPath(const std::vector<const model::Cone*>& cones, const VehicleState & state)
    {
-	   _pathPlanner->planPath(cones, *_state);
+
+	   _pathPlanner->planPath(cones, state);
    }
 
    void Vehicle::setPlannedPath()
@@ -60,14 +63,24 @@ namespace model {
 	   return _pathPlanner->getPlannedPath();
    }
 
-   void Vehicle::setPose(Point position, std::optional<double> orientation)
+   Pose Vehicle::getPose()
+   {
+	   return Pose(_state->getPosition().X(),_state->getPosition().Y(), _state->getOrientation());
+   }
+
+   void model::Vehicle::setPose(double x, double y, std::optional<double> orientation)
    {
 	   if (orientation.has_value()) {
-		   _state->setPose(position, orientation.value());
+		   _state->setPose(x, y, orientation.value());
 	   }
 	   else {
-		   _state->setPose(position, _state->getOrientation());
+		   _state->setPose(x, y, _state->getOrientation());
 	   }
+   }
+
+   VehicleState Vehicle::getStateCopy() const
+   {
+	   return *_state;
    }
 
 

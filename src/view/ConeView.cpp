@@ -13,7 +13,7 @@ void view::ConeView::draw(sf::RenderTarget& target, sf::RenderStates states) con
 	target.draw(coneShape);
 }
 
-view::ConeView::ConeView(model::Cone& cone) : _cone(&cone), ItemView(_typeToColor(&cone))
+view::ConeView::ConeView(const model::Cone& cone) : _cone(&cone), ItemView(_typeToColor(&cone))
 {
 }
 
@@ -30,12 +30,12 @@ sf::Vector2f view::ConeView::getPosition() const
 	return sf::Vector2f(position.X(),position.Y());
 }
 
-sf::Color view::ConeView::_typeToColor(model::Cone* cone) const
+sf::Color view::ConeView::_typeToColor(const model::Cone* cone) const
 {
 	if (cone == nullptr) {
 		return sf::Color::Black;
 	}
-	if (!cone->isDetected()) {
+	if (!isDetected) {
 		return sf::Color::White;
 	}
 	switch (cone->getType())

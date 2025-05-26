@@ -25,7 +25,6 @@
     <ClCompile Include="src\model\pathPlanner\PathPlanner.cpp" />
     <ClCompile Include="src\model\perception\Perception.cpp" />
     <ClCompile Include="src\view\ConeView.cpp" />
-    <ClCompile Include="src\model\mapReaders\ManualMapReader.cpp" />
     <ClCompile Include="src\controller\KeyboardControl.cpp" />
     <ClCompile Include="src\ControlSim.cpp" />
     <ClCompile Include="src\model\BicycleModel.cpp" />
@@ -34,7 +33,6 @@
     <ClCompile Include="src\model\Item.cpp" />
     <ClCompile Include="src\model\ObstacleBase.cpp" />
     <ClCompile Include="src\model\Point.cpp" />
-    <ClCompile Include="src\model\utils\ModelUtils.cpp" />
     <ClCompile Include="src\model\Vec3.cpp" />
     <ClCompile Include="src\model\Vehicle.cpp" />
     <ClCompile Include="src\model\App.cpp" />
@@ -43,7 +41,9 @@
     <ClCompile Include="src\view\VehicleView.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\model\controllerLogic\ControlCommand.h" />
     <ClInclude Include="src\model\controllerLogic\AIControl.h" />
+    <ClInclude Include="src\model\pathPlanner\PathNode.h" />
     <ClInclude Include="src\view\PathView.h" />
     <ClInclude Include="src\view\PerceptionView.h" />
     <ClInclude Include="src\model\pathPlanner\PathPlanner.h" />

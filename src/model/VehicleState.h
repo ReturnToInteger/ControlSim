@@ -44,10 +44,7 @@ namespace model
         std::array<double, 3> getAllOrientations() const;
         Point getPosition() const;
         double getOrientation() const;
-		void setPose(Point position, double orientation);
-        std::array<double, 6> getCenter() const;
-        std::array<double, 6> getFront() const;
-        std::array<double, 6> getRear() const;
+		void setPose(double x, double y, double orientation);
         double getSpeed() const { return _speed; }
         double getSteeringAngle() const { return _steeringAngle; }
         double getSteeringRate() const { return _steeringRate; }
@@ -62,10 +59,11 @@ namespace model
 
     private:
 
-        //state vectors  
-        std::array<double, 6> _front;
-        std::array<double, 6> _center;
-        std::array<double, 6> _rear;
+        //states  
+        Pose _centerPose;
+        Pose _frontPose;
+        Pose _rearPose;
+        Twist _centerTwist;
         //input parameters  
         double _speed;
         double _acceleration;
@@ -93,7 +91,6 @@ namespace model
         void _updateCenter(double speed, double dt);
         void _updateFront(double dt);
         void _updateRear(double dt);
-        double _validateOrientation(const double& orientation) const;
 
         void _setSteeringAngle(double angle);
         void _setSteeringRate(double rate);

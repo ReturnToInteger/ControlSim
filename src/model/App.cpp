@@ -15,8 +15,8 @@ model::App::App(std::unique_ptr<Vehicle> vehicle,std::unique_ptr<model::IMapRead
 void model::App::run()
 {
 	// Read the map from the file
-	auto obstacleData = _mapReader->Read();
-	for (const auto& data : obstacleData) {
+	std::vector<Cone> obstacleData = _mapReader->Read();
+	for (const Cone& data : obstacleData) {
 		_cones.emplace_back(data);
 	}
 
@@ -27,52 +27,54 @@ void model::App::run()
 	_view->init();
 	double frameTime = _view->getFrameTime();
 
+	// 
+	std::vector<const model::Cone*> detectedCones = _perception->detect(_vehicle->getPose());
 	// Run path planning thread
-	std::thread pathPlanningThread([this]() {
+	std::thread pathPlanningThread([this, &detectedCones]() {
 		while (_view->isOpen()) {
 			_vehicle->clearPath();
-			_vehicle->planPath();
+			std::vector<const model::Cone*> detectedCopy;
+			model::VehicleState stateCopy;
+			{
+				std::lock_guard<std::mutex> lock(_simLock);
+				detectedCopy = detectedCones;
+				stateCopy = _vehicle->getStateCopy();
+			}
+			timeFunction("Path planning", [this, &detectedCopy, &stateCopy]() {
+				_vehicle->planPath(detectedCopy, stateCopy);
+				});
 			{
 				std::lock_guard<std::mutex> lock(_simLock);
 				_vehicle->setPlannedPath();
 			}
 		}
 		});
+
 	// Run the game loop
 	double updateTime = 0;
 	SimpleTimer frameTimer;
 	while (_view->isOpen()) {
+		std::vector<model::Point> plannedPathCopy;
 
-		// Detect the cones
-		std::vector<model::Cone*> detectedCones = _perception->detect(_vehicle->getPosition(), _vehicle->getOrientation());
-		//// Plan the path
-		//_vehicle->clearPath();
-		//timeFunction("Path planning", [this, &detectedCones]() {
-		//	_vehicle->planPath(detectedCones);
-		//	});
-
-		//timeFunction("Setting planned path", [this]() {
-		//	_vehicle->setPlannedPath();
-		//	});
-
-		// Update the state
-		// Update the vehicle
 		double deltaTime = frameTimer.elapsedSeconds();
-		frameTimer.reset();
-		_vehicle->update(deltaTime);
-		
 		_view->pollEvents();
-		std::vector<model::Point> plannedPath;
+
+		// Update the vehicle
+		// Locked basically the whole loop, maybe it doesn't need to be like this, but this is fast
 		{
 			std::lock_guard<std::mutex> lock(_simLock);
-			plannedPath = _vehicle->getPlannedPath();
+			frameTimer.reset();
+		// Update the state
+			_vehicle->update(deltaTime);
+			plannedPathCopy = _vehicle->getPlannedPath();
+			_view->setConesDetectedFlag(detectedCones);
+			_view->setPath(plannedPathCopy);
+			// Render the simulation
+			_view->render();
+			detectedCones = _perception->detect(_vehicle->getPose());
 		}
-		_cones = _perception->getCones();
-		_view->setPath(plannedPath);
-		// Render the simulation
-		_view->render();
 	}
 
-	//pathPlanningThread.join();
+	pathPlanningThread.join();
 }
 

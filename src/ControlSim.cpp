@@ -41,7 +41,7 @@ int main() {
 	//map[0].setType(model::ConeType::UNKNOWN);
 	
 	model::App app(
-		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(),std::make_unique<model::PathPlanner>(60,3.0,1/8.0)),
+		std::make_unique<model::Vehicle>(std::make_unique<controller::KeyboardControl>(),std::make_unique<model::PathPlanner>(60,3.0,1/8.0)),
 		std::make_unique<model::ManualMapReader<std::array<model::Cone, 18>>>(map),
 		std::make_unique<view::AppView>()
 	);

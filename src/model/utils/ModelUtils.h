@@ -4,6 +4,10 @@
 #include <iostream>
 #include <functional> 
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846 
+#endif
+
 namespace model {
 	struct ControlInput {
 		double targetSpeed;
@@ -14,9 +18,18 @@ namespace model {
 	struct Pose {
 		double x;
 		double y;
-		double orientation;
-		Pose(double x, double y, double orientation) : x(x), y(y), orientation(orientation) {}
+		double theta;
+        Pose(double x, double y, double theta) : x(x), y(y), theta(theta) {}
+        Pose() : x(0), y(0), theta(0) {}
 	};
+
+    struct Twist {
+        double vx;
+        double vy;
+        double omega;
+        Twist(double vx, double vy, double omega) : vx(vx), vy(vy), omega(omega) {}
+        Twist() : vx(0), vy(0), omega(0) {}
+    };
 
     template <typename Func, typename... Args>
     void timeFunction(const std::string& label, Func&& func, Args&&... args) {
@@ -27,10 +40,19 @@ namespace model {
         std::cout << label << " took " << elapsed.count() << " seconds.\n";
     }
 
-    double clamp(double value, double min, double max);
+    inline double clamp(double value, double min, double max) {
+        return std::max(min, std::min(value, max));
+    }
+
+    inline double validateOrientation(const double& orientation)
+    {
+        double a = std::fmod(orientation + M_PI, 2 * M_PI);
+        if (a < 0) a += 2 * M_PI;
+        return a - M_PI;
+    }
 
 
-    // From boost
+    // From Boost
     template <class T>
     inline void hash_combine(std::size_t& seed, const T& v)
     {

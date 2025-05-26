@@ -7,9 +7,10 @@ namespace model
 {
 	VehicleState::VehicleState() :_length(DEF_LENGTH),
 		_width(DEF_WIDTH),
-		_front{ DEF_LENGTH / 2,0,0,0,0,0 },
-		_center{ 0,0,0,0,0,0 },
-		_rear{ -DEF_LENGTH / 2,0,0,0,0,0 },
+		_frontPose( DEF_LENGTH / 2,0,0),
+		_centerPose( 0,0,0),
+		_rearPose( - DEF_LENGTH / 2,0,0),
+		_centerTwist(0,0,0),
 		_speed(0),
 		_steeringAngle(0),
 		_steeringRate(0),
@@ -21,41 +22,37 @@ namespace model
 	}
 	std::array<Point, 3> VehicleState::getAllPositions() const
 	{
-		return { Point(_center[0],_center[1]), Point(_front[0],_front[1]),Point(_rear[0],_rear[1]) };
+		return { Point(_centerPose.x,_centerPose.y), Point(_frontPose.x,_frontPose.y),Point(_rearPose.x,_rearPose.y) };
 	}
 
 	std::array<double, 3> VehicleState::getAllOrientations() const
 	{
-		return { _center[2],_front[2],_rear[2] };
+		return { _centerPose.theta,_frontPose.theta,_rearPose.theta };
 	}
 
 	Point VehicleState::getPosition() const
 	{
-		return Point(_center[0], _center[1]);
+		return Point(_centerPose.x, _centerPose.y);
 	}
 
 	double VehicleState::getOrientation() const
 	{
-		return _center[2];
+		return _centerPose.theta;
 	}
 
-	void VehicleState::setPose(Point position, double orientation)
+	void model::VehicleState::setPose(double x, double y, double orientation)
 	{
-		_center[0] = position.X();
-		_center[1] = position.Y();
-		_center[2] = _validateOrientation(orientation);
-		_front[0] = _center[0] + _length / 2 * cos(_center[2]);
-		_front[1] = _center[1] + _length / 2 * sin(_center[2]);
-		_front[2] = _center[2] + _steeringAngle;
-		_rear[0] = _center[0] - _length / 2 * cos(_center[2]);
-		_rear[1] = _center[1] - _length / 2 * sin(_center[2]);
-		_rear[2] = _center[2];
+		_centerPose.x = x;
+		_centerPose.y = y;
+		_centerPose.theta = model::validateOrientation(orientation);
+		_frontPose.x = _centerPose.x + _length / 2 * cos(_centerPose.theta);
+		_frontPose.y = _centerPose.y + _length / 2 * sin(_centerPose.theta);
+		_frontPose.theta = _centerPose.theta + _steeringAngle;
+		_rearPose.x = _centerPose.x - _length / 2 * cos(_centerPose.theta);
+		_rearPose.y = _centerPose.y - _length / 2 * sin(_centerPose.theta);
+		_rearPose.theta = _centerPose.theta;
 	}
 
-	std::array<double, 6> VehicleState::getCenter() const
-	{
-		return _center;
-	}
 	void VehicleState::setTargetSpeed(double input)
 	{
 		_targetSpeed = clamp(input, -1, 1)*_maxSpeed;
@@ -98,41 +95,29 @@ namespace model
 	void model::VehicleState::_updateCenter(double speed, double dt)
 	{
 		double beta = atan(tan(_steeringAngle) / 2);
-		_center[5] = _speed * tan(_steeringAngle) * cos(beta) / _length;
-		_center[2] = _validateOrientation(_center[2] + _center[5] * dt);
-		_center[3] = _speed * cos(_center[2] + beta);
-		_center[4] = _speed * sin(_center[2] + beta);
-		_center[0] += dt * _center[3];
-		_center[1] += dt * _center[4];
+		_centerTwist.omega = _speed * tan(_steeringAngle) * cos(beta) / _length;
+		_centerPose.theta = model::validateOrientation(_centerPose.theta + _centerTwist.omega * dt);
+		_centerTwist.vx = _speed * cos(_centerPose.theta + beta);
+		_centerTwist.vy = _speed * sin(_centerPose.theta + beta);
+		_centerPose.x += dt * _centerTwist.vx;
+		_centerPose.y += dt * _centerTwist.vy;
 	}
 
 	void VehicleState::_updateFront(double dt)
 	{
-		_front[0] = _center[0] + _length / 2 * cos(_center[2]);
-		_front[1] = _center[1] + _length / 2 * sin(_center[2]);
-		_front[2] = _center[2] + _steeringAngle;
-		_front[3] = 0;
-		_front[4] = 0;
-		_front[5] = 0;
+		_frontPose.x = _centerPose.x + _length / 2 * cos(_centerPose.theta);
+		_frontPose.y = _centerPose.y + _length / 2 * sin(_centerPose.theta);
+		_frontPose.theta = _centerPose.theta + _steeringAngle;
 	}
 
 	void VehicleState::_updateRear(double dt)
 	{
-		_rear[0] = _center[0] - _length / 2 * cos(_center[2]);
-		_rear[1] = _center[1] - _length / 2 * sin(_center[2]);
-		_rear[2] = _center[2];
-		_rear[3] = 0;
-		_rear[4] = 0;
-		_rear[5] = 0;
+		_rearPose.x = _centerPose.x - _length / 2 * cos(_centerPose.theta);
+		_rearPose.y = _centerPose.y - _length / 2 * sin(_centerPose.theta);
+		_rearPose.theta = _centerPose.theta;
 	}
 
 
-	double VehicleState::_validateOrientation(const double& orientation) const
-	{
-		double a = std::fmod(orientation + M_PI, 2 * M_PI);
-		if (a < 0) a += 2 * M_PI;
-		return a - M_PI;
-	}
 
 	void VehicleState::_setSteeringAngle(double angle)
 	{

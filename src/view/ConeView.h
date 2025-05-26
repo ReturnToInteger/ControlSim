@@ -12,12 +12,13 @@ namespace view {
     {
     public:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-        ConeView(model::Cone& cone);
+        ConeView(const model::Cone& cone);
         ConeView();
         ~ConeView() = default;
         sf::Vector2f getPosition() const override;
+        bool isDetected;
     private:
-        sf::Color _typeToColor(model::Cone * cone) const;
-        model::Cone* _cone;
+        sf::Color _typeToColor(const model::Cone * cone) const;
+        const model::Cone* _cone;
     };
 }

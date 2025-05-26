@@ -12,7 +12,7 @@ namespace view {
 class AppView { 
 public: 
     AppView(); 
-	AppView(model::Vehicle& vehicle, std::vector<model::Cone>& cones);
+	AppView(const model::Vehicle & vehicle, const std::vector<model::Cone>& map);
     ~AppView()=default; 
     AppView(const AppView&) = delete;
 	void init();
@@ -21,13 +21,12 @@ public:
 	bool isOpen() const;
 	double getFrameTime() const;
 	void close();
-	void setVehicle(model::Vehicle& vehicle);
-	void setCones(std::vector<model::Cone>& cones);
-	void setPath(std::vector<model::Point>& path);
-	void addDrawable(sf::Drawable& drawable);
-	void clearDrawables();
-	double getWidth() { return _videoWidth; }
-	double getHeight() { return _videoHeight; }
+	void setVehicle(const model::Vehicle & vehicle);
+	void setCones(const std::vector<model::Cone>& cones);
+	void setPath(std::vector<model::Point> path);
+	void setConesDetectedFlag(std::vector<const model::Cone*> detectedCones);
+	double getWidth() const { return _videoWidth; }
+	double getHeight() const { return _videoHeight; }
 
 private:
     sf::RenderWindow _window;
@@ -38,7 +37,9 @@ private:
 	model::Point startPos;
 
 	VehicleView _vehicleView;
+	std::unordered_map<const model::Cone*,ConeView*> _coneViewTable;
 	std::vector<ConeView> _coneViews;
+
 	PathView _pathView;
 	sf::View _view;
 	//std::vector<sf::Drawable> _drawables;
