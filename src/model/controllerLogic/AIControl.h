@@ -4,6 +4,7 @@
 #include "src/model/VehicleState.h"
 #include "src/model/pathPlanner/PathPlanner.h"
 #include "src/model/utils/ModelUtils.h"
+#include <iostream>
 
 namespace model {
     class AIControl :
@@ -12,6 +13,8 @@ namespace model {
     public:
 		AIControl(int lookAhead = 1) : _lookAhead(lookAhead) {}
         model::ControlCommand drive(const model::VehicleState & state, const model::PathPlanner & pathPlanner) override;
+
+        const model::Pose * getAtRange(double r, const model::Pose& vehiclePose, const std::vector<model::Pose>& path);
     private:
         int _lookAhead;
     };
