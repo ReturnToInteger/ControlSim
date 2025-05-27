@@ -1,7 +1,7 @@
 #include "PathPlanner.h"
 
 model::PathPlanner::PathPlanner(int iterations, double deltaSpace,double cellSize, double steeringStep) : 
-	_iterations(iterations), _deltaSpace(deltaSpace), _cellSize(cellSize), _steeringStep(steeringStep), _goal(37.5, 5.0)
+	_iterations(iterations), _deltaSpace(deltaSpace), _cellSize(cellSize), _steeringStep(steeringStep), _goal(-47.5, 10.0)
 {
 }
 
@@ -9,11 +9,12 @@ void model::PathPlanner::planPath(const std::vector<const model::Cone*>& cones, 
 {
 	double maxSteeringAngle = vehicleState.getMaxSteeringAngle();
 	
-	_steeringAngles = { 0.0,maxSteeringAngle / 2.0,-maxSteeringAngle / 2 ,maxSteeringAngle,-maxSteeringAngle };
+	_steeringAngles = { 0.0,
+		maxSteeringAngle *0.2,-maxSteeringAngle *2 ,
+		maxSteeringAngle *0.4,-maxSteeringAngle *0.4 ,
+		maxSteeringAngle *0.75,-maxSteeringAngle *0.75 ,
+		maxSteeringAngle,-maxSteeringAngle };
 	
-	double x = vehicleState.getPosition().X();
-	double y = vehicleState.getPosition().Y();
-	double orientation = vehicleState.getOrientation();
 	PathNode startNode(vehicleState, 0, _getHeuristics(vehicleState.getPosition(),_goal), nullptr);
 	if (startNode.heuristic < _deltaSpace / 2.0) {
 		std::cout << "Reached Goal" << std::endl;
@@ -54,6 +55,11 @@ std::vector<model::Pose> model::PathPlanner::getPlannedPath() const
 	return _plannedPath;
 }
 
+void model::PathPlanner::setGoal(const Point& goal)
+{
+	_goal = goal;
+}
+
 
 
 void model::PathPlanner::setPlannedPath()
@@ -84,10 +90,10 @@ void model::PathPlanner::_updateNeightbours(const std::vector<const model::Cone*
 		std::pair<int, int> newNodeKey = _discretizePoint(newNode.state.getPosition());
 		if (_closedList.find(newNodeKey) == _closedList.end()) {
 			// Collision check
-			//		Interpolate the path between the current node and the new node
-			std::vector<VehicleState> interpolatedState = _stepUntilNew(node.state, _cellSize * 2);
 			bool isColliding = false;
 			model::Point contactPoint;
+			//		Interpolate the path between the current node and the new node
+			std::vector<VehicleState> interpolatedState = _stepUntilNew(node.state, _cellSize * 2);
 			for (auto& state : interpolatedState) {
 				auto collisionResult = _detectCollision(state, cones);
 				if (collisionResult.first) {

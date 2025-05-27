@@ -63,6 +63,11 @@ namespace model {
 	   return _pathPlanner->getPlannedPath();
    }
 
+   void Vehicle::setGoal(Point goal)
+   {
+	   _pathPlanner->setGoal(goal);
+   }
+
    Pose Vehicle::getPose()
    {
 	   return Pose(_state->getPosition().X(),_state->getPosition().Y(), _state->getOrientation());

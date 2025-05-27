@@ -1,7 +1,8 @@
 #pragma once 
 
 #include <SFML/Graphics.hpp>
-#include "src/model/Point.h"
+#include "src/model/utils/Point.h"
+#include "src/model/items/Item.h"
 #include "VehicleView.h"
 #include "ConeView.h"
 #include "PathView.h"
@@ -24,9 +25,10 @@ public:
 	void setVehicle(const model::Vehicle & vehicle);
 	void setCones(const std::vector<model::Cone>& cones);
 	void setPath(std::vector<model::Pose> path);
-	void setConesDetectedFlag(std::vector<const model::Cone*> detectedCones);
+	void setConeDetectedFlag(std::vector<const model::Cone*> detectedCones);
 	double getWidth() const { return _videoWidth; }
 	double getHeight() const { return _videoHeight; }
+	model::Point getClickGlobalPos() const { return _clickGlobalPos; }
 
 private:
     sf::RenderWindow _window;
@@ -34,10 +36,11 @@ private:
 	int _videoHeight;
 	int _frameRate;
 	double _zoom;
-	model::Point startPos;
+	model::Point _startPos;
+	model::Point _clickGlobalPos;
 
 	VehicleView _vehicleView;
-	std::unordered_map<const model::Cone*,ConeView*> _coneViewTable;
+	std::unordered_map<const model::Item*,ItemView*> _itemViewTable;
 	std::vector<ConeView> _coneViews;
 
 	PathView _pathView;

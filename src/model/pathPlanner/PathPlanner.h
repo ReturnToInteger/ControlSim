@@ -1,6 +1,6 @@
 #pragma once  
 #include <vector>  
-#include <src/model/Cone.h>  
+#include <src/model/items/Cone.h>  
 #include <src/model/VehicleState.h>  
 #include "src/model/pathPlanner/PathNode.h"
 #include <iostream>  
@@ -8,7 +8,7 @@
 #include <unordered_map>
 
 #ifndef MAX_CONTAINER_SIZE
-#define MAX_CONTAINER_SIZE 5000
+#define MAX_CONTAINER_SIZE 2000
 #endif // !MAX_CONTAINER_SIZE
 
 namespace model {  
@@ -21,7 +21,8 @@ public:
 	void planPath(const std::vector<const model::Cone*>& cones, const model::VehicleState & vehicleState);
 	//Sets planned path based on current node
 	void setPlannedPath();
-	std::vector<model::Pose> getPlannedPath() const;  
+	std::vector<model::Pose> getPlannedPath() const;
+	void setGoal(const Point &goal);
 	void clear();
 
 private:
@@ -35,7 +36,7 @@ private:
 	const double _deltaSpace;  
 	const double _steeringStep;
 	const double _cellSize;
-	std::array<double, 5> _steeringAngles;
+	std::array<double, 9> _steeringAngles;
 	Point _goal;
 	PathNode _currentNode;
 

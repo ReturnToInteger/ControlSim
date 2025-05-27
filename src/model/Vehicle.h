@@ -1,11 +1,11 @@
 #pragma once  
-#include "Item.h"  
+#include "src/model/items/Item.h"  
 #include <memory>  
-#include "Vec3.h"  
+#include "src/model/utils/Vec3.h"  
 #include <cmath>  
 #include <cassert>
 
-#include "utils/ModelUtils.h"
+#include "src/model/utils/ModelUtils.h"
 #include <optional>
 #include "src/model/controllerLogic/IControllerLogic.h"
 #include "src/model/controllerLogic/ControlCommand.h"
@@ -14,9 +14,10 @@
 #ifndef M_PI  
 #define M_PI 3.14159265358979323846 // Define M_PI if not already defined  
 #endif  
-#include "VehicleState.h"
-#include "perception/Perception.h"
-#include "pathPlanner/PathPlanner.h"
+#include "src/model/VehicleState.h"
+#include "src/model/perception/Perception.h"
+#include "src/model/pathPlanner/PathPlanner.h"
+#include "src/model/items/Cone.h"
 
 
 
@@ -32,6 +33,7 @@ namespace model {
 	   void planPath(const std::vector<const model::Cone*>& cones, const VehicleState & state);
 	   void setPlannedPath();
 	   std::vector<model::Pose> getPlannedPath() const;
+	   void setGoal(Point goal);
 	   Pose getPose();
 	   void setPose(double x, double y, std::optional<double> orientation);
 	   double getLength() const { return _state->getLength(); }
