@@ -14,7 +14,7 @@ namespace model {
 		AIControl(int lookAhead = 1) : _lookAhead(lookAhead) {}
         model::ControlCommand drive(const model::VehicleState & state, const model::PathPlanner & pathPlanner) override;
 
-        const model::Pose * getAtRange(double r, const model::Pose& vehiclePose, const std::vector<model::Pose>& path);
+        const model::Pose * getAtRange(const model::Pose& vehiclePose, const std::vector<model::Pose>& path) const;
     private:
         int _lookAhead;
     };
