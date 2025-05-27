@@ -2,7 +2,7 @@
 #pragma once
 #include <array>
 #include <cmath>
-#include "Point.h"
+#include "src/model/utils/Point.h"
 #include "utils/ModelUtils.h"
 
 
@@ -23,7 +23,7 @@
 #define DEF_MAX_STEERING_RATE M_PI /3.0
 #endif // !DEF_MAX_STEERING_RATE  
 #ifndef DEF_MAX_SPEED  
-#define DEF_MAX_SPEED 15.0  
+#define DEF_MAX_SPEED 10.0  
 #endif // !DEF_MAX_SPEED  
 #ifndef DEF_MAX_ACCELERATION
 #define DEF_MAX_ACCELERATION 15.0

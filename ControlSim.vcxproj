@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
+    <ClCompile Include="src\model\mapReaders\MatlabMapReader.cpp" />
+    <ClCompile Include="src\model\mapReaders\MatlabMapReader.h" />
     <ClCompile Include="src\view\PathView.cpp" />
     <ClCompile Include="src\view\PerceptionView.cpp" />
     <ClCompile Include="src\model\pathPlanner\PathPlanner.cpp" />
@@ -27,13 +29,11 @@
     <ClCompile Include="src\view\ConeView.cpp" />
     <ClCompile Include="src\controller\KeyboardControl.cpp" />
     <ClCompile Include="src\ControlSim.cpp" />
-    <ClCompile Include="src\model\BicycleModel.cpp" />
-    <ClCompile Include="src\model\Cone.cpp" />
-    <ClCompile Include="src\model\IMovementModel.cpp" />
-    <ClCompile Include="src\model\Item.cpp" />
-    <ClCompile Include="src\model\ObstacleBase.cpp" />
-    <ClCompile Include="src\model\Point.cpp" />
-    <ClCompile Include="src\model\Vec3.cpp" />
+    <ClCompile Include="src\model\items\Cone.cpp" />
+    <ClCompile Include="src\model\items\Item.cpp" />
+    <ClCompile Include="src\model\items\ObstacleBase.cpp" />
+    <ClCompile Include="src\model\utils\Point.cpp" />
+    <ClCompile Include="src\model\utils\Vec3.cpp" />
     <ClCompile Include="src\model\Vehicle.cpp" />
     <ClCompile Include="src\model\App.cpp" />
     <ClCompile Include="src\view\AppView.cpp" />
@@ -54,15 +54,13 @@
     <ClInclude Include="src\model\mapReaders\IMapReader.h" />
     <ClInclude Include="src\controller\KeyboardControl.h" />
     <ClInclude Include="src\model\controllerLogic\IControllerLogic.h" />
-    <ClInclude Include="src\model\BicycleModel.h" />
-    <ClInclude Include="src\model\Cone.h" />
-    <ClInclude Include="src\model\ObstacleData.h" />
+    <ClInclude Include="src\model\items\Cone.h" />
+    <ClInclude Include="src\model\utils\ObstacleData.h" />
     <ClInclude Include="src\model\utils\ModelUtils.h" />
-    <ClInclude Include="src\model\IMovementModel.h" />
-    <ClInclude Include="src\model\Item.h" />
-    <ClInclude Include="src\model\ObstacleBase.h" />
-    <ClInclude Include="src\model\Point.h" />
-    <ClInclude Include="src\model\Vec3.h" />
+    <ClInclude Include="src\model\items\Item.h" />
+    <ClInclude Include="src\model\items\ObstacleBase.h" />
+    <ClInclude Include="src\model\utils\Point.h" />
+    <ClInclude Include="src\model\utils\Vec3.h" />
     <ClInclude Include="src\model\Vehicle.h" />
     <ClInclude Include="src\model\App.h" />
     <ClInclude Include="src\view\AppView.h" />
@@ -159,14 +157,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Libraries\SFML\include; $(ProjectDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Libraries\SFML\include; $(ProjectDir); "C:\Program Files\MATLAB\R2024b\extern\include"</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Libraries\SFML\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Libraries\SFML\lib; "C:\Program Files\MATLAB\R2024b\extern\lib\win64\microsoft"</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;libmat.lib;libmx.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

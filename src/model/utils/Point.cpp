@@ -53,6 +53,11 @@ namespace model
 		return Point(X() * scale, Y() * scale);
 	}
 
+	Point Point::operator/(const double& scale) const
+	{
+		return Point(X() / scale, Y() / scale);
+	}
+
 	Point& Point::operator+=(const Point& other)
 	{
 		_x += other._x;
@@ -62,7 +67,18 @@ namespace model
 
 	bool Point::operator==(const Point& other) const
 	{
-		return _x == other._x && _y == other._y;
+		return abs(_x - other._x) < 1e-8 && abs(_y - other._y) < 1e-8;
 	}
 
-} 
+	bool Point::operator!=(const Point& other) const
+	{
+		return abs(_x - other._x) > 1e-8 || abs(_y - other._y) > 1e-8;
+	}
+
+	std::ostream& operator<<(std::ostream& os, const Point& point)
+	{
+		os << "x: " << point._x<<"\t\ty: "<<point._y; 
+		return os;
+	}
+
+}

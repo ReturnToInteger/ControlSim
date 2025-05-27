@@ -44,7 +44,7 @@ namespace model
 	{
 		_centerPose.x = x;
 		_centerPose.y = y;
-		_centerPose.theta = model::validateOrientation(orientation);
+		_centerPose.theta = model::normAngle(orientation);
 		_frontPose.x = _centerPose.x + _length / 2 * cos(_centerPose.theta);
 		_frontPose.y = _centerPose.y + _length / 2 * sin(_centerPose.theta);
 		_frontPose.theta = _centerPose.theta + _steeringAngle;
@@ -101,7 +101,7 @@ namespace model
 	{
 		double beta = atan(tan(_steeringAngle) / 2);
 		_centerTwist.omega = _speed * tan(_steeringAngle) * cos(beta) / _length;
-		_centerPose.theta = model::validateOrientation(_centerPose.theta + _centerTwist.omega * dt);
+		_centerPose.theta = model::normAngle(_centerPose.theta + _centerTwist.omega * dt);
 		_centerTwist.vx = _speed * cos(_centerPose.theta + beta);
 		_centerTwist.vy = _speed * sin(_centerPose.theta + beta);
 		_centerPose.x += dt * _centerTwist.vx;

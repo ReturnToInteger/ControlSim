@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
-#include "ObstacleBase.h"
+#include "src/model/items/ObstacleBase.h"
 #include "Vehicle.h"
 #include "mapReaders/IMapReader.h"
 #include "src/view/AppView.h"
-#include "Cone.h"
+#include "src/model/items/Cone.h"
 #include "src/model/utils/SimpleTimer.h"
 #include "src/model/perception/Perception.h"
 #include "src/model/pathPlanner/PathPlanner.h"

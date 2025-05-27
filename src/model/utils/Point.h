@@ -1,6 +1,6 @@
 #pragma once
 #include <cmath>
-#include "utils/ModelUtils.h"
+#include "ModelUtils.h"
 
 
 namespace model {
@@ -17,8 +17,12 @@ namespace model {
 		Point operator-(const Point& other) const;
 		double operator*(const Point& other) const;
 		Point operator*(const double& scale) const;
+		Point operator/(const double& scale) const;
 		Point& operator+=(const Point& other);
 		bool operator==(const Point& other) const;
+		bool operator!=(const Point& other) const;
+		friend std::ostream& operator<<(std::ostream& os, const Point& point);
+
 
 		double X() const;
 		double Y() const;

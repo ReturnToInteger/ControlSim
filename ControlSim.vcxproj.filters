@@ -13,16 +13,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ControlSim.cpp" />
-    <ClCompile Include="src\model\Cone.cpp">
+    <ClCompile Include="src\model\items\Cone.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\Item.cpp">
+    <ClCompile Include="src\model\items\Item.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\ObstacleBase.cpp">
+    <ClCompile Include="src\model\items\ObstacleBase.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\Point.cpp">
+    <ClCompile Include="src\model\utils\Point.cpp">
       <Filter>model</Filter>
     </ClCompile>
     <ClCompile Include="src\model\Vehicle.cpp">
@@ -34,19 +34,11 @@
     <ClCompile Include="src\view\AppView.cpp">
       <Filter>view</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\BicycleModel.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\model\IMovementModel.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\model\Vec3.cpp">
+    <ClCompile Include="src\model\utils\Vec3.cpp">
       <Filter>model</Filter>
     </ClCompile>
     <ClCompile Include="src\controller\KeyboardControl.cpp" />
     <ClCompile Include="src\model\VehicleState.cpp" />
-    <ClCompile Include="src\model\utils\ModelUtils.cpp" />
-    <ClCompile Include="src\model\mapReaders\ManualMapReader.cpp" />
     <ClCompile Include="src\view\VehicleView.cpp" />
     <ClCompile Include="src\view\ConeView.cpp" />
     <ClCompile Include="src\model\perception\Perception.cpp" />
@@ -54,18 +46,20 @@
     <ClCompile Include="src\view\PathView.cpp" />
     <ClCompile Include="src\view\PerceptionView.cpp" />
     <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
+    <ClCompile Include="src\model\mapReaders\MatlabMapReader.h" />
+    <ClCompile Include="src\model\mapReaders\MatlabMapReader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\model\Cone.h">
+    <ClInclude Include="src\model\items\Cone.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="src\model\Item.h">
+    <ClInclude Include="src\model\items\Item.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="src\model\ObstacleBase.h">
+    <ClInclude Include="src\model\items\ObstacleBase.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="src\model\Point.h">
+    <ClInclude Include="src\model\utils\Point.h">
       <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="src\model\Vehicle.h">
@@ -80,13 +74,7 @@
     <ClInclude Include="src\view\AppView.h">
       <Filter>view</Filter>
     </ClInclude>
-    <ClInclude Include="src\model\BicycleModel.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\model\IMovementModel.h">
-      <Filter>model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\model\Vec3.h">
+    <ClInclude Include="src\model\utils\Vec3.h">
       <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="src\controller\KeyboardControl.h" />
@@ -94,7 +82,7 @@
     <ClInclude Include="src\model\utils\ModelUtils.h" />
     <ClInclude Include="src\model\mapReaders\IMapReader.h" />
     <ClInclude Include="src\model\mapReaders\ManualMapReader.h" />
-    <ClInclude Include="src\model\ObstacleData.h" />
+    <ClInclude Include="src\model\utils\ObstacleData.h" />
     <ClInclude Include="src\view\VehicleView.h" />
     <ClInclude Include="src\view\ConeView.h" />
     <ClInclude Include="src\view\ItemView.h" />
@@ -104,6 +92,8 @@
     <ClInclude Include="src\view\PathView.h" />
     <ClInclude Include="src\view\PerceptionView.h" />
     <ClInclude Include="src\model\controllerLogic\AIControl.h" />
+    <ClInclude Include="src\model\controllerLogic\ControlCommand.h" />
+    <ClInclude Include="src\model\pathPlanner\PathNode.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
