@@ -6,7 +6,7 @@ namespace view {
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
-		_zoom(1.0/25.0)
+		_zoom(1.0/15.0)
 	{
 	}
 
@@ -14,13 +14,13 @@ namespace view {
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
-		_zoom(1.0 / 25.0), 
+		_zoom(1.0 / 15.0), 
 		_vehicleView(vehicle)
 	{
 		_coneViews.reserve(map.size());
 		for (auto& cone : map) {
 			_coneViews.emplace_back(ConeView(cone));
-			_coneViewTable.emplace(&cone, &_coneViews.back());
+			_itemViewTable.emplace(&cone, &_coneViews.back());
 		}
 
 	}
@@ -74,12 +74,29 @@ namespace view {
 					}
 				}
 			}
-			if (event.mouseButton.button == sf::Mouse::Left)
+			if (event.type == sf::Event::MouseButtonPressed)
 			{
-				std::cout << "the right button was pressed" << std::endl;
-				std::cout << "mouse x: " << event.mouseButton.x << std::endl;
-				std::cout << "mouse y: " << event.mouseButton.y << std::endl;
+				if (event.mouseButton.button == sf::Mouse::Left) {
+					sf::Vector2i pixelPos = sf::Mouse::getPosition(_window);
+
+					sf::Vector2f worldPos = _window.mapPixelToCoords(pixelPos);
+
+					std::cout << "Map coords (on button press):" << std::endl;
+					std::cout << "map x: " << worldPos.x << std::endl;
+					std::cout << "map y: " << worldPos.y << std::endl;
+					_clickGlobalPos = model::Point(worldPos.x, worldPos.y);
+				}
 			}
+			if (event.type== sf::Event::Resized)
+			{
+				// update the view to the new size of the window
+				auto resized= event.size;
+				_view.setSize(resized.width, resized.height);
+				_view.setCenter(_vehicleView.getPosition());
+				_view.zoom(_zoom);
+
+			}
+
 
 
 		}
@@ -112,7 +129,7 @@ namespace view {
 		_coneViews.reserve(cones.size());
 		for (const auto& cone : cones) {
 			_coneViews.emplace_back(ConeView(cone));	
-			_coneViewTable.emplace(&cone, &_coneViews.back());
+			_itemViewTable.emplace(&cone, &_coneViews.back());
 		}
 	}
 
@@ -121,13 +138,13 @@ namespace view {
 		_pathView = PathView(path);
 	}
 
-	void view::AppView::setConesDetectedFlag(std::vector<const model::Cone*> detectedCones)
+	void view::AppView::setConeDetectedFlag(std::vector<const model::Cone*> detectedCones)
 	{
 		for (auto& coneView : _coneViews) {
 			coneView.isDetected = false;
 		}
-		for (const auto& cone : detectedCones) {
-			_coneViewTable[cone]->isDetected = true;
+		for (const auto& item : detectedCones) {
+			_itemViewTable[item]->isDetected = true;
 		}
 	}
 
@@ -142,3 +159,4 @@ namespace view {
 //	}
 //
 }
+
