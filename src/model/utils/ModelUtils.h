@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <functional> 
+#include "Point.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846 
@@ -14,13 +15,84 @@ namespace model {
 		double steeringAngle;
 		ControlInput(double targetSpeed, double steeringAngle) : targetSpeed(targetSpeed), steeringAngle(steeringAngle) {}
 	};
+    inline double normAngle(const double& orientation);
+
+    struct Angle {
+    public:
+        Angle() :_a(0) {}
+        Angle(double a) : _a(normAngle(a)) {}
+        Angle& operator=(const Angle& other) {
+            _a = other._a;
+            return *this;
+        }
+        Angle& operator=(double val) {
+            _a = normAngle(val);
+            return *this;
+        }
+        operator double() const {
+            return _a;
+        }
+
+        Angle operator+(const Angle& other) const{
+            return Angle(_a + other._a);
+        }
+        Angle operator-(const Angle& other) const{
+            return Angle(_a - other._a);
+        }
+        Angle operator+(const double& val) const {
+            return Angle(_a + val);
+        }
+        Angle operator-(const double& val) const {
+            return Angle(_a - val);
+        }
+
+        bool operator>(const Angle& other) const{
+            if (abs(_a - other._a) < M_PI)
+                return _a > other._a;
+            else if (_a > other._a)
+                return false;
+            else return true;
+        }
+        bool operator<(const Angle& other) const{
+            if (abs(_a - other._a) < M_PI)
+                return _a < other._a;
+            else if (_a < other._a)
+                return false;
+            else return true;
+        }
+        Angle& operator+=(const Angle& other) {
+            _a = normAngle(_a + other._a);
+            return *this;
+        }
+        Angle& operator-=(const Angle& other) {
+            _a = normAngle(_a - other._a);
+            return *this;
+        }
+        Angle& operator+=(const double& val) {
+            _a = normAngle(_a + val);
+            return *this;
+        }
+        Angle& operator-=(const double& val) {
+            _a = normAngle(_a - val);
+            return *this;
+        }
+        friend std::ostream& operator<<(std::ostream& os, const Angle& angle) {
+            os << angle._a; 
+            return os;
+        }
+
+
+
+    private:
+        double _a;
+    };
 
 	struct Pose {
 		double x;
 		double y;
-		double theta;
+		Angle theta;
         Pose(double x, double y, double theta) : x(x), y(y), theta(theta) {}
-        Pose(Point p, double theta) : x(p.X()), y(p.Y()), theta(theta) {}
+        //Pose(model::Point p, double theta) : x(p.X()), y(p.Y()), theta(theta) {}
         Pose() : x(0), y(0), theta(0) {}
 
         double magnitude() const
@@ -80,12 +152,18 @@ namespace model {
         return std::max(min, std::min(value, max));
     }
 
-    inline double validateOrientation(const double& orientation)
+    inline double normAngle(const double& orientation)
     {
         double a = std::fmod(orientation + M_PI, 2 * M_PI);
         if (a < 0) a += 2 * M_PI;
         return a - M_PI;
     }
+
+    //inline bool angleIsGreater(double alpha, double beta) {
+    //    if (abs(alpha - beta) > M_PI) {
+
+    //    }
+    //}
 
 
     // From Boost
