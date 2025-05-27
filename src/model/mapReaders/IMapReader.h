@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <src/model/Cone.h>
-#include <src/model/ObstacleData.h>
+#include <src/model/items/Cone.h>
+#include <src/model/utils/ObstacleData.h>
 
 namespace model
 {
@@ -10,7 +10,7 @@ namespace model
 	{
 	public:
 		virtual ~IMapReader() = default;
-		// Read the map from a file
+		// Read the map
 		virtual std::vector<Cone> Read() = 0;
 	protected:
 	};
