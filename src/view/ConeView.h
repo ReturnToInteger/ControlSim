@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "src/model/Cone.h"
+#include "src/model/items/Cone.h"
 #include "src/view/ItemView.h"
 #include <cassert>
 #include <stdexcept>
@@ -16,7 +16,6 @@ namespace view {
         ConeView();
         ~ConeView() = default;
         sf::Vector2f getPosition() const override;
-        bool isDetected;
     private:
         sf::Color _typeToColor(const model::Cone * cone) const;
         const model::Cone* _cone;

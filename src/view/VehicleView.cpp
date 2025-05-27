@@ -27,8 +27,9 @@ view::VehicleView::VehicleView()
 }
 
 view::VehicleView::VehicleView(const model::Vehicle& vehicle, sf::Color color)
-	: ItemView(color), _vehicle(&vehicle)
+	: ItemView(color), _vehicle(&vehicle) 
 {
+	isDetected = true;
 }
 
 sf::Vector2f view::VehicleView::getPosition() const
