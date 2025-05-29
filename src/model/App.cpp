@@ -37,6 +37,8 @@ void model::App::run()
 	// Reads VehicleState ✓ safe
 	// Modifies _vehicle ?
 	std::thread pathPlanningThread([this, &detectedCones, &running, &goalPos]() {
+		double time=0.0;
+		int iter=0;
 		while (running) {
 			_vehicle->clearPath();
 			std::vector<const model::Cone*> detectedCopy;
@@ -45,44 +47,49 @@ void model::App::run()
 				std::lock_guard<std::mutex> lock(_simLock);
 				detectedCopy = detectedCones;
 				stateCopy = _vehicle->getStateCopy();
-				//_vehicle->setGoal(goalPos);
+				_vehicle->setGoal(goalPos);
 				//std::cout << "Path goal set: " << goalPos << std::endl;
 			}
-			double maxL=0, maxR=0;
-			const Cone *maxLCone=nullptr, *maxRCone=nullptr;
-			for (const auto& cone : detectedCopy) {
-				double magnitude = (cone->getPosition()- stateCopy.getPosition()).magnitude();
-				if (cone->getType() == ConeType::LEFT) {
-					if (magnitude> maxL) {
-						maxLCone = cone;
-						maxL = magnitude;
-					}
-				} 
-				if (cone->getType() == ConeType::RIGHT) {
-					if (magnitude > maxR) {
-						maxRCone = cone;
-						maxR = magnitude;
-					}
-				}
-			}
-			if (maxRCone && maxLCone) {
-				Point goal((maxRCone->getPosition() + maxLCone->getPosition()) / 2.0);
-				_vehicle->setGoal(goal);
-			}
-			timeFunction("Path planning", [this, &detectedCopy, &stateCopy]() {
+			//double maxL=0, maxR=0;
+			//const Cone *maxLCone=nullptr, *maxRCone=nullptr;
+			//for (const auto& cone : detectedCopy) {
+			//	double magnitude = (cone->getPosition()- stateCopy.getPosition()).magnitude();
+			//	if (cone->getType() == ConeType::LEFT) {
+			//		if (magnitude> maxL) {
+			//			maxLCone = cone;
+			//			maxL = magnitude;
+			//		}
+			//	} 
+			//	if (cone->getType() == ConeType::RIGHT) {
+			//		if (magnitude > maxR) {
+			//			maxRCone = cone;
+			//			maxR = magnitude;
+			//		}
+			//	}
+			//}
+			//if (maxRCone && maxLCone) {
+			//	Point goal((maxRCone->getPosition() + maxLCone->getPosition()) / 2.0);
+			//	_vehicle->setGoal(goal);
+			//}
+			auto dur=timeFunction("Path planning", [this, &detectedCopy, &stateCopy]() {
 				_vehicle->planPath(detectedCopy, stateCopy);
 				});
+			std::this_thread::sleep_for(std::chrono::duration<double>(0.01-dur.count()));
 			//_vehicle->planPath(detectedCopy, stateCopy);
 			{
 				std::lock_guard<std::mutex> lock(_simLock);
 				_vehicle->setPlannedPath();
 			}
+			iter++;
 		}
+		std::cout << "Avg. path planning time: " << time / iter << std::endl
+			<< "Path planning iterations: " << iter << std::endl;
 		});
 
 	// Run the game loop
 	double updateTime = 0;
 	SimpleTimer frameTimer;
+	int iter = 0;
 	while (_view->isOpen()) {
 		std::vector<model::Pose> plannedPathCopy;
 		double deltaTime = frameTimer.elapsedSeconds();
@@ -101,9 +108,9 @@ void model::App::run()
 		{
 			std::lock_guard<std::mutex> lock(_simLock);
 			if (goalPos != _view->getClickGlobalPos()) {
-				std::cout << "Previous goal: " << goalPos;
+				std::cout << "Previous goal: " <<std::endl<< goalPos<<std::endl;
 				goalPos=_view->getClickGlobalPos();
-				std::cout << "Next Goal: " << goalPos;
+				std::cout << "Next Goal: " <<std::endl<< goalPos<<std::endl;
 
 			}
 			frameTimer.reset();
@@ -119,8 +126,9 @@ void model::App::run()
 			std::lock_guard<std::mutex> lock(_simLock);
 			detectedCones = _perception->detect(_vehicle->getPose());
 		}
+		iter++;
 	}
-
+	std::cout << "Main thread iterations: " << iter << std::endl;
 	running.store(false);
 	pathPlanningThread.join();
 }

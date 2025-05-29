@@ -161,18 +161,21 @@ std::pair<int, int> model::PathPlanner::_discretizePoint(const model::Point& poi
 std::pair<bool, model::Point> model::PathPlanner::_detectCollision(const VehicleState& state, const std::vector<const model::Cone*>& cones) const
 {
 	model::Point vehiclePosition(state.getPosition());
-	double vehicleOrientation = state.getOrientation();
+	Angle vehicleOrientation = state.getOrientation();
+	if (cones.empty()) return { false, Point() };
+	double radius = cones[0]->getRadius();
+	double vhclLength = state.getLength(), vhclWidth = state.getWidth();
 	for (const auto& cone : cones) {
 		if (cone->getType() == model::ConeType::UNKNOWN) {
 			continue; // Skip unknown cones
 		}
-
-		Point relativePosition = _rotatePoint(cone->getPosition() - vehiclePosition, -vehicleOrientation);
-		double clampedX = model::clamp(relativePosition.X(), -state.getLength() / 2, state.getLength() / 2);
-		double clampedY = model::clamp(relativePosition.Y(), -state.getWidth() / 2, state.getWidth() / 2);
-		model::Point clampedPoint(clampedX, clampedY);
-		double distance = (relativePosition - clampedPoint).magnitude();
-		if (distance < cone->getRadius()) {
+		Point relPos(cone->getPosition() - vehiclePosition);
+		if (relPos.magnitude() > (vhclLength * 1.5 + radius)) continue;
+		relPos = _rotatePoint(relPos, -vehicleOrientation);
+		model::Point clampedPoint(model::clamp(relPos.X(), -vhclLength / 2, vhclLength / 2), 
+			model::clamp(relPos.Y(), -vhclWidth / 2, vhclWidth / 2));
+		double distance = (relPos - clampedPoint).magnitude();
+		if (distance < radius) {
 			Point contactPoint = _rotatePoint(clampedPoint, vehicleOrientation) + vehiclePosition;
 			return { true, contactPoint };
 		}
@@ -185,9 +188,9 @@ std::vector<model::Point> model::PathPlanner::_getBoundary(const VehicleState& s
 	throw std::runtime_error("getBoundary not implemented");
 }
 
-model::Point model::PathPlanner::_rotatePoint(const model::Point& point, double angle) const
+model::Point model::PathPlanner::_rotatePoint(const model::Point& point, const Angle& angle) const
 {
-	return model::Point(point.X() * cos(angle) - point.Y() * sin(angle), point.X() * sin(angle) + point.Y() * cos(angle));
+	return model::Point(point.X() * model::cos(angle) - point.Y() * model::sin(angle), point.X() * model::sin(angle) + point.Y() * model::cos(angle));
 }
 
 double model::PathPlanner::_getHeuristics(const model::Point& point, const model::Point& goal=model::Point(10.0,10.0)) const
@@ -218,25 +221,3 @@ void model::PathPlanner::clear()
 	//std::cout << "Cleared PathPlanner data" << std::endl;
 }
 
-//std::tuple<std::vector<model::Point>, std::vector<model::Point>, std::vector<model::Point>> model::PathPlanner::getCones(const std::vector<model::Cone*>& cones) const
-//{
-//	std::vector<model::Point> leftCones;
-//	std::vector<model::Point> rightCones;
-//	std::vector<model::Point> unknownCones;
-//	for (const auto& cone : cones) {
-//		switch (cone->getType()) {
-//		case model::ConeType::LEFT:
-//			leftCones.push_back(cone->getPosition());
-//			break;
-//		case model::ConeType::RIGHT:
-//			rightCones.push_back(cone->getPosition());
-//			break;
-//		case model::ConeType::UNKNOWN:
-//			unknownCones.push_back(cone->getPosition());
-//			break;
-//		default:
-//			throw std::invalid_argument("Invalid ConeType in getCones");
-//		}
-//	}
-//	return { leftCones,rightCones,unknownCones };
-//}
