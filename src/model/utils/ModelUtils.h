@@ -19,8 +19,8 @@ namespace model {
 
     struct Angle {
     public:
-        Angle() :_a(0) {}
-        Angle(double a) : _a(normAngle(a)) {}
+        Angle() :_a(0), _sin(0), _cos(1) {}
+        Angle(double a) : _a(normAngle(a)), _sin(sin(a)),_cos(cos(a)) {}
         Angle& operator=(const Angle& other) {
             _a = other._a;
             return *this;
@@ -62,18 +62,26 @@ namespace model {
         }
         Angle& operator+=(const Angle& other) {
             _a = normAngle(_a + other._a);
+            _sin = sin(_a + other._a);
+            _cos = cos(_a + other._a);
             return *this;
         }
         Angle& operator-=(const Angle& other) {
             _a = normAngle(_a - other._a);
+            _sin = sin(_a + other._a);
+            _cos = cos(_a + other._a);
             return *this;
         }
         Angle& operator+=(const double& val) {
             _a = normAngle(_a + val);
+            _sin = sin(_a + val);
+            _cos = cos(_a + val);
             return *this;
         }
         Angle& operator-=(const double& val) {
             _a = normAngle(_a - val);
+            _sin = sin(_a + val);
+            _cos = cos(_a + val);
             return *this;
         }
         friend std::ostream& operator<<(std::ostream& os, const Angle& angle) {
@@ -81,11 +89,21 @@ namespace model {
             return os;
         }
 
-
+        friend double sin(const Angle& a) {
+            return a._sin;
+        }
+        friend double cos(const Angle& a) {
+            return a._cos;
+        }
 
     private:
         double _a;
+        double _sin;
+        double _cos;
     };
+
+    inline double sin(const Angle& a);
+    inline double cos(const Angle& a);
 
 	struct Pose {
 		double x;
@@ -140,12 +158,13 @@ namespace model {
     };
 
     template <typename Func, typename... Args>
-    void timeFunction(const std::string& label, Func&& func, Args&&... args) {
+    std::chrono::duration<double> timeFunction(const std::string& label, Func&& func, Args&&... args) {
         std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
         std::invoke(std::forward<Func>(func), std::forward<Args>(args)...);
         std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = std::chrono::duration<double>(end - start);
-        std::cout << label << " took " << elapsed.count() << " seconds.\n";
+        //std::cout << label << " took " << elapsed.count() << " seconds.\n";
+        return elapsed;
     }
 
     inline double clamp(double value, double min, double max) {
