@@ -77,7 +77,7 @@ namespace model
 
 	std::ostream& operator<<(std::ostream& os, const Point& point)
 	{
-		os << "x: " << point._x<<"\t\ty: "<<point._y; 
+		os << "x: " << point._x<<std::endl<<"y: "<<point._y; 
 		return os;
 	}
 

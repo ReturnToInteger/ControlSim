@@ -1,7 +1,7 @@
 #pragma once  
-#include "src/model/controllerLogic/IControllerLogic.h"  
-#include <src/model/pathPlanner/PathPlanner.h>
-#include <src/model/controllerLogic/ControlCommand.h>
+#include "model/controllerLogic/IControllerLogic.h"  
+#include <model/pathPlanner/PathPlanner.h>
+#include <model/controllerLogic/ControlCommand.h>
 
 
 

@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <src/model/items/Cone.h>
-#include <src/model/utils/ObstacleData.h>
+#include <model/items/Cone.h>
+#include <model/utils/ObstacleData.h>
 
 namespace model
 {

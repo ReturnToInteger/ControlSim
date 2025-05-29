@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "src/model/VehicleState.h"
+#include "model/VehicleState.h"
 
 namespace model {
 	struct PathNode

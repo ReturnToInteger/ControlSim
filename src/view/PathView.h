@@ -1,6 +1,6 @@
 #pragma once
 #include "ItemView.h"
-#include <src/model/utils/ModelUtils.h>
+#include <model/utils/ModelUtils.h>
 namespace view
 {
     class PathView :

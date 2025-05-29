@@ -1,5 +1,5 @@
 #pragma once
-#include "src/model/utils/Point.h"
+#include "model/utils/Point.h"
 namespace model {
 	class Item
 	{

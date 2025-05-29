@@ -1,5 +1,5 @@
 #include "IMapReader.h"
-#include "src/model/items/Cone.h"
+#include "model/items/Cone.h"
 #include "mat.h"
 #include <string>
 

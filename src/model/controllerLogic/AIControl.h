@@ -1,9 +1,9 @@
 #pragma once
-#include "src/model/controllerLogic/IControllerLogic.h"
-#include "src/model/controllerLogic/ControlCommand.h"
-#include "src/model/VehicleState.h"
-#include "src/model/pathPlanner/PathPlanner.h"
-#include "src/model/utils/ModelUtils.h"
+#include "model/controllerLogic/IControllerLogic.h"
+#include "model/controllerLogic/ControlCommand.h"
+#include "model/VehicleState.h"
+#include "model/pathPlanner/PathPlanner.h"
+#include "model/utils/ModelUtils.h"
 #include <iostream>
 
 namespace model {

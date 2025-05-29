@@ -1,8 +1,8 @@
 #pragma once 
 
 #include <SFML/Graphics.hpp>
-#include "src/model/utils/Point.h"
-#include "src/model/items/Item.h"
+#include "model/utils/Point.h"
+#include "model/items/Item.h"
 #include "VehicleView.h"
 #include "ConeView.h"
 #include "PathView.h"

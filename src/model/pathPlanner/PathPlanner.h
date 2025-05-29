@@ -1,14 +1,14 @@
 #pragma once  
 #include <vector>  
-#include <src/model/items/Cone.h>  
-#include <src/model/VehicleState.h>  
-#include "src/model/pathPlanner/PathNode.h"
+#include <model/items/Cone.h>  
+#include <model/VehicleState.h>  
+#include "model/pathPlanner/PathNode.h"
 #include <iostream>  
 #include <map>
 #include <unordered_map>
 
 #ifndef MAX_CONTAINER_SIZE
-#define MAX_CONTAINER_SIZE 2000
+#define MAX_CONTAINER_SIZE 5000
 #endif // !MAX_CONTAINER_SIZE
 
 namespace model {  
@@ -45,7 +45,7 @@ private:
 	std::pair<int,int> _discretizePoint(const model::Point& point) const;
 	std::pair<bool,model::Point> _detectCollision(const VehicleState& state, const std::vector<const model::Cone*>& cones) const;
 	std::vector<model::Point> _getBoundary(const VehicleState& state) const;
-	model::Point _rotatePoint(const model::Point& point, double angle) const;
+	model::Point _rotatePoint(const model::Point& point, const Angle &angle) const;
 	double _getHeuristics(const model::Point& point, const model::Point& goal) const;
 	// gets position-orientation pairs until new position is reached
 	std::vector<model::VehicleState> _stepUntilNew(VehicleState& state, double distanceStep);

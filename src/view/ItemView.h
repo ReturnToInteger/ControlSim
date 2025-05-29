@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "src/model/items/Item.h"
+#include "model/items/Item.h"
 
 namespace view {
     class ItemView : public sf::Drawable {

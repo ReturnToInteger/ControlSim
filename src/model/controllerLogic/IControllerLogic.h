@@ -1,7 +1,7 @@
 #pragma once 
-#include "src/model/VehicleState.h"
-#include "src/model/pathPlanner/PathPlanner.h"
-#include "src/model/controllerLogic/ControlCommand.h"
+#include "model/VehicleState.h"
+#include "model/pathPlanner/PathPlanner.h"
+#include "model/controllerLogic/ControlCommand.h"
  
 namespace model { 
 class IControllerLogic { 

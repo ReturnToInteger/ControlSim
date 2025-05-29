@@ -1,23 +1,23 @@
 #pragma once  
-#include "src/model/items/Item.h"  
+#include "model/items/Item.h"  
 #include <memory>  
-#include "src/model/utils/Vec3.h"  
+#include "model/utils/Vec3.h"  
 #include <cmath>  
 #include <cassert>
 
-#include "src/model/utils/ModelUtils.h"
+#include "model/utils/ModelUtils.h"
 #include <optional>
-#include "src/model/controllerLogic/IControllerLogic.h"
-#include "src/model/controllerLogic/ControlCommand.h"
+#include "model/controllerLogic/IControllerLogic.h"
+#include "model/controllerLogic/ControlCommand.h"
 
 
 #ifndef M_PI  
 #define M_PI 3.14159265358979323846 // Define M_PI if not already defined  
 #endif  
-#include "src/model/VehicleState.h"
-#include "src/model/perception/Perception.h"
-#include "src/model/pathPlanner/PathPlanner.h"
-#include "src/model/items/Cone.h"
+#include "model/VehicleState.h"
+#include "model/perception/Perception.h"
+#include "model/pathPlanner/PathPlanner.h"
+#include "model/items/Cone.h"
 
 
 

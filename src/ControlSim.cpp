@@ -17,12 +17,12 @@ double Mod(double a, double b) {
 
 int main() {
 
-	model::App app(
-		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(2), std::make_unique<model::PathPlanner>(60, 3.0, 1 / 8.0)),
-		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
-		std::make_unique<view::AppView>()
-	);
-	app.run();
+	//model::App app(
+	//	std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(2), std::make_unique<model::PathPlanner>(60, 3.0, 1 / 8.0)),
+	//	std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
+	//	std::make_unique<view::AppView>()
+	//);
+	//app.run();
 
 	//std::array<model::Cone, 18> map({
 	//	model::Cone(0, -1.5, 0.15,model::ConeType::LEFT),
@@ -45,16 +45,14 @@ int main() {
 	//	model::Cone(40, 1.5, 0.15,model::ConeType::RIGHT),
 	//	});
 
-	//std::array<model::Cone, 1> map({model::Cone(40,10,1.5)});
-	//map[0].setType(model::ConeType::UNKNOWN);
-	
-
-	//model::App app(
-	//	std::make_unique<model::Vehicle>(std::make_unique<controller::KeyboardControl>(), std::make_unique<model::PathPlanner>(60, 3.0, 1 / 8.0)),
-	//	std::make_unique<model::ManualMapReader<std::array<model::Cone,1>>>(map),
-	//	std::make_unique<view::AppView>()
-	//);
-	//app.run();
+	std::array<model::Cone, 1> map({model::Cone(40,10,1.5)});
+	map[0].setType(model::ConeType::UNKNOWN);
+	model::App app(
+		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(), std::make_unique<model::PathPlanner>(60, 3.0, 1 / 8.0)),
+		std::make_unique<model::ManualMapReader<std::array<model::Cone,1>>>(map),
+		std::make_unique<view::AppView>()
+	);
+	app.run();
 
 
 

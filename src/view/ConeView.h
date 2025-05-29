@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "src/model/items/Cone.h"
-#include "src/view/ItemView.h"
+#include "model/items/Cone.h"
+#include "view/ItemView.h"
 #include <cassert>
 #include <stdexcept>
 

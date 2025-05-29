@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
-#include <src/model/items/Cone.h>
+#include <model/items/Cone.h>
 #include <corecrt_math_defines.h>
-#include <src/model/utils/ModelUtils.h>
+#include <model/utils/ModelUtils.h>
 
 namespace model {
 	class Perception

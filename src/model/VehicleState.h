@@ -2,7 +2,7 @@
 #pragma once
 #include <array>
 #include <cmath>
-#include "src/model/utils/Point.h"
+#include "model/utils/Point.h"
 #include "utils/ModelUtils.h"
 
 

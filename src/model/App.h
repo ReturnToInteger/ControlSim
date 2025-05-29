@@ -1,15 +1,15 @@
 #pragma once
 #include <vector>
-#include "src/model/items/ObstacleBase.h"
+#include "model/items/ObstacleBase.h"
 #include "Vehicle.h"
 #include "mapReaders/IMapReader.h"
-#include "src/view/AppView.h"
-#include "src/model/items/Cone.h"
-#include "src/model/utils/SimpleTimer.h"
-#include "src/model/perception/Perception.h"
-#include "src/model/pathPlanner/PathPlanner.h"
-#include "src/model/mapReaders/ManualMapReader.h"
-#include "src/model/utils/ModelUtils.h"
+#include "view/AppView.h"
+#include "model/items/Cone.h"
+#include "model/utils/SimpleTimer.h"
+#include "model/perception/Perception.h"
+#include "model/pathPlanner/PathPlanner.h"
+#include "model/mapReaders/ManualMapReader.h"
+#include "model/utils/ModelUtils.h"
 #include <mutex>
 #include <thread>
 
