@@ -87,6 +87,14 @@ namespace view {
 					_clickGlobalPos = model::Point(worldPos.x, worldPos.y);
 				}
 			}
+			if (event.type == sf::Event::MouseWheelMoved)
+			{
+				int delta= event.mouseWheel.delta;
+				double zoom = 1 - delta * 0.25;
+				_zoom = _zoom * zoom;
+				//std::cout << delta << std::endl;
+				_view.zoom(1-delta*0.25);
+			}
 			if (event.type== sf::Event::Resized)
 			{
 				// update the view to the new size of the window
