@@ -10,7 +10,7 @@ void model::PathPlanner::planPath(const std::vector<const model::Cone*>& cones, 
 	double maxSteeringAngle = vehicleState.getMaxSteeringAngle();
 	
 	_steeringAngles = { 0.0,
-		maxSteeringAngle *0.2,-maxSteeringAngle *2 ,
+		maxSteeringAngle *0.2,-maxSteeringAngle *0.2 ,
 		maxSteeringAngle *0.4,-maxSteeringAngle *0.4 ,
 		maxSteeringAngle *0.75,-maxSteeringAngle *0.75 ,
 		maxSteeringAngle,-maxSteeringAngle };
