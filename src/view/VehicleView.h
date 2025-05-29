@@ -1,7 +1,7 @@
 #pragma once  
 #include <SFML/Graphics.hpp>  
-#include "src/model/Vehicle.h"
-#include "src/view/ItemView.h"
+#include "model/Vehicle.h"
+#include "view/ItemView.h"
 
 // VehicleView holds a non-owning pointer to Vehicle.
 // Vehicle lifetime is managed by App via std::unique_ptr.
@@ -22,5 +22,6 @@ namespace view {
 		double getOrientation() const;
 	private:
 		const model::Vehicle* _vehicle;
+		sf::Texture _texture;
 	};
 }
