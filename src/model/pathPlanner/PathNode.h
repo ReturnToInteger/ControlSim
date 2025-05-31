@@ -6,16 +6,26 @@ namespace model {
 	struct PathNode
 	{
 		VehicleState state;
-		double cost;
-		double heuristic;
+		double gCost;
+		double fCost;
 		std::shared_ptr<PathNode> parent;
-		PathNode(const VehicleState& state, double c, double h, PathNode* p)
-			: state(state), cost(c), heuristic(h), parent(p) {
+		PathNode(const VehicleState& state, double g, double f, PathNode* p)
+			: state(state), gCost(g), fCost(f), parent(p) {
 		}
-		PathNode() : cost(INFINITY), heuristic(INFINITY), parent(nullptr) {}
+		PathNode() : gCost(INFINITY), fCost(INFINITY), parent(nullptr) {}
 
 		bool operator<(const PathNode& other) const {
-			return heuristic < other.heuristic;
+			return fCost< other.fCost;
 		}
 	};
+
+	struct PQNode {
+		double fCost;
+		std::tuple<int,int,int> key;
+
+		bool operator>(const PQNode& other) const {
+			return fCost > other.fCost;
+		}
+	};
+
 }
