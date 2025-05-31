@@ -6,7 +6,7 @@ namespace view {
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
-		_zoom(1.0/15.0)
+		_zoom(1.0/45.0)
 	{
 	}
 
@@ -14,7 +14,7 @@ namespace view {
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
-		_zoom(1.0 / 15.0), 
+		_zoom(1.0 / 45.0), 
 		_vehicleView(vehicle)
 	{
 		_coneViews.reserve(map.size());
@@ -37,11 +37,12 @@ namespace view {
 
 	void view::AppView::render()
 	{
-
+		_setupGrid();
 		_window.clear(sf::Color::Black);
 		_view.setCenter(_vehicleView.getPosition());
 		_window.setView(_view);
 		//Drawing
+		_drawGrid();
 		_window.draw(_vehicleView);
 		for (const auto& coneView : _coneViews) {
 			_window.draw(coneView);
@@ -99,6 +100,8 @@ namespace view {
 			{
 				// update the view to the new size of the window
 				auto resized= event.size;
+				_videoWidth = resized.width;
+				_videoHeight = resized.height;
 				_view.setSize(resized.width, resized.height);
 				_view.setCenter(_vehicleView.getPosition());
 				_view.zoom(_zoom);
@@ -154,6 +157,47 @@ namespace view {
 		for (const auto& item : detectedCones) {
 			_itemViewTable[item]->isDetected = true;
 		}
+	}
+
+	void view::AppView::_setupGrid()
+	{
+		sf::Vector2f topLeft(_window.mapPixelToCoords({ 0,0 }));
+		sf::Vector2f bottomRight(_window.mapPixelToCoords({ _videoWidth,_videoHeight }));
+		if (_cellSize / _zoom < 9.0) {
+			_gridLines.clear();
+			return;
+		}
+		double cellSize = _cellSize;
+
+		int startX = int(std::floor(topLeft.x / cellSize));
+		int endX = int((std::floor(bottomRight.x / cellSize) + 1));
+		int startY = int(std::floor(topLeft.y / cellSize));
+		int endY = int((std::floor(bottomRight.y / cellSize) + 1));
+
+		sf::VertexArray lines(sf::Lines);
+
+		sf::Color lineColor(80, 80, 80); // subtle gray
+
+
+		// vertical lines
+		for (int x = startX; x <= endX; ++x) {
+			float px = x * cellSize;
+			lines.append(sf::Vertex(sf::Vector2f(px, startY * cellSize), lineColor));
+			lines.append(sf::Vertex(sf::Vector2f(px, endY * cellSize), lineColor));
+		}
+
+		// horizontal lines
+		for (int y = startY; y <= endY; ++y) {
+			float py = y * cellSize;
+			lines.append(sf::Vertex(sf::Vector2f(startX * cellSize, py), lineColor));
+			lines.append(sf::Vertex(sf::Vector2f(endX * cellSize, py), lineColor));
+		}
+		_gridLines = lines;
+	}
+
+	void view::AppView::_drawGrid()
+	{
+		_window.draw(_gridLines);
 	}
 
 //	void AppView::addDrawable(sf::Drawable& drawable)

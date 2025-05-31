@@ -26,11 +26,14 @@ public:
 	void setCones(const std::vector<model::Cone>& cones);
 	void setPath(std::vector<model::Pose> path);
 	void setConeDetectedFlag(std::vector<const model::Cone*> detectedCones);
+	void setGridSize(const double& cellSize) { _cellSize = cellSize; }
 	double getWidth() const { return _videoWidth; }
 	double getHeight() const { return _videoHeight; }
 	model::Point getClickGlobalPos() const { return _clickGlobalPos; }
 
 private:
+	void _setupGrid();
+	void _drawGrid();
     sf::RenderWindow _window;
 	int _videoWidth;
 	int _videoHeight;
@@ -38,6 +41,7 @@ private:
 	double _zoom;
 	model::Point _startPos;
 	model::Point _clickGlobalPos;
+	double _cellSize;
 
 	VehicleView _vehicleView;
 	std::unordered_map<const model::Item*,ItemView*> _itemViewTable;
@@ -45,6 +49,7 @@ private:
 
 	PathView _pathView;
 	sf::View _view;
+	sf::VertexArray _gridLines;
 	//std::vector<sf::Drawable> _drawables;
 
 };
