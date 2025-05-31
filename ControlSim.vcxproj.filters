@@ -22,9 +22,6 @@
     <ClCompile Include="src\model\items\ObstacleBase.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\utils\Point.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
     <ClCompile Include="src\model\Vehicle.cpp">
       <Filter>model</Filter>
     </ClCompile>
@@ -48,6 +45,10 @@
     <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
     <ClCompile Include="src\model\mapReaders\MatlabMapReader.h" />
     <ClCompile Include="src\model\mapReaders\MatlabMapReader.cpp" />
+    <ClCompile Include="src\model\items\Path.cpp" />
+    <ClCompile Include="src\view\GridView.cpp" />
+    <ClCompile Include="src\model\utils\Heuristics\DubinsSpace.cpp" />
+    <ClCompile Include="src\model\utils\Point.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\model\items\Cone.h">
@@ -94,6 +95,10 @@
     <ClInclude Include="src\model\controllerLogic\AIControl.h" />
     <ClInclude Include="src\model\controllerLogic\ControlCommand.h" />
     <ClInclude Include="src\model\pathPlanner\PathNode.h" />
+    <ClInclude Include="src\model\items\Path.h" />
+    <ClInclude Include="src\model\vehicleModels\IVehicleModels.h" />
+    <ClInclude Include="src\view\GridView.h" />
+    <ClInclude Include="src\model\utils\Heuristics\DubinsSpace.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

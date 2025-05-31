@@ -23,7 +23,7 @@
 #define DEF_MAX_STEERING_RATE M_PI /3.0
 #endif // !DEF_MAX_STEERING_RATE  
 #ifndef DEF_MAX_SPEED  
-#define DEF_MAX_SPEED 10.0  
+#define DEF_MAX_SPEED 8.0  
 #endif // !DEF_MAX_SPEED  
 #ifndef DEF_MAX_ACCELERATION
 #define DEF_MAX_ACCELERATION 15.0
@@ -37,9 +37,6 @@ namespace model
 	{
 	public:
 		VehicleState();
-        void steer();
-        void drive();
-        void brake();
         std::array<Point, 3> getAllPositions() const;
         std::array<double, 3> getAllOrientations() const;
         Point getPosition() const;
@@ -68,7 +65,7 @@ namespace model
         //input parameters  
         double _speed;
         double _acceleration;
-        double _steeringAngle;
+        Angle _steeringAngle;
         double _steeringRate;
         double _brakeAcceleration;
         //geometric parameters  

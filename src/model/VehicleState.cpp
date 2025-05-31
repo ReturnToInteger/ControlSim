@@ -99,11 +99,12 @@ namespace model
 
 	void model::VehicleState::_updateCenter(double speed, double dt)
 	{
-		double beta = atan(tan(_steeringAngle) / 2);
-		_centerTwist.omega = _speed * tan(_steeringAngle) * cos(beta) / _length;
-		_centerPose.theta = model::normAngle(_centerPose.theta + _centerTwist.omega * dt);
-		_centerTwist.vx = _speed * cos(_centerPose.theta + beta);
-		_centerTwist.vy = _speed * sin(_centerPose.theta + beta);
+		Angle beta = atan(tan(_steeringAngle) / 2);
+		//Angle beta(M_PI/2);
+		_centerTwist.omega = speed * tan(_steeringAngle) * cos(beta) / _length;
+		_centerPose.theta = _centerPose.theta + _centerTwist.omega * dt;
+		_centerTwist.vx = speed * cos(_centerPose.theta + beta);
+		_centerTwist.vy = speed * sin(_centerPose.theta + beta);
 		_centerPose.x += dt * _centerTwist.vx;
 		_centerPose.y += dt * _centerTwist.vy;
 	}

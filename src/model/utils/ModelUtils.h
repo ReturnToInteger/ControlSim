@@ -105,11 +105,18 @@ namespace model {
     inline double sin(const Angle& a);
     inline double cos(const Angle& a);
 
+    //inline Point rotatePoint(const model::Point& p, const model::Angle& a) {
+    //    double c = model::cos(a);
+    //    double s = model::sin(a);
+    //    return Point(p.X() * c - p.Y() * s, p.X() * s + p.Y() * c);
+    //}
+
+
 	struct Pose {
 		double x;
 		double y;
 		Angle theta;
-        Pose(double x, double y, double theta) : x(x), y(y), theta(theta) {}
+        Pose(double x, double y, Angle theta) : x(x), y(y), theta(theta) {}
         //Pose(model::Point p, double theta) : x(p.X()), y(p.Y()), theta(theta) {}
         Pose() : x(0), y(0), theta(0) {}
 
@@ -145,6 +152,11 @@ namespace model {
         {
             double dE = 1e-6;
             return abs(x - other.x)<dE && abs(y - other.y) < dE && abs(theta - other.theta) < dE;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const Pose& pose) {
+            os << std::endl << "x: " << pose.x << std::endl << "y: " << pose.y << std::endl << "theta: " << pose.theta;
+            return os;
         }
 
 	};
@@ -199,14 +211,15 @@ namespace model {
 
 namespace std
 {
-	template <typename T1, typename T2>
-    struct hash<pair<T1,T2>>
+	template <typename T1, typename T2, typename T3>
+    struct hash<tuple<T1,T2,T3>>
     {
-        inline size_t operator()(const pair<T1,T2>& p) const
+        inline size_t operator()(const tuple<T1,T2,T3>& p) const
         {
             size_t seed = 0;
-            model::hash_combine(seed, p.first);
-            model::hash_combine(seed, p.second);
+            model::hash_combine(seed, std::get<0>(p));
+            model::hash_combine(seed, std::get<1>(p));
+            model::hash_combine(seed, std::get<2>(p));
             return seed;
         }
     };

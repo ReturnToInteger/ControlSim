@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <model/items/Cone.h>
-#include <corecrt_math_defines.h>
 #include <model/utils/ModelUtils.h>
+#include <corecrt_math_defines.h>
 
 namespace model {
 	class Perception
@@ -12,7 +12,7 @@ namespace model {
 		const double _viewAngle;
 		const double _depth;
 	public:
-		Perception(const std::vector<model::Cone>& cones, double viewAngle=M_PI, double depth=40);
+		Perception(const std::vector<model::Cone>& cones, double viewAngle=M_PI*2.0/3.0, double depth=40);
 		~Perception() = default;
 		std::vector<const model::Cone*> detect(const model::Pose & pose);
 		std::vector<model::Cone> getCones() { return _cones; }

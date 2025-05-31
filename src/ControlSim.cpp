@@ -10,19 +10,43 @@
 #include "model/mapReaders/ManualMapReader.h"
 #include "model/controllerLogic/AIControl.h"
 #include "model/mapReaders/MatlabMapReader.h"
-
+#include "model/utils/Heuristics/DubinsSpace.h"
+#include "model/utils/ModelUtils.h"
 double Mod(double a, double b) {
 	return std::fmod(std::fmod(a, b) + b, b);
 }
 
 int main() {
+	//double R_turning = 3 / tan(M_PI / 6.0);
+	//model::DubinsStateSpace space(R_turning);
+	//std::cout <<"Turning distance: " << R_turning << std::endl;
+	//auto durMultiple=model::timeFunction("Dubins distance", [&space]() {
+	//	for (int y = 0; y < 1000; y++) {
+	//		for (int x = 0; x < 1000; x++) {
+	//			int div = 24;
+	//			for (int a = 0; a < div; a++) {
+	//				space.simpleDistance(model::Pose(0, 0, 0), model::Point(double(x) * 0.5, double(y) * 0.5) );
+	//			}
+	//		}
+	//	}
+	//	space.distance(model::Pose(0, 0, 0), model::Pose(40, 0, M_PI / 2));
+	//	});
+	//std::cout << "Duration: " << durMultiple.count() << std::endl
+	//	<< "Avg: " << durMultiple.count() / (1000 * 1000 * 24) << std::endl;
+	
+	//double distance=0;
+	//auto dur = model::timeFunction("Dubins distance", [&space, &distance]() {
+	//	distance = space.simpleDistance(model::Pose(0, 0, 0), model::Point(1, -5.0));
+	//	});
+	//std::cout<< "Distance: "<< distance<< std::endl;
+	//std::cout << "Duration: " << dur.count() << std::endl;
 
-	//model::App app(
-	//	std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(2), std::make_unique<model::PathPlanner>(60, 3.0, 1 / 8.0)),
-	//	std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
-	//	std::make_unique<view::AppView>()
-	//);
-	//app.run();
+	model::App app(
+		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(), std::make_unique<model::PathPlanner>(60, 3.0, 0.2)),
+		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
+		std::make_unique<view::AppView>()
+	);
+	app.run();
 
 	//std::array<model::Cone, 18> map({
 	//	model::Cone(0, -1.5, 0.15,model::ConeType::LEFT),
@@ -45,14 +69,14 @@ int main() {
 	//	model::Cone(40, 1.5, 0.15,model::ConeType::RIGHT),
 	//	});
 
-	std::array<model::Cone, 1> map({model::Cone(40,10,1.5)});
-	map[0].setType(model::ConeType::UNKNOWN);
-	model::App app(
-		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(), std::make_unique<model::PathPlanner>(60, 3.0, 1 / 8.0)),
-		std::make_unique<model::ManualMapReader<std::array<model::Cone,1>>>(map),
-		std::make_unique<view::AppView>()
-	);
-	app.run();
+	//std::array<model::Cone, 1> map({model::Cone(40,10,1.5)});
+	//map[0].setType(model::ConeType::UNKNOWN);
+	//model::App app(
+	//	std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(2), std::make_unique<model::PathPlanner>(60, 3.0, 1.0)),
+	//	std::make_unique<model::ManualMapReader<std::array<model::Cone,1>>>(map),
+	//	std::make_unique<view::AppView>()
+	//);
+	//app.run();
 
 
 

@@ -41,6 +41,7 @@ namespace model {
 	   void clearPath() { _pathPlanner->clear(); }
 	   double getSpeed() const { return _state->getSpeed(); }
 	   VehicleState getStateCopy() const;
+	   double getCellSize() { return _pathPlanner->getCellSize(); }
 
 
        ~Vehicle() = default;  

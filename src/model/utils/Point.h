@@ -4,13 +4,15 @@
 
 
 namespace model {
+	struct Angle;
+	struct Pose;
 	class Point
 	{
 	private:
 		double _x, _y;
 	public:
 		Point();
-		Point(double x, double y);
+		Point(const double& x, const double& y);
 		Point(const Pose& pose);
 
 		Point operator+(const Point& other) const;
@@ -31,4 +33,5 @@ namespace model {
 		double magnitude() const;
 
 	};
+
 }

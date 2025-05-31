@@ -25,10 +25,8 @@ namespace model
 		: _x(0), _y(0)
 	{
 	}
-	Point::Point(double x, double y)
+	Point::Point(const double& x, const double& y) : _x(x),_y(y)
 	{
-		setX(x);
-		setY(y);
 	}
 
 	model::Point::Point(const Pose& pose) : _x(pose.x), _y(pose.y)
@@ -77,7 +75,7 @@ namespace model
 
 	std::ostream& operator<<(std::ostream& os, const Point& point)
 	{
-		os << "x: " << point._x<<std::endl<<"y: "<<point._y; 
+		os <<std::endl<< "x: " << point._x<<std::endl<<"y: "<<point._y; 
 		return os;
 	}
 

@@ -1,12 +1,9 @@
 #pragma once
 #include "model/controllerLogic/IControllerLogic.h"
 #include "model/controllerLogic/ControlCommand.h"
-#include "model/VehicleState.h"
-#include "model/pathPlanner/PathPlanner.h"
-#include "model/utils/ModelUtils.h"
-#include <iostream>
 
 namespace model {
+    struct model::ControlCommand;
     class AIControl :
         public model::IControllerLogic
     {
