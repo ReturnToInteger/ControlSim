@@ -51,7 +51,7 @@ Open the .sln file in Visual Studio and follow the setup instructions below.
 
 ## MATLAB Support
 
-By default, the project includes support for reading `.mat` files using `MatlabReader`.
+By default, the project includes support for reading `.mat` files using `MatlabMapReader`.
 
 If you don't have MATLAB installed or don't need this feature:
 
@@ -86,7 +86,7 @@ public:
 
 };
 ```
-Called every simulation frame to update the vehicle based on the environment and elapsed time.
+Called every simulation frame to update the vehicle based on input or planner.
 
 ## Included Implementations
 
