@@ -9,7 +9,7 @@
 #include "view/AppView.h"
 #include "model/mapReaders/ManualMapReader.h"
 #include "model/controllerLogic/AIControl.h"
-#include "model/mapReaders/MatlabMapReader.h"
+#include "model/mapReaders/MATLAB/MatlabMapReader.h"
 //#include "model/pathPlanning/Heuristics/DubinsStateSpace.h"
 #include "model/utils/ModelUtils.h"
 double Mod(double a, double b) {

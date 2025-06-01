@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\model\mapReaders\MATLAB\MatlabMapReaders.cpp" />
     <ClCompile Include="src\model\pathPlanning\heuristics\DubinsStateSpace.cpp" />
     <ClCompile Include="src\model\items\Path.cpp" />
     <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
@@ -40,6 +41,7 @@
     <ClCompile Include="src\view\VehicleView.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\model\mapReaders\MATLAB\MatlabMapReaders.h" />
     <ClInclude Include="src\model\utils\Angle.h" />
     <ClInclude Include="src\model\pathPlanning\heuristics\DubinsStateSpace.h" />
     <ClInclude Include="src\model\items\Path.h" />
