@@ -37,7 +37,7 @@
     <ClCompile Include="src\view\GridView.cpp" />
     <ClCompile Include="src\model\pathPlanning\heuristics\DubinsStateSpace.cpp" />
     <ClCompile Include="src\model\utils\Point.cpp" />
-    <ClCompile Include="src\model\mapReaders\MATLAB\MatlabMapReaders.cpp" />
+    <ClCompile Include="src\model\mapReaders\MATLAB\MatlabMapReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\model\items\Cone.h">
@@ -89,7 +89,7 @@
     <ClInclude Include="src\model\pathPlanning\heuristics\DubinsStateSpace.h" />
     <ClInclude Include="src\model\utils\Angle.h" />
     <ClInclude Include="src\model\utils\Pose.h" />
-    <ClInclude Include="src\model\mapReaders\MATLAB\MatlabMapReaders.h" />
+    <ClInclude Include="src\model\mapReaders\MATLAB\MatlabMapReader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
