@@ -60,3 +60,42 @@ If you don't have MATLAB installed or don't need this feature:
 3. Set **Excluded From Build** to `Yes` (for both Debug and Release).
 4. In `ControlSim.cpp` switch to `ManualMapReader` or another map reader class.
 
+## Extending the App
+
+You can provide custom map readers and control logic by implementing the following interfaces:
+
+### IMapReader
+
+```cpp
+class IMapReader {
+public:
+    virtual std::vector<Cone> Read() = 0;
+    virtual ~IMapReader() = default;
+};
+```
+
+Used to load the map (cones). Your implementation is passed to App at startup.
+
+### IControllerLogic
+```cpp
+class IControllerLogic {
+public:
+	IControllerLogic() = default;
+	~IControllerLogic() = default;
+	virtual ControlCommand drive(const VehicleState& state, const pathPlanning::PathPlanner& pathPlanner) = 0;
+
+};
+```
+Called every simulation frame to update the vehicle based on the environment and elapsed time.
+
+## Included Implementations
+
+### Map Readers
+
+- `MatlabMapReader` – Loads cones from a MATLAB `.mat` file (requires MATLAB setup)  
+- `ManualMapReader` – Returns a hardcoded set of cones for testing or quick use
+
+### Controller Logic
+
+- `KeyboardControl` – Lets you control the car manually using keyboard input  
+- `AIControl` – Autonomous controller that handles steering and throttle based on a path planning algorithm
