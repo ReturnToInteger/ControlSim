@@ -1,4 +1,4 @@
-#include "IMapReader.h"
+#include "model/mapReaders/IMapReader.h"
 #include "model/items/Cone.h"
 
 namespace model {
