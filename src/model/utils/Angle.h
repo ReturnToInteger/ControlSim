@@ -7,6 +7,7 @@
 
 namespace model {
     double normAngle(const double& orientation);
+    struct Angle;
     double sin(const Angle& a);
     double cos(const Angle& a);
 
