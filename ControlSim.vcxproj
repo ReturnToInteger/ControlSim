@@ -23,8 +23,6 @@
     <ClCompile Include="src\model\pathPlanning\heuristics\DubinsStateSpace.cpp" />
     <ClCompile Include="src\model\items\Path.cpp" />
     <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
-    <ClCompile Include="src\model\mapReaders\MatlabMapReader.cpp" />
-    <ClCompile Include="src\model\mapReaders\MatlabMapReader.h" />
     <ClCompile Include="src\model\utils\Point.cpp" />
     <ClCompile Include="src\view\GridView.cpp" />
     <ClCompile Include="src\view\PathView.cpp" />
