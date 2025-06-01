@@ -55,6 +55,8 @@ void model::App::run()
 				//_vehicle->setGoal(goalPos);
 				//std::cout << "Path goal set: " << goalPos << std::endl;
 			}
+
+			// Bit of a hack to get the furthest 2 cones middle point
 			double maxL=0, maxR=0;
 			const Cone *maxLCone=nullptr, *maxRCone=nullptr;
 			for (const auto& cone : detectedCopy) {
@@ -76,6 +78,7 @@ void model::App::run()
 				Point goal((maxRCone->getPosition() + maxLCone->getPosition()) / 2.0);
 				_vehicle->setGoal(goal);
 			}
+
 			auto dur=timeFunction("Path planning", [this, &detectedCopy, &stateCopy]() {
 				_vehicle->planPath(detectedCopy, stateCopy);
 				});
@@ -101,7 +104,7 @@ void model::App::run()
 	SimpleTimer frameTimer;
 	int iter = 0;
 	while (_view->isOpen()) {
-		std::vector<model::Pose> plannedPathCopy;
+		Path plannedPathCopy;
 		double deltaTime = frameTimer.elapsedSeconds();
 
 		_view->pollEvents();

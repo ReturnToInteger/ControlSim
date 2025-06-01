@@ -1,5 +1,7 @@
 #include "AppView.h" 
 #include <cassert>
+#include "model/items/Item.h"
+
  
 namespace view {
 	AppView::AppView()
@@ -10,7 +12,7 @@ namespace view {
 	{
 	}
 
-	view::AppView::AppView(const model::Vehicle& vehicle, const std::vector<model::Cone>& map)
+	AppView::AppView(const model::Vehicle& vehicle, const std::vector<model::Cone>& map)
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
@@ -35,7 +37,7 @@ namespace view {
 		_window.setView(_view);
 	}
 
-	void view::AppView::render()
+	void AppView::render()
 	{
 		_setupGrid();
 		_window.clear(sf::Color::Black);
@@ -47,8 +49,9 @@ namespace view {
 		for (const auto& coneView : _coneViews) {
 			_window.draw(coneView);
 		}
-		_window.draw(_pathView);
-
+		for (auto& path : _pathViews) {
+			_window.draw(path);
+		}
 		//if (_drawables) {
 		//	for (const auto& drawable : _drawables) {
 		//		_window.draw(drawable);
@@ -128,13 +131,13 @@ namespace view {
 		_window.close();
 	}
 
-	void view::AppView::setVehicle(const model::Vehicle& vehicle)
+	void AppView::setVehicle(const model::Vehicle& vehicle)
 	{
 		_vehicleView = VehicleView(vehicle);
 		_view.setCenter(_vehicleView.getPosition());
 	}
 
-	void view::AppView::setCones(const std::vector<model::Cone>& cones)
+	void AppView::setCones(const std::vector<model::Cone>& cones)
 	{
 		_coneViews.clear();
 		_coneViews.reserve(cones.size());
@@ -144,12 +147,21 @@ namespace view {
 		}
 	}
 
-	void view::AppView::setPath(std::vector<model::Pose> path)
+	void AppView::setPath(const model::Path& path)
 	{
-		_pathView = PathView(path);
+		_pathViews = std::vector<PathView>{ PathView(path) };
 	}
 
-	void view::AppView::setConeDetectedFlag(std::vector<const model::Cone*> detectedCones)
+	void AppView::setPath(const std::vector<model::Path>& pathVector)
+	{
+		_pathViews.clear();
+		for (const auto& path : pathVector) {
+			_pathViews.emplace_back(path);
+		}
+
+	}
+
+	void AppView::setConeDetectedFlag(std::vector<const model::Cone*> detectedCones)
 	{
 		for (auto& coneView : _coneViews) {
 			coneView.isDetected = false;
@@ -159,7 +171,7 @@ namespace view {
 		}
 	}
 
-	void view::AppView::_setupGrid()
+	void AppView::_setupGrid()
 	{
 		sf::Vector2f topLeft(_window.mapPixelToCoords({ 0,0 }));
 		sf::Vector2f bottomRight(_window.mapPixelToCoords({ _videoWidth,_videoHeight }));
@@ -195,7 +207,7 @@ namespace view {
 		_gridLines = lines;
 	}
 
-	void view::AppView::_drawGrid()
+	void AppView::_drawGrid()
 	{
 		_window.draw(_gridLines);
 	}

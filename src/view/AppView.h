@@ -1,14 +1,21 @@
 #pragma once 
 
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include <unordered_map>
+
 #include "model/utils/Point.h"
-#include "model/items/Item.h"
+#include "model/items/Cone.h"
 #include "VehicleView.h"
 #include "ConeView.h"
 #include "PathView.h"
-#include <thread>
+#include "model/items/Path.h"
 
- 
+namespace model {
+	class Vehicle;
+	class Item;
+}
+
 namespace view { 
 class AppView { 
 public: 
@@ -24,7 +31,8 @@ public:
 	void close();
 	void setVehicle(const model::Vehicle & vehicle);
 	void setCones(const std::vector<model::Cone>& cones);
-	void setPath(std::vector<model::Pose> path);
+	void setPath(const model::Path& path);
+	void setPath(const std::vector<model::Path>& pathVector);
 	void setConeDetectedFlag(std::vector<const model::Cone*> detectedCones);
 	void setGridSize(const double& cellSize) { _cellSize = cellSize; }
 	double getWidth() const { return _videoWidth; }
@@ -47,7 +55,7 @@ private:
 	std::unordered_map<const model::Item*,ItemView*> _itemViewTable;
 	std::vector<ConeView> _coneViews;
 
-	PathView _pathView;
+	std::vector<PathView> _pathViews;
 	sf::View _view;
 	sf::VertexArray _gridLines;
 	//std::vector<sf::Drawable> _drawables;
