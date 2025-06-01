@@ -1,5 +1,7 @@
 #pragma once
 #include "IMapReader.h"
+#include <vector>
+#include "model/items/Cone.h"
 
 namespace model{
 template <typename Iterable>

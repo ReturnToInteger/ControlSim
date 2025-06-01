@@ -1,4 +1,6 @@
-#include "Point.h"
+#include "model/utils/Point.h"
+#include "model/utils/Pose.h"
+#include <cmath> 
 namespace model
 {
 	double Point::X() const

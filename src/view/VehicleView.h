@@ -1,6 +1,5 @@
 #pragma once  
 #include <SFML/Graphics.hpp>  
-#include "model/Vehicle.h"
 #include "view/ItemView.h"
 
 // VehicleView holds a non-owning pointer to Vehicle.
@@ -9,6 +8,7 @@
 #define M_PI 3.14159265358979323846 // Define M_PI if not already defined
 #endif
 
+namespace model { class Vehicle; }
 namespace view {
 	class VehicleView :
 		public ItemView

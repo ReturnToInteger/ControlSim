@@ -1,0 +1,97 @@
+#pragma once
+#include <cmath>
+#include <ostream>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+namespace model {
+    double normAngle(const double& orientation);
+    double sin(const Angle& a);
+    double cos(const Angle& a);
+
+    struct Angle {
+    public:
+        Angle() :_a(0), _sin(0), _cos(1) {}
+        Angle(double a) : _a(normAngle(a)), _sin(std::sin(a)), _cos(std::cos(a)) {}
+        Angle& operator=(const Angle& other) {
+            _a = other._a;
+            return *this;
+        }
+        Angle& operator=(double val) {
+            _a = normAngle(val);
+            return *this;
+        }
+        operator double() const {
+            return _a;
+        }
+
+        Angle operator+(const Angle& other) const {
+            return Angle(_a + other._a);
+        }
+        Angle operator-(const Angle& other) const {
+            return Angle(_a - other._a);
+        }
+        Angle operator+(const double& val) const {
+            return Angle(_a + val);
+        }
+        Angle operator-(const double& val) const {
+            return Angle(_a - val);
+        }
+
+        bool operator>(const Angle& other) const {
+            if (abs(_a - other._a) < M_PI)
+                return _a > other._a;
+            else if (_a > other._a)
+                return false;
+            else return true;
+        }
+        bool operator<(const Angle& other) const {
+            if (abs(_a - other._a) < M_PI)
+                return _a < other._a;
+            else if (_a < other._a)
+                return false;
+            else return true;
+        }
+        Angle& operator+=(const Angle& other) {
+            _a = normAngle(_a + other._a);
+            _sin = sin(_a + other._a);
+            _cos = cos(_a + other._a);
+            return *this;
+        }
+        Angle& operator-=(const Angle& other) {
+            _a = normAngle(_a - other._a);
+            _sin = sin(_a + other._a);
+            _cos = cos(_a + other._a);
+            return *this;
+        }
+        Angle& operator+=(const double& val) {
+            _a = normAngle(_a + val);
+            _sin = sin(_a + val);
+            _cos = cos(_a + val);
+            return *this;
+        }
+        Angle& operator-=(const double& val) {
+            _a = normAngle(_a - val);
+            _sin = sin(_a + val);
+            _cos = cos(_a + val);
+            return *this;
+        }
+        friend std::ostream& operator<<(std::ostream& os, const Angle& angle) {
+            os << angle._a;
+            return os;
+        }
+
+        friend double sin(const Angle& a) {
+            return a._sin;
+        }
+        friend double cos(const Angle& a) {
+            return a._cos;
+        }
+
+    private:
+        double _a;
+        double _sin;
+        double _cos;
+    };
+}

@@ -1,57 +1,57 @@
 #pragma once  
 #include "model/items/Item.h"  
+#include "model/items/Path.h"  
 #include <memory>  
-#include "model/utils/Vec3.h"  
-#include <cmath>  
-#include <cassert>
-
-#include "model/utils/ModelUtils.h"
 #include <optional>
-#include "model/controllerLogic/IControllerLogic.h"
-#include "model/controllerLogic/ControlCommand.h"
-
+#include "model/utils/Pose.h"
+#include "model/utils/Point.h"
+#include "model/VehicleState.h"
 
 #ifndef M_PI  
 #define M_PI 3.14159265358979323846 // Define M_PI if not already defined  
-#endif  
-#include "model/VehicleState.h"
-#include "model/perception/Perception.h"
-#include "model/pathPlanner/PathPlanner.h"
-#include "model/items/Cone.h"
+#endif
+
+namespace model { 
+	
+	class IControllerLogic;
+	class VehicleState;
+	class Perception;
+	class Cone;
+	namespace pathPlanning {
+		class PathPlanner;
+	}
 
 
+	class Vehicle : public Item {  
+	public:
+		//Vehicle(std::unique_ptr<model::VehicleState> vehicleState, std::unique_ptr<controller::IControllerLogic> carControl);
+		Vehicle(std::unique_ptr<model::IControllerLogic> carControl,std::unique_ptr<model::pathPlanning::PathPlanner> pathPlanner);
 
-namespace model {  
-   class Vehicle : public Item {  
-   public:
-	   //Vehicle(std::unique_ptr<model::VehicleState> vehicleState, std::unique_ptr<controller::IControllerLogic> carControl);
-       Vehicle(std::unique_ptr<model::IControllerLogic> carControl,std::unique_ptr<model::PathPlanner> pathPlanner);
-
-       void update(double dt);
-       Point getPosition() const override;
-	   double getOrientation() const;
-	   void planPath(const std::vector<const model::Cone*>& cones, const VehicleState & state);
-	   void setPlannedPath();
-	   std::vector<model::Pose> getPlannedPath() const;
-	   void setGoal(Point goal);
-	   Pose getPose();
-	   void setPose(double x, double y, std::optional<double> orientation);
-	   double getLength() const { return _state->getLength(); }
-	   double getWidth() const { return _state->getWidth(); }
-	   void clearPath() { _pathPlanner->clear(); }
-	   double getSpeed() const { return _state->getSpeed(); }
-	   VehicleState getStateCopy() const;
-	   double getCellSize() { return _pathPlanner->getCellSize(); }
+		void update(double dt);
+		Point getPosition() const override;
+		double getOrientation() const;
+		void planPath(const std::vector<const model::Cone*>& cones, const VehicleState & state);
+		void setPlannedPath();
+		Path getPlannedPath() const;
+		void setGoal(Point goal);
+		Pose getPose();
+		void setPose(double x, double y, std::optional<double> orientation);
+		double getLength() const;
+		double getWidth() const;
+		void clearPath();
+		double getSpeed() const;
+		VehicleState getStateCopy() const;
+		double getCellSize();
 
 
-       ~Vehicle() = default;  
+		~Vehicle() = default;  
 
-   private:  
-       Vehicle();
-       std::unique_ptr<model::IControllerLogic> _control; 
-	   std::unique_ptr<model::VehicleState> _state;
-	   std::unique_ptr<model::Perception> _perception;
-	   std::unique_ptr<model::PathPlanner> _pathPlanner;
+	private:  
+		Vehicle();
+		std::unique_ptr<model::IControllerLogic> _control; 
+		std::unique_ptr<model::VehicleState> _state;
+		std::unique_ptr<model::Perception> _perception;
+		std::unique_ptr<model::pathPlanning::PathPlanner> _pathPlanner;
 
-   };  
+	};  
 }

@@ -1,10 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "model/items/Cone.h"
 #include "view/ItemView.h"
-#include <cassert>
-#include <stdexcept>
 
+namespace model { class Cone; }
 
 namespace view {
     class ConeView :

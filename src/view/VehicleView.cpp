@@ -1,5 +1,7 @@
 #include "VehicleView.h"
 #include <cassert>
+#include "model/Vehicle.h"
+
 
 void view::VehicleView::draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const
 {

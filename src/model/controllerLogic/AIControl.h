@@ -3,16 +3,20 @@
 #include "model/controllerLogic/ControlCommand.h"
 
 namespace model {
-    struct model::ControlCommand;
+    class Path;
+    class VehicleState;
+    namespace pathPlanning {
+        class PathPlanner;
+    }
     class AIControl :
-        public model::IControllerLogic
+        public IControllerLogic
     {
     public:
 		AIControl(int lookAhead = 1) : _lookAhead(lookAhead) {}
-        model::ControlCommand drive(const model::VehicleState & state, const model::PathPlanner & pathPlanner) override;
+        ControlCommand drive(const VehicleState & state, const pathPlanning::PathPlanner & pathPlanner) override;
 
-        const model::Pose * getAtRange(const model::Pose& vehiclePose, const std::vector<model::Pose>& path) const;
     private:
+        const Pose * _getAtRange(const Pose& vehiclePose, const Path& path) const;
         int _lookAhead;
     };
 }

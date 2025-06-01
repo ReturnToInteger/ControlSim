@@ -1,4 +1,9 @@
 #include "MatlabMapReader.h"
+#include <iostream>
+#include <string>
+#include <stdexcept>
+#include "mat.h"
+
 
 namespace model {
     model::MatlabMapReader::MatlabMapReader(const char * filePath) : _filePath(filePath)

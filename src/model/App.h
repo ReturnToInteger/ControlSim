@@ -1,13 +1,13 @@
 #pragma once
 #include <vector>
 #include "model/items/ObstacleBase.h"
-#include "Vehicle.h"
-#include "mapReaders/IMapReader.h"
+#include "model/Vehicle.h"
+#include "model/mapReaders/IMapReader.h"
 #include "view/AppView.h"
 #include "model/items/Cone.h"
 #include "model/utils/SimpleTimer.h"
 #include "model/perception/Perception.h"
-#include "model/pathPlanner/PathPlanner.h"
+#include "model/pathPlanning/PathPlanner.h"
 #include "model/mapReaders/ManualMapReader.h"
 #include "model/utils/ModelUtils.h"
 #include <mutex>

@@ -3,8 +3,8 @@
 
 namespace model {
 	class Point;
-	class Pose;
-	class Angle;
+	struct Pose;
+	struct Angle;
 	namespace pathPlanning {
 		enum Direction { LEFT, RIGHT };
 		class DubinsStateSpace {

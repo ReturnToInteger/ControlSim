@@ -1,5 +1,13 @@
 #pragma once
 #include "Vehicle.h"
+#include "model/controllerLogic/IControllerLogic.h"
+#include "model/perception/Perception.h"
+#include "model/pathPlanning/PathPlanner.h"
+#include "model/items/Cone.h"
+#include <cmath>  
+#include <cassert>
+//#include "model/utils/ModelUtils.h"
+#include "model/controllerLogic/ControlCommand.h"
 
 
 
@@ -11,7 +19,7 @@ namespace model {
 		assert(_state != nullptr && "VehicleState must not be null");
 		assert(_control != nullptr && "IControllerLogic must not be null");
 	}*/
-	Vehicle::Vehicle(std::unique_ptr<model::IControllerLogic> carControl, std::unique_ptr<model::PathPlanner> pathPlanner) : 
+	Vehicle::Vehicle(std::unique_ptr<model::IControllerLogic> carControl, std::unique_ptr<model::pathPlanning::PathPlanner> pathPlanner) : 
 		_state(std::make_unique<model::VehicleState>())
     {  
 		if (carControl == nullptr) {
@@ -58,7 +66,7 @@ namespace model {
 	   _pathPlanner->setPlannedPath();
    }
 
-   std::vector<model::Pose> model::Vehicle::getPlannedPath() const
+   Path model::Vehicle::getPlannedPath() const
    {
 	   return _pathPlanner->getPlannedPath();
    }
@@ -70,7 +78,7 @@ namespace model {
 
    Pose Vehicle::getPose()
    {
-	   return Pose(_state->getPosition().X(),_state->getPosition().Y(), _state->getOrientation());
+	   return _state->getPose();
    }
 
    void model::Vehicle::setPose(double x, double y, std::optional<double> orientation)
@@ -83,10 +91,20 @@ namespace model {
 	   }
    }
 
+   double Vehicle::getLength() const { return _state->getLength(); }
+
+   double Vehicle::getWidth() const { return _state->getWidth(); }
+
+   void Vehicle::clearPath() { _pathPlanner->clear(); }
+
+   double Vehicle::getSpeed() const { return _state->getSpeed(); }
+
    VehicleState Vehicle::getStateCopy() const
    {
 	   return *_state;
    }
+
+   double Vehicle::getCellSize() { return _pathPlanner->getCellSize(); }
 
 
 

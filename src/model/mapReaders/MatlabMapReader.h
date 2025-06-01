@@ -1,7 +1,5 @@
 #include "IMapReader.h"
 #include "model/items/Cone.h"
-#include "mat.h"
-#include <string>
 
 namespace model {
 	class MatlabMapReader :

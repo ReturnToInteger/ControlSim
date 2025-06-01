@@ -1,4 +1,7 @@
 #include "Perception.h"
+#include "model/items/Cone.h"
+#include "model/utils/Angle.h"
+#include "model/utils/Pose.h"
 
 model::Perception::Perception(const std::vector<model::Cone>& cones, double viewAngle, double depth) : _cones(cones), _viewAngle(viewAngle), _depth(depth)
 {

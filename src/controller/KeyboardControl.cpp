@@ -1,44 +1,45 @@
 #pragma once
 #include "KeyboardControl.h"
 #include <SFML/Window/Keyboard.hpp>
-#include <model/pathPlanner/PathPlanner.h>
+#include <model/pathPlanning/PathPlanner.h>
 
 
 
+namespace controller {
+	model::ControlCommand KeyboardControl::drive(const model::VehicleState& state, const model::pathPlanning::PathPlanner& pathPlanner)
+	{
 
-model::ControlCommand controller::KeyboardControl::drive(const model::VehicleState& state, const model::PathPlanner& pathPlanner)
-{
+		return model::ControlCommand(detectSpeed(), detectAngle());
 
-	return model::ControlCommand(detectSpeed(), detectAngle());
-
-}
-
-double controller::KeyboardControl::detectSpeed()
-{
-	double speed;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && !sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-		speed = 1.0;
 	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && !sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-		speed = -1.0;
-	}
-	else {
-		speed = 0.0;
-	}
-	return speed;
-}
 
-double controller::KeyboardControl::detectAngle() {
+	double KeyboardControl::detectSpeed()
+	{
+		double speed;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && !sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+			speed = 1.0;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && !sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+			speed = -1.0;
+		}
+		else {
+			speed = 0.0;
+		}
+		return speed;
+	}
 
-	double angle;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-		angle = -1.0;
+	double KeyboardControl::detectAngle() {
+
+		double angle;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+			angle = -1.0;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+			angle = 1.0;
+		}
+		else {
+			angle = 0.0;
+		}
+		return angle;
 	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-		angle = 1.0;
-	}
-	else {
-		angle = 0.0;
-	}
-	return angle;
 }

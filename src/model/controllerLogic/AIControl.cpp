@@ -1,21 +1,22 @@
 #include "AIControl.h"
-#include "model/VehicleState.h"
-#include "model/pathPlanner/PathPlanner.h"
-#include "model/utils/ModelUtils.h"
 #include <iostream>
+
+#include "model/VehicleState.h"
+#include "model/pathPlanning/PathPlanner.h"
+#include "model/utils/ModelUtils.h"
 
 
 
 
 namespace model {
-	ControlCommand model::AIControl::drive(const model::VehicleState & state, const model::PathPlanner & pathPlanner)
+	ControlCommand AIControl::drive(const VehicleState & state, const pathPlanning::PathPlanner & pathPlanner)
 	{
 		auto path = pathPlanner.getPlannedPath();
 		if (path.size() < _lookAhead + 1) {
 			return ControlCommand(0, 0);
 		}
-		model::Pose currentPose=state.getPose();
-		const Pose* targetPose = getAtRange(currentPose, path);
+		Pose currentPose=state.getPose();
+		const Pose* targetPose = _getAtRange(currentPose, path);
 		Angle targetAngle;
 		if (!targetPose) return ControlCommand(0, 0);
 		targetAngle = atan2(targetPose->y - currentPose.y, targetPose->x - currentPose.x);
@@ -31,7 +32,7 @@ namespace model {
 		//}
 		return ControlCommand(1, angleCommand);
 	}
-	const model::Pose* model::AIControl::getAtRange(const model::Pose& vehiclePose, const std::vector<model::Pose>& path) const
+	const Pose* AIControl::_getAtRange(const model::Pose& vehiclePose, const Path& path) const
 	{
 		if (path.size()<2) throw std::out_of_range::out_of_range("Path range has to be at least 2");
 		double maxDelta = (path[0] - path[1]).magnitude() / 2.0;

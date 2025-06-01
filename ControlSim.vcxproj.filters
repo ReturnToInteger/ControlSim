@@ -13,15 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ControlSim.cpp" />
-    <ClCompile Include="src\model\items\Cone.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\model\items\Item.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\model\items\ObstacleBase.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
     <ClCompile Include="src\model\Vehicle.cpp">
       <Filter>model</Filter>
     </ClCompile>
@@ -31,15 +22,12 @@
     <ClCompile Include="src\view\AppView.cpp">
       <Filter>view</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\utils\Vec3.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
     <ClCompile Include="src\controller\KeyboardControl.cpp" />
     <ClCompile Include="src\model\VehicleState.cpp" />
     <ClCompile Include="src\view\VehicleView.cpp" />
     <ClCompile Include="src\view\ConeView.cpp" />
     <ClCompile Include="src\model\perception\Perception.cpp" />
-    <ClCompile Include="src\model\pathPlanner\PathPlanner.cpp" />
+    <ClCompile Include="src\model\pathPlanning\PathPlanner.cpp" />
     <ClCompile Include="src\view\PathView.cpp" />
     <ClCompile Include="src\view\PerceptionView.cpp" />
     <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
@@ -47,7 +35,7 @@
     <ClCompile Include="src\model\mapReaders\MatlabMapReader.cpp" />
     <ClCompile Include="src\model\items\Path.cpp" />
     <ClCompile Include="src\view\GridView.cpp" />
-    <ClCompile Include="src\model\utils\Heuristics\DubinsSpace.cpp" />
+    <ClCompile Include="src\model\pathPlanning\heuristics\DubinsStateSpace.cpp" />
     <ClCompile Include="src\model\utils\Point.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -83,22 +71,23 @@
     <ClInclude Include="src\model\utils\ModelUtils.h" />
     <ClInclude Include="src\model\mapReaders\IMapReader.h" />
     <ClInclude Include="src\model\mapReaders\ManualMapReader.h" />
-    <ClInclude Include="src\model\utils\ObstacleData.h" />
     <ClInclude Include="src\view\VehicleView.h" />
     <ClInclude Include="src\view\ConeView.h" />
     <ClInclude Include="src\view\ItemView.h" />
     <ClInclude Include="src\model\utils\SimpleTimer.h" />
     <ClInclude Include="src\model\perception\Perception.h" />
-    <ClInclude Include="src\model\pathPlanner\PathPlanner.h" />
+    <ClInclude Include="src\model\pathPlanning\PathPlanner.h" />
     <ClInclude Include="src\view\PathView.h" />
     <ClInclude Include="src\view\PerceptionView.h" />
     <ClInclude Include="src\model\controllerLogic\AIControl.h" />
     <ClInclude Include="src\model\controllerLogic\ControlCommand.h" />
-    <ClInclude Include="src\model\pathPlanner\PathNode.h" />
+    <ClInclude Include="src\model\pathPlanning\PathNode.h" />
     <ClInclude Include="src\model\items\Path.h" />
     <ClInclude Include="src\model\vehicleModels\IVehicleModels.h" />
     <ClInclude Include="src\view\GridView.h" />
-    <ClInclude Include="src\model\utils\Heuristics\DubinsSpace.h" />
+    <ClInclude Include="src\model\pathPlanning\heuristics\DubinsStateSpace.h" />
+    <ClInclude Include="src\model\utils\Angle.h" />
+    <ClInclude Include="src\model\utils\Pose.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

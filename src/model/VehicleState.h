@@ -3,7 +3,9 @@
 #include <array>
 #include <cmath>
 #include "model/utils/Point.h"
-#include "utils/ModelUtils.h"
+#include "model/utils/Pose.h"
+#include "model/utils/Angle.h"
+#include "model/utils/ModelUtils.h"
 
 
 #ifndef M_PI

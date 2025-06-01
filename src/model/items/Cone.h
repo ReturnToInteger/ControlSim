@@ -1,5 +1,7 @@
 #pragma once
 #include "ObstacleBase.h"
+#include "model/utils/Point.h"
+
 namespace model {
 	enum class ConeType
 	{

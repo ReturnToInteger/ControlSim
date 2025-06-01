@@ -1,5 +1,6 @@
 #pragma once
 #include "Item.h"
+#include "model/utils/Point.h"
 namespace model {
     class ObstacleBase :
         public Item

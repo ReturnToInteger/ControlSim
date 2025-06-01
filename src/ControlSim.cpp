@@ -10,7 +10,7 @@
 #include "model/mapReaders/ManualMapReader.h"
 #include "model/controllerLogic/AIControl.h"
 #include "model/mapReaders/MatlabMapReader.h"
-#include "model/utils/Heuristics/DubinsSpace.h"
+//#include "model/pathPlanning/Heuristics/DubinsStateSpace.h"
 #include "model/utils/ModelUtils.h"
 double Mod(double a, double b) {
 	return std::fmod(std::fmod(a, b) + b, b);
@@ -42,7 +42,7 @@ int main() {
 	//std::cout << "Duration: " << dur.count() << std::endl;
 
 	model::App app(
-		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(), std::make_unique<model::PathPlanner>(60, 3.0, 0.2)),
+		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(), std::make_unique<model::pathPlanning::PathPlanner>(60, 3.0, 0.2)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>()
 	);

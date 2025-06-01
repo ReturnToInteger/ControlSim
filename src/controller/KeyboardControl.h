@@ -7,12 +7,12 @@
 namespace controller  
 {
 	class model::VehicleState;
-	class model::PathPlanner;
+	class model::pathPlanning::PathPlanner;
 	class KeyboardControl :  
 		public model::IControllerLogic  
 	{  
 		// Inherited via IControllerLogic  
-		model::ControlCommand drive(const model::VehicleState& state, const model::PathPlanner& pathPlanner) override;
+		model::ControlCommand drive(const model::VehicleState& state, const model::pathPlanning::PathPlanner& pathPlanner) override;
 
 		double detectSpeed();
 

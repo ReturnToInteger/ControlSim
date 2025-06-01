@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
-#include <string>
-#include <model/items/Cone.h>
-#include <model/utils/ObstacleData.h>
+#include "model/items/Cone.h"
 
 namespace model
 {

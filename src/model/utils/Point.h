@@ -1,10 +1,7 @@
 #pragma once
-#include <cmath>
-#include "ModelUtils.h"
-
+#include <ostream>
 
 namespace model {
-	struct Angle;
 	struct Pose;
 	class Point
 	{

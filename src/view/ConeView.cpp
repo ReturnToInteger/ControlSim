@@ -1,4 +1,8 @@
 #include "ConeView.h"
+#include "model/items/Cone.h"
+//#include <cassert>
+#include <stdexcept>
+
 
 void view::ConeView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
