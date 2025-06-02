@@ -1,15 +1,19 @@
 #include <SFML/Graphics.hpp>
-#include "model/Vehicle.h"
-#include "controller/KeyboardControl.h"
 #include <iostream>
+#include <cstdlib>
+
+
 #include "model/utils/Point.h"
 #include "model/items/Cone.h"
-#include "model/App.h"
-#include "model/mapReaders/IMapReader.h"
+
+#include "model/Vehicle.h"
+#include "controller/App.h"
 #include "view/AppView.h"
+
 #include "model/mapReaders/ManualMapReader.h"
-#include "model/controllerLogic/AIControl.h"
 #include "model/mapReaders/MATLAB/MatlabMapReader.h"
+#include "controller/KeyboardControl.h"
+#include "model/controllerLogic/AIControl.h"
 //#include "model/pathPlanning/Heuristics/DubinsStateSpace.h"
 #include "model/utils/ModelUtils.h"
 double Mod(double a, double b) {
@@ -17,6 +21,7 @@ double Mod(double a, double b) {
 }
 
 int main() {
+
 	//double R_turning = 3 / tan(M_PI / 6.0);
 	//model::DubinsStateSpace space(R_turning);
 	//std::cout <<"Turning distance: " << R_turning << std::endl;
@@ -41,8 +46,8 @@ int main() {
 	//std::cout<< "Distance: "<< distance<< std::endl;
 	//std::cout << "Duration: " << dur.count() << std::endl;
 
-	model::App app(
-		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(), std::make_unique<model::pathPlanning::PathPlanner>(60, 3.0, 0.2)),
+	controller::App app(
+		std::make_unique<model::Vehicle>(std::make_unique<controller::KeyboardControl>(), std::make_unique<model::pathPlanning::PathPlanner>(60, 3.0, 0.2)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>()
 	);
@@ -71,7 +76,7 @@ int main() {
 
 	//std::array<model::Cone, 1> map({model::Cone(40,10,1.5)});
 	//map[0].setType(model::ConeType::UNKNOWN);
-	//model::App app(
+	//controller::App app(
 	//	std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(2), std::make_unique<model::PathPlanner>(60, 3.0, 1.0)),
 	//	std::make_unique<model::ManualMapReader<std::array<model::Cone,1>>>(map),
 	//	std::make_unique<view::AppView>()

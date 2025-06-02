@@ -1,38 +1,40 @@
 #pragma once
 #include <vector>
-#include "model/items/ObstacleBase.h"
-#include "model/Vehicle.h"
-#include "model/mapReaders/IMapReader.h"
-#include "view/AppView.h"
-#include "model/items/Cone.h"
-#include "model/utils/SimpleTimer.h"
-#include "model/perception/Perception.h"
-#include "model/pathPlanning/PathPlanner.h"
-#include "model/mapReaders/ManualMapReader.h"
-#include "model/utils/ModelUtils.h"
 #include <mutex>
-#include <thread>
+#include "model/items/Cone.h"
+//#include "model/perception/Perception.h"
 
 
 namespace model {
+	class Vehicle;
+	class Perception;
+	class IMapReader;
+}
+namespace view {
+	class AppView;
+}
+
+namespace controller {
     class App
     {
     private:
-		std::vector<Cone> _cones;
+		std::vector<model::Cone> _cones;
 		std::unique_ptr<view::AppView> _view;
-		std::unique_ptr<Vehicle> _vehicle;
+		std::unique_ptr<model::Vehicle> _vehicle;
 		std::unique_ptr<model::Perception> _perception;
 		std::mutex _simLock;
 
 		// Need a reader, which will read the map 
 		std::unique_ptr<model::IMapReader> _mapReader;
 	public:
-		App(std::unique_ptr<Vehicle> vehicle,
+		App(std::unique_ptr<model::Vehicle> vehicle,
 			std::unique_ptr<model::IMapReader> mapReader,
 			std::unique_ptr<view::AppView> view);
 
 		// Need a run method, which will run the game
 		void run();
+		~App();
+
 
     };
 }
