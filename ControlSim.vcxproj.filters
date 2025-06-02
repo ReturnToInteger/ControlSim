@@ -16,8 +16,8 @@
     <ClCompile Include="src\model\Vehicle.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="src\model\App.cpp">
-      <Filter>model</Filter>
+    <ClCompile Include="src\controller\App.cpp">
+      <Filter>controller</Filter>
     </ClCompile>
     <ClCompile Include="src\view\AppView.cpp">
       <Filter>view</Filter>
