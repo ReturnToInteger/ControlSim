@@ -14,8 +14,11 @@ namespace model {
 		void PathPlanner::planPath(const std::vector<const model::Cone*>& cones, const model::VehicleState& vehicleState)
 		{
 
-			double maxSteeringAngle = vehicleState.getMaxSteeringAngle();
-			_dubins = DubinsStateSpace(vehicleState.getLength() / tan(maxSteeringAngle));
+			Angle maxSteeringAngle = vehicleState.getMaxSteeringAngle();
+			Angle beta = atan(tan(maxSteeringAngle) / 2);
+			double radius = vehicleState.getLength() / (tan(maxSteeringAngle) * cos(beta));
+
+			_dubins = DubinsStateSpace(radius);
 			int iter = 0;
 			_steeringAngles = { 0.0,
 				maxSteeringAngle * 0.2,-maxSteeringAngle * 0.2 ,
