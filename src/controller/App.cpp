@@ -179,7 +179,7 @@ namespace controller {
 
 	App::~App() = default;
 
-	void controller::App::handleInputEvent(std::string const& src, model::InputEvent const& e)
+	void controller::App::handleInputEvent(std::string const& src, model::events::InputEvent const& e)
 	{
 		std::visit(InputTranslate(), e);
 	}

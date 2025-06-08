@@ -3,12 +3,14 @@
 #include "InputEventPublisher.h"
 
 namespace model {
-	using model::InputEvent;
-	class InputEventHandler {
-	public:
-		~InputEventHandler() = default;
-		virtual void handleInputEvent(std::string const& src, model::InputEvent const& e) = 0;
-	protected:
-		InputEventHandler() = default;
-	};
+	namespace events {
+		using model::events::InputEvent;
+		class InputEventHandler {
+		public:
+			~InputEventHandler() = default;
+			virtual void handleInputEvent(std::string const& src, model::events::InputEvent const& e) = 0;
+		protected:
+			InputEventHandler() = default;
+		};
+	}
 }

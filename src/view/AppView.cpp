@@ -2,7 +2,6 @@
 #include <cassert>
 #include "model/items/Item.h"
 
- 
 namespace view {
 	AppView::AppView()
 		: _videoWidth(1600),
@@ -77,12 +76,12 @@ namespace view {
 				_view.setCenter(_vehicleView.getPosition());
 				_view.zoom(_zoom);
 				
-				_notify("AppView", model::Resized{});
+				_notify("AppView", model::events::Resized{});
 			} 
 			else
 			{
-				model::InputEvent e = _translateToInput(event);
-				if (!std::holds_alternative<model::None>(e))
+				model::events::InputEvent e = _translateToInput(event);
+				if (!std::holds_alternative<model::events::None>(e))
 					_notify("AppView", e);
 			}
 
@@ -194,19 +193,19 @@ namespace view {
 		_window.draw(_gridLines);
 	}
 
-	model::InputEvent AppView::_translateToInput(sf::Event event)
+	model::events::InputEvent AppView::_translateToInput(sf::Event event)
 	{
 
 		if (event.type == sf::Event::KeyPressed) {
 			if (event.key.code == sf::Keyboard::Escape)
-				return model::PressedEsc();
+				return model::events::PressedEsc();
 				//_window.close();
 			if (event.key.code == sf::Keyboard::LShift) {
 				//// Wait until released
 				//while (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
 				//	// Do nothing
 				//}
-				return model::PressedLShift();
+				return model::events::PressedLShift();
 			}
 		}
 		if (event.type == sf::Event::MouseButtonPressed)
@@ -220,7 +219,7 @@ namespace view {
 				//std::cout << "map x: " << worldPos.x << std::endl;
 				//std::cout << "map y: " << worldPos.y << std::endl;
 				//_clickGlobalPos = model::Point(worldPos.x, worldPos.y);
-				return model::ClickedAt{ (double)worldPos.x, (double)worldPos.y };
+				return model::events::ClickedAt{ (double)worldPos.x, (double)worldPos.y };
 			}
 		}
 		if (event.type == sf::Event::MouseWheelMoved)
@@ -230,18 +229,18 @@ namespace view {
 			//_zoom = _zoom * zoom;
 			////std::cout << delta << std::endl;
 			//_view.zoom(1 - delta * 0.25);
-			return model::Scrolled{ delta };
+			return model::events::Scrolled{ delta };
 		}
 		if (event.type == sf::Event::Resized) {
-			return model::Resized();
+			return model::events::Resized();
 		}		
 		if (event.type == sf::Event::LostFocus) {
-			return model::LostFocus();
+			return model::events::LostFocus();
 		}
 		if (event.type == sf::Event::GainedFocus) {
-			return model::GainedFocus();
+			return model::events::GainedFocus();
 		}
-		return model::None();
+		return model::events::None();
 	}
 
 //	void AppView::addDrawable(sf::Drawable& drawable)

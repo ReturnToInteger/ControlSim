@@ -11,7 +11,7 @@
 #include "ConeView.h"
 #include "PathView.h"
 #include "model/items/Path.h"
-#include "model/eventHandlers/InputEventPublisher.h"
+#include "model/events/InputEventPublisher.h"
 
 namespace model {
 	class Vehicle;
@@ -19,7 +19,7 @@ namespace model {
 }
 
 namespace view {
-	class AppView : public model::InputEventPublisher {
+	class AppView : public model::events::InputEventPublisher {
 	public:
 		AppView();
 		AppView(model::Vehicle const& vehicle, std::vector<model::Cone> const& map);
@@ -44,7 +44,7 @@ namespace view {
 	private:
 		void _setupGrid();
 		void _drawGrid();
-		model::InputEvent _translateToInput(sf::Event e);
+		model::events::InputEvent _translateToInput(sf::Event e);
 		sf::RenderWindow _window;
 		int _videoWidth;
 		int _videoHeight;

@@ -6,6 +6,9 @@
 #include "model/utils/Pose.h"
 #include "model/utils/Point.h"
 #include "model/VehicleState.h"
+#include "model/pathPlanning/PathPlanner.h"
+#include "model/perception/Perception.h"
+#include "model/controllerLogic/IControllerLogic.h"
 
 #ifndef M_PI  
 #define M_PI 3.14159265358979323846 // Define M_PI if not already defined  

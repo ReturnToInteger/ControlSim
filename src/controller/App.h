@@ -2,8 +2,8 @@
 #include <vector>
 #include <mutex>
 #include "model/items/Cone.h"
-#include "model/eventHandlers/InputEventHandler.h"
-#include "model/eventHandlers/InputEventPublisher.h"
+#include "model/events/InputEventHandler.h"
+#include "model/events/InputEventPublisher.h"
 //#include "model/perception/Perception.h"
 
 
@@ -18,18 +18,19 @@ namespace view {
 }
 
 namespace controller {
-	using model::InputEvent;
+	using model::events::InputEvent;
+	using namespace model;
 	struct InputTranslate {
-		void operator()(model::PressedEsc const&) { std::cout << "Pressed ESC." << std::endl; }
-		void operator()(model::PressedLShift const&) {std::cout << "Pressed LShift." << std::endl; }
-		void operator()(model::Scrolled const& i) {std::cout << "zoom: " << i.delta << std::endl; }
-		void operator()(model::ClickedAt const& i) {std::cout << "Clicked at :" << i.x << "; " << i.y << std::endl; }
-		void operator()(model::Resized const&) {std::cout << "Resizing..." << std::endl; }
-		void operator()(model::LostFocus const&) {std::cout << "Lost Focus." << std::endl; }
-		void operator()(model::GainedFocus const&) { std::cout << "Gained Focus." << std::endl; }
-		void operator()(model::None const&) {}
+		void operator()(events::PressedEsc const&) { std::cout << "Pressed ESC." << std::endl; }
+		void operator()(events::PressedLShift const&) {std::cout << "Pressed LShift." << std::endl; }
+		void operator()(events::Scrolled const& i) {std::cout << "zoom: " << i.delta << std::endl; }
+		void operator()(events::ClickedAt const& i) {std::cout << "Clicked at :" << i.x << "; " << i.y << std::endl; }
+		void operator()(events::Resized const&) {std::cout << "Resizing..." << std::endl; }
+		void operator()(events::LostFocus const&) {std::cout << "Lost Focus." << std::endl; }
+		void operator()(events::GainedFocus const&) { std::cout << "Gained Focus." << std::endl; }
+		void operator()(events::None const&) {}
 	};
-    class App : public model::InputEventHandler
+    class App : public events::InputEventHandler
     {
     private:
 		std::vector<model::Cone> _cones;
@@ -59,7 +60,7 @@ namespace controller {
 
 
 		// Inherited via InputEventHandler
-		void handleInputEvent(std::string const& src, model::InputEvent const& e) override;
+		void handleInputEvent(std::string const& src, events::InputEvent const& e) override;
 
 	};
 }

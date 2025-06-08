@@ -1,8 +1,8 @@
 #include "InputEventPublisher.h"
 #include "InputEventHandler.h"
 
-// Prevent 
-void model::InputEventPublisher::_notify(std::string const& src, InputEvent const& e) {
+
+void model::events::InputEventPublisher::_notify(std::string const& src, model::events::InputEvent const& e) {
 	for (auto it = _eventHandlers.begin(); it != _eventHandlers.end(); ) {
 		if (*it) {
 			(*it)->handleInputEvent(src, e);

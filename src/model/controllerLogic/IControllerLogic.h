@@ -2,7 +2,9 @@
 #include "model/controllerLogic/ControlCommand.h"
 
 namespace model {
-	class pathPlanning::PathPlanner;
+	namespace pathPlanning {
+		class PathPlanner;
+	}
 	class VehicleState;
 	class IControllerLogic {
 	public:

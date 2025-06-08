@@ -4,6 +4,10 @@
 #include "model/VehicleState.h"
 #include "model/pathPlanning/PathPlanner.h"
 #include "model/utils/ModelUtils.h"
+#include "model/utils/Pose.h"
+#include "model/utils/Angle.h"
+#include "model/utils/Point.h"
+
 #include <stdexcept>
 
 

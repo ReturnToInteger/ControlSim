@@ -3,11 +3,14 @@
 #include <model/controllerLogic/ControlCommand.h>
 
 
-
+namespace model {
+	class VehicleState;
+	namespace pathPlanning {
+		class PathPlanner;
+	}
+}
 namespace controller  
 {
-	class model::VehicleState;
-	class model::pathPlanning::PathPlanner;
 	class KeyboardControl :  
 		public model::IControllerLogic  
 	{  

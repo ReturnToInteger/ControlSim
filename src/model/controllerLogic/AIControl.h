@@ -5,6 +5,7 @@
 namespace model {
     class Path;
     class VehicleState;
+    struct Pose;
     namespace pathPlanning {
         class PathPlanner;
     }
