@@ -3,12 +3,13 @@
 #include "model/utils/Angle.h"
 #include "model/utils/Pose.h"
 
-model::Perception::Perception(const std::vector<model::Cone>& cones, double viewAngle, double depth) : _cones(cones), _viewAngle(viewAngle), _depth(depth)
+model::Perception::Perception(std::vector<model::Cone> const& cones, double viewAngle, double depth) : _cones(cones), _viewAngle(viewAngle), _depth(depth)
 {
 }
 
 
-std::vector<const model::Cone*> model::Perception::detect(const model::Pose & pose)
+// Based on detection params, return a pointer to cones which which fall within the range of the "camera"
+std::vector<model::Cone const*> model::Perception::detect(model::Pose const& pose)
 {
 	std::vector<const model::Cone*> detectedCones;
 	for (auto& cone : _cones) {

@@ -6,17 +6,18 @@
 
 namespace model {
 	struct Pose;
+
+	// Simple perception model simulating the detection of cones and a camera
 	class Perception
 	{
 	private:
-		const std::vector<model::Cone>& _cones;
+		std::vector<model::Cone> const& _cones;
 		const double _viewAngle;
 		const double _depth;
 	public:
-		Perception(const std::vector<model::Cone>& cones, double viewAngle=M_PI*2.0/3.0, double depth=40);
+		Perception(std::vector<model::Cone> const& cones, double viewAngle=M_PI*2.0/3.0, double depth=40);
 		~Perception() = default;
-		std::vector<const model::Cone*> detect(const model::Pose & pose);
-		//std::vector<model::Cone> getCones() { return _cones; }
+		std::vector<model::Cone const*> detect(model::Pose const& pose);
 
 	};
 }

@@ -3,27 +3,34 @@
 #include "model/VehicleState.h"
 
 namespace model {
+	
 	struct PathNode
 	{
+		// State at the node
 		VehicleState state;
+		// Current cost from start
 		double gCost;
+		// Current cost + heuristic cost to goal
 		double fCost;
+		// Parent for reconstruction
 		std::shared_ptr<PathNode> parent;
-		PathNode(const VehicleState& state, double g, double f, PathNode* p)
+		PathNode(VehicleState const& state, double g, double f, PathNode* p)
 			: state(state), gCost(g), fCost(f), parent(p) {
 		}
 		PathNode() : gCost(INFINITY), fCost(INFINITY), parent(nullptr) {}
-
-		bool operator<(const PathNode& other) const {
+		bool operator<(PathNode const& other) const {
 			return fCost< other.fCost;
 		}
 	};
 
+	// Used in the priority queue, to find the minimum fCost in O(1) time
 	struct PQNode {
+		// Current cost + heuristic cost to goal for priority queue
 		double fCost;
+		// Key for the hashmap, discretization of the pose variable
 		std::tuple<int,int,int> key;
-
-		bool operator>(const PQNode& other) const {
+		// Comparison to find the best candidate from the open list, used in the priority queue
+		bool operator>(PQNode const& other) const {
 			return fCost > other.fCost;
 		}
 	};
