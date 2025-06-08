@@ -13,10 +13,10 @@ namespace model {
     {
     public:
 		AIControl(int lookAhead = 1) : _lookAhead(lookAhead) {}
-        ControlCommand drive(const VehicleState & state, const pathPlanning::PathPlanner & pathPlanner) override;
+        ControlCommand drive(VehicleState const& state, pathPlanning::PathPlanner const& pathPlanner) override;
 
     private:
-        const Pose * _getAtRange(const Pose& vehiclePose, const Path& path) const;
+        Pose const* _getAtRange(Pose const& vehiclePose, Path const& path) const;
         int _lookAhead;
     };
 }
