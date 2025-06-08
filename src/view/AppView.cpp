@@ -12,7 +12,7 @@ namespace view {
 	{
 	}
 
-	AppView::AppView(const model::Vehicle& vehicle, const std::vector<model::Cone>& map)
+	AppView::AppView(model::Vehicle const& vehicle, std::vector<model::Cone> const& map)
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
@@ -46,71 +46,45 @@ namespace view {
 		//Drawing
 		_drawGrid();
 		_window.draw(_vehicleView);
-		for (const auto& coneView : _coneViews) {
+		for (auto const& coneView : _coneViews) {
 			_window.draw(coneView);
 		}
 		for (auto& path : _pathViews) {
 			_window.draw(path);
 		}
 		//if (_drawables) {
-		//	for (const auto& drawable : _drawables) {
+		//	for (auto const& drawable : _drawables) {
 		//		_window.draw(drawable);
 		//	}
 		//}
 
 		_window.display();
 	}
-	//This should be in the controller
+
 	void AppView::pollEvents()
 	{
 		sf::Event event;
 		while (_window.pollEvent(event)){
 			if (event.type == sf::Event::Closed)
-				_window.close();
-
-			if (event.type == sf::Event::KeyPressed) {
-				if (event.key.code == sf::Keyboard::Escape)
-					_window.close();
-				if (event.key.code == sf::Keyboard::LShift) {
-					// Wait until released
-					while (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
-						// Do nothing
-					}
-				}
-			}
-			if (event.type == sf::Event::MouseButtonPressed)
-			{
-				if (event.mouseButton.button == sf::Mouse::Left) {
-					sf::Vector2i pixelPos = sf::Mouse::getPosition(_window);
-
-					sf::Vector2f worldPos = _window.mapPixelToCoords(pixelPos);
-
-					std::cout << "Map coords (on button press):" << std::endl;
-					std::cout << "map x: " << worldPos.x << std::endl;
-					std::cout << "map y: " << worldPos.y << std::endl;
-					_clickGlobalPos = model::Point(worldPos.x, worldPos.y);
-				}
-			}
-			if (event.type == sf::Event::MouseWheelMoved)
-			{
-				int delta= event.mouseWheel.delta;
-				double zoom = 1 - delta * 0.25;
-				_zoom = _zoom * zoom;
-				//std::cout << delta << std::endl;
-				_view.zoom(1-delta*0.25);
-			}
-			if (event.type== sf::Event::Resized)
+				_window.close(); 
+			else if (event.type == sf::Event::Resized)
 			{
 				// update the view to the new size of the window
-				auto resized= event.size;
+				auto resized = event.size;
 				_videoWidth = resized.width;
 				_videoHeight = resized.height;
 				_view.setSize(resized.width, resized.height);
 				_view.setCenter(_vehicleView.getPosition());
 				_view.zoom(_zoom);
-
+				
+				_notify("AppView", model::Resized{});
+			} 
+			else
+			{
+				model::InputEvent e = _translateToInput(event);
+				if (!std::holds_alternative<model::None>(e))
+					_notify("AppView", e);
 			}
-
 
 
 		}
@@ -131,33 +105,41 @@ namespace view {
 		_window.close();
 	}
 
-	void AppView::setVehicle(const model::Vehicle& vehicle)
+	void AppView::setVehicle(model::Vehicle const& vehicle)
 	{
 		_vehicleView = VehicleView(vehicle);
 		_view.setCenter(_vehicleView.getPosition());
 	}
 
-	void AppView::setCones(const std::vector<model::Cone>& cones)
+	void AppView::setCones(std::vector<model::Cone> const& cones)
 	{
 		_coneViews.clear();
 		_coneViews.reserve(cones.size());
-		for (const auto& cone : cones) {
-			_coneViews.emplace_back(ConeView(cone));	
+		for (auto const& cone : cones) {
+			_coneViews.emplace_back(cone);	
 			_itemViewTable.emplace(&cone, &_coneViews.back());
 		}
 	}
 
-	void AppView::setPath(const model::Path& path)
+	void AppView::setPath(model::Path const& path)
 	{
 		_pathViews = std::vector<PathView>{ PathView(path) };
+
 	}
 
-	void AppView::setPath(const std::vector<model::Path>& pathVector)
+	void AppView::setPath(std::deque<model::Path> const& pathVector)
 	{
+		// TODO: Delete from itemViewTable
 		_pathViews.clear();
-		for (const auto& path : pathVector) {
-			_pathViews.emplace_back(path);
+		if (pathVector.empty()) {
+			_pathViews.push_back(PathView());
+			return;
 		}
+		for (auto const& path : pathVector) {
+			_pathViews.emplace_back(path);
+			//_itemViewTable.emplace(&path, _pathViews.back());
+		}
+		_pathViews.back().setColor(sf::Color::Green);
 
 	}
 
@@ -166,7 +148,7 @@ namespace view {
 		for (auto& coneView : _coneViews) {
 			coneView.isDetected = false;
 		}
-		for (const auto& item : detectedCones) {
+		for (auto const& item : detectedCones) {
 			_itemViewTable[item]->isDetected = true;
 		}
 	}
@@ -210,6 +192,56 @@ namespace view {
 	void AppView::_drawGrid()
 	{
 		_window.draw(_gridLines);
+	}
+
+	model::InputEvent AppView::_translateToInput(sf::Event event)
+	{
+
+		if (event.type == sf::Event::KeyPressed) {
+			if (event.key.code == sf::Keyboard::Escape)
+				return model::PressedEsc();
+				//_window.close();
+			if (event.key.code == sf::Keyboard::LShift) {
+				//// Wait until released
+				//while (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
+				//	// Do nothing
+				//}
+				return model::PressedLShift();
+			}
+		}
+		if (event.type == sf::Event::MouseButtonPressed)
+		{
+			if (event.mouseButton.button == sf::Mouse::Left) {
+				sf::Vector2i pixelPos = sf::Mouse::getPosition(_window);
+
+				sf::Vector2f worldPos = _window.mapPixelToCoords(pixelPos);
+
+				//std::cout << "Map coords (on button press):" << std::endl;
+				//std::cout << "map x: " << worldPos.x << std::endl;
+				//std::cout << "map y: " << worldPos.y << std::endl;
+				//_clickGlobalPos = model::Point(worldPos.x, worldPos.y);
+				return model::ClickedAt{ (double)worldPos.x, (double)worldPos.y };
+			}
+		}
+		if (event.type == sf::Event::MouseWheelMoved)
+		{
+			int delta = event.mouseWheel.delta;
+			//double zoom = 1 - delta * 0.25;
+			//_zoom = _zoom * zoom;
+			////std::cout << delta << std::endl;
+			//_view.zoom(1 - delta * 0.25);
+			return model::Scrolled{ delta };
+		}
+		if (event.type == sf::Event::Resized) {
+			return model::Resized();
+		}		
+		if (event.type == sf::Event::LostFocus) {
+			return model::LostFocus();
+		}
+		if (event.type == sf::Event::GainedFocus) {
+			return model::GainedFocus();
+		}
+		return model::None();
 	}
 
 //	void AppView::addDrawable(sf::Drawable& drawable)
