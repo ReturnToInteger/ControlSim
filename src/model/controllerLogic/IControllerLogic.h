@@ -1,14 +1,14 @@
 #pragma once 
-#include "model/VehicleState.h"
-#include "model/pathPlanning/PathPlanner.h"
- 
+#include "model/controllerLogic/ControlCommand.h"
+
 namespace model {
-	struct ControlCommand;
+	class pathPlanning::PathPlanner;
+	class VehicleState;
 	class IControllerLogic {
 	public:
 		IControllerLogic() = default;
 		~IControllerLogic() = default;
-		virtual ControlCommand drive(const VehicleState& state, const pathPlanning::PathPlanner& pathPlanner) = 0;
+		virtual ControlCommand drive(VehicleState const& state, pathPlanning::PathPlanner const& pathPlanner) = 0;
 
 	};
 }
