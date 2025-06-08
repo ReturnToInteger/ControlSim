@@ -18,21 +18,21 @@ namespace model {
         }
 
 
-        Pose operator+(const Pose& other) const
+        Pose operator+(Pose const& other) const
         {
             return Pose(x + other.x, y + other.y, theta + other.theta);
         }
-        Pose operator-(const Pose& other) const
+        Pose operator-(Pose const& other) const
         {
             return Pose(x - other.x, y - other.y, theta - other.theta);
         }
-        double operator*(const Pose& other) const
+        double operator*(Pose const& other) const
         {
             return x * other.x + y * other.y;
         }
 
 
-        Pose& operator+=(const Pose& other)
+        Pose& operator+=(Pose const& other)
         {
             x += other.x;
             y += other.y;
@@ -40,13 +40,13 @@ namespace model {
             return *this;
         }
 
-        bool operator==(const Pose& other) const
+        bool operator==(Pose const& other) const
         {
             double dE = 1e-6;
             return abs(x - other.x) < dE && abs(y - other.y) < dE && abs(theta - other.theta) < dE;
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const Pose& pose) {
+        friend std::ostream& operator<<(std::ostream& os, Pose const& pose) {
             os << std::endl << "x: " << pose.x << std::endl << "y: " << pose.y << std::endl << "theta: " << pose.theta;
             return os;
         }

@@ -16,7 +16,7 @@ namespace model {
 		ControlInput(double targetSpeed, double steeringAngle) : targetSpeed(targetSpeed), steeringAngle(steeringAngle) {}
 	};
 
-    //inline Point rotatePoint(const model::Point& p, const model::Angle& a) {
+    //inline Point rotatePoint(model::Point const& p, model::Angle const& a) {
     //    double c = model::cos(a);
     //    double s = model::sin(a);
     //    return Point(p.X() * c - p.Y() * s, p.X() * s + p.Y() * c);
@@ -36,7 +36,7 @@ namespace model {
         double radius; // Radius of the obstacle
     };
     template <typename Func, typename... Args>
-    inline std::chrono::duration<double> timeFunction(const std::string& label, Func&& func, Args&&... args) {
+    inline std::chrono::duration<double> timeFunction(std::string const& label, Func&& func, Args&&... args) {
         std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
         std::invoke(std::forward<Func>(func), std::forward<Args>(args)...);
         std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
@@ -49,7 +49,7 @@ namespace model {
         return std::max(min, std::min(value, max));
     }
 
-    inline double normAngle(const double& orientation)
+    inline double normAngle(double const& orientation)
     {
         double a = std::fmod(orientation + M_PI, 2 * M_PI);
         if (a < 0) a += 2 * M_PI;
@@ -65,7 +65,7 @@ namespace model {
 
     // From Boost
     template <class T>
-    inline void hash_combine(std::size_t& seed, const T& v)
+    inline void hash_combine(std::size_t& seed, T const& v)
     {
         std::hash<T> hasher;
         seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -80,7 +80,7 @@ namespace std
 	template <typename T1, typename T2, typename T3>
     struct hash<tuple<T1,T2,T3>>
     {
-        inline size_t operator()(const tuple<T1,T2,T3>& p) const
+        inline size_t operator()(tuple<T1,T2,T3> const& p) const
         {
             size_t seed = 0;
             model::hash_combine(seed, std::get<0>(p));

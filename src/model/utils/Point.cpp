@@ -27,55 +27,55 @@ namespace model
 		: _x(0), _y(0)
 	{
 	}
-	Point::Point(const double& x, const double& y) : _x(x),_y(y)
+	Point::Point(double const& x, double const& y) : _x(x),_y(y)
 	{
 	}
 
-	model::Point::Point(const Pose& pose) : _x(pose.x), _y(pose.y)
+	model::Point::Point(Pose const& pose) : _x(pose.x), _y(pose.y)
 	{
 	}
 
-	Point Point::operator+(const Point& other) const
+	Point Point::operator+(Point const& other) const
 	{
 		return Point(X() + other.X(), Y() + other.Y());
 	}
-	Point Point::operator-(const Point& other) const
+	Point Point::operator-(Point const& other) const
 	{
 		return Point(X() - other.X(), Y() - other.Y());
 	}
-	double Point::operator*(const Point& other) const
+	double Point::operator*(Point const& other) const
 	{
 		return X() * other.X()+ Y() * other.Y();
 	}
 
-	Point Point::operator*(const double& scale) const
+	Point Point::operator*(double const& scale) const
 	{
 		return Point(X() * scale, Y() * scale);
 	}
 
-	Point Point::operator/(const double& scale) const
+	Point Point::operator/(double const& scale) const
 	{
 		return Point(X() / scale, Y() / scale);
 	}
 
-	Point& Point::operator+=(const Point& other)
+	Point& Point::operator+=(Point const& other)
 	{
 		_x += other._x;
 		_y += other._y;
 		return *this;
 	}
 
-	bool Point::operator==(const Point& other) const
+	bool Point::operator==(Point const& other) const
 	{
 		return abs(_x - other._x) < 1e-8 && abs(_y - other._y) < 1e-8;
 	}
 
-	bool Point::operator!=(const Point& other) const
+	bool Point::operator!=(Point const& other) const
 	{
 		return abs(_x - other._x) > 1e-8 || abs(_y - other._y) > 1e-8;
 	}
 
-	std::ostream& operator<<(std::ostream& os, const Point& point)
+	std::ostream& operator<<(std::ostream& os, Point const& point)
 	{
 		os <<std::endl<< "x: " << point._x<<std::endl<<"y: "<<point._y; 
 		return os;

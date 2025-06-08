@@ -33,7 +33,7 @@ view::VehicleView::VehicleView()
 {
 }
 
-view::VehicleView::VehicleView(const model::Vehicle& vehicle, sf::Color color)
+view::VehicleView::VehicleView(model::Vehicle const& vehicle, sf::Color color)
 	: ItemView(color), _vehicle(&vehicle)
 {
 	if (!_texture.loadFromFile("car.png"))

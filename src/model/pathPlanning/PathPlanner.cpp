@@ -11,7 +11,7 @@ namespace model {
 		{
 		}
 
-		void PathPlanner::planPath(const std::vector<const model::Cone*>& cones, const model::VehicleState& vehicleState)
+		void PathPlanner::planPath(std::vector<const model::Cone*> const& cones, model::VehicleState const& vehicleState)
 		{
 
 			Angle maxSteeringAngle = vehicleState.getMaxSteeringAngle();
@@ -49,7 +49,7 @@ namespace model {
 			while (!_openList.empty() && _openList.size() < MAX_CONTAINER_SIZE && _closedList.size() < MAX_CONTAINER_SIZE) {
 				// Find the node with the lowest cost in the open list
 				//auto minNodeIt = std::min_element(_openList.begin(), _openList.end(),
-				//	[](const auto& a, const auto& b) { return a.second < b.second; });
+				//	[](auto const& a, auto const& b) { return a.second < b.second; });
 				//PathNode currentNode = minNodeIt->second;
 
 				// Get smallest cost
@@ -82,7 +82,7 @@ namespace model {
 			return _plannedPath;
 		}
 
-		void PathPlanner::setGoal(const Point& goal)
+		void PathPlanner::setGoal(Point const& goal)
 		{
 			_goal = goal;
 		}
@@ -104,7 +104,7 @@ namespace model {
 			_plannedPath = Path(path);
 		}
 
-		void PathPlanner::_updateNeightbours(const std::vector<const model::Cone*>& cones, PathNode& node)
+		void PathPlanner::_updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode& node)
 		{
 			double maxSteeringAngle = node.state.getMaxSteeringAngle();
 
@@ -165,7 +165,7 @@ namespace model {
 			}
 		}
 
-		model::VehicleState PathPlanner::_stepByDistance(const VehicleState& state, double distance, double steeringAngle)
+		model::VehicleState PathPlanner::_stepByDistance(VehicleState const& state, double distance, double steeringAngle)
 		{
 			VehicleState copy = state;
 			double deltaTime;
@@ -181,7 +181,7 @@ namespace model {
 
 		}
 
-		std::tuple<int, int, int> PathPlanner::_discretizePoint(const model::Pose& pose) const
+		std::tuple<int, int, int> PathPlanner::_discretizePoint(model::Pose const& pose) const
 		{
 			int x = static_cast<int>((pose.x - _cellSize / 2.0) / _cellSize);
 			int y = static_cast<int>((pose.y - _cellSize / 2.0) / _cellSize);
@@ -189,14 +189,14 @@ namespace model {
 			return std::make_tuple(x, y, angle);
 		}
 
-		std::pair<bool, model::Pose> PathPlanner::_detectCollision(const VehicleState& state, const std::vector<const model::Cone*>& cones) const
+		std::pair<bool, model::Pose> PathPlanner::_detectCollision(VehicleState const& state, std::vector<const model::Cone*> const& cones) const
 		{
 			model::Point vehiclePosition(state.getPosition());
 			Angle vehicleOrientation = state.getOrientation();
 			if (cones.empty()) return { false, Pose() };
 			double radius = cones[0]->getRadius();
 			double vhclLength = state.getLength(), vhclWidth = state.getWidth();
-			for (const auto& cone : cones) {
+			for (auto const& cone : cones) {
 				if (cone->getType() == model::ConeType::UNKNOWN) {
 					continue; // Skip unknown cones
 				}
@@ -215,14 +215,14 @@ namespace model {
 			return { false,Pose() }; // No collision
 		}
 
-		std::pair<bool, model::Pose> PathPlanner::_lazyDetectCollision(const VehicleState& state, const std::vector<const model::Cone*>& cones) const
+		std::pair<bool, model::Pose> PathPlanner::_lazyDetectCollision(VehicleState const& state, std::vector<const model::Cone*> const& cones) const
 		{
 			model::Point vehiclePosition(state.getPosition());
 			Angle vehicleOrientation = state.getOrientation();
 			if (cones.empty()) return { false, Pose() };
 			double radius = cones[0]->getRadius();
 			double vhclLength = state.getLength(), vhclWidth = state.getWidth();
-			for (const auto& cone : cones) {
+			for (auto const& cone : cones) {
 				if (cone->getType() == model::ConeType::UNKNOWN) {
 					continue; // Skip unknown cones
 				}
@@ -236,17 +236,17 @@ namespace model {
 			return { false,Pose() }; // No collision
 		}
 
-		std::vector<model::Point> PathPlanner::_getBoundary(const VehicleState& state) const
+		std::vector<model::Point> PathPlanner::_getBoundary(VehicleState const& state) const
 		{
 			throw std::runtime_error("getBoundary not implemented");
 		}
 
-		model::Point PathPlanner::_rotatePoint(const model::Point& point, const Angle& angle) const
+		model::Point PathPlanner::_rotatePoint(model::Point const& point, Angle const& angle) const
 		{
 			return model::Point(point.X() * model::cos(angle) - point.Y() * model::sin(angle), point.X() * model::sin(angle) + point.Y() * model::cos(angle));
 		}
 
-		double PathPlanner::_getHeuristics(const model::VehicleState& start, const model::Point& goalPoint)
+		double PathPlanner::_getHeuristics(model::VehicleState const& start, model::Point const& goalPoint)
 		{
 			//return (point - goal).magnitude();
 			return _dubins.simpleDistance(start.getPose(), goalPoint) + abs(start.getSteeringAngle()) / start.getMaxSteeringAngle();

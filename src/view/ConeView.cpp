@@ -17,7 +17,7 @@ void view::ConeView::draw(sf::RenderTarget& target, sf::RenderStates states) con
 	target.draw(coneShape);
 }
 
-view::ConeView::ConeView(const model::Cone& cone) : _cone(&cone), ItemView(_typeToColor(&cone))
+view::ConeView::ConeView(model::Cone const& cone) : _cone(&cone), ItemView(_typeToColor(&cone))
 {
 }
 

@@ -1,7 +1,7 @@
 #include "PathView.h"
 #include "model/items/Path.h"
 
-view::PathView::PathView(const model::Path& path, sf::Color color)
+view::PathView::PathView(model::Path const& path, sf::Color color)
     : ItemView(color), _path(&path)
 {
 
@@ -10,9 +10,10 @@ view::PathView::PathView(const model::Path& path, sf::Color color)
 
 void view::PathView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    if (_path == nullptr) return;
     sf::VertexArray path;
     path.setPrimitiveType(sf::LinesStrip);
-    for (const auto& point : *_path) {
+    for (auto const& point : *_path) {
         path.append(sf::Vertex(sf::Vector2f(point.x, point.y),_color));
     }
     

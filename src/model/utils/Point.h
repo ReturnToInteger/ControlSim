@@ -9,18 +9,18 @@ namespace model {
 		double _x, _y;
 	public:
 		Point();
-		Point(const double& x, const double& y);
-		Point(const Pose& pose);
+		Point(double const& x, double const& y);
+		Point(Pose const& pose);
 
-		Point operator+(const Point& other) const;
-		Point operator-(const Point& other) const;
-		double operator*(const Point& other) const;
-		Point operator*(const double& scale) const;
-		Point operator/(const double& scale) const;
-		Point& operator+=(const Point& other);
-		bool operator==(const Point& other) const;
-		bool operator!=(const Point& other) const;
-		friend std::ostream& operator<<(std::ostream& os, const Point& point);
+		Point operator+(Point const& other) const;
+		Point operator-(Point const& other) const;
+		double operator*(Point const& other) const;
+		Point operator*(double const& scale) const;
+		Point operator/(double const& scale) const;
+		Point& operator+=(Point const& other);
+		bool operator==(Point const& other) const;
+		bool operator!=(Point const& other) const;
+		friend std::ostream& operator<<(std::ostream& os, Point const& point);
 
 
 		double X() const;

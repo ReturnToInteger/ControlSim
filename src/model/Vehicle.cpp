@@ -55,7 +55,7 @@ namespace model {
 	   return _state->getOrientation();
    }
 
-   void model::Vehicle::planPath(const std::vector<const model::Cone*>& cones, const VehicleState & state)
+   void model::Vehicle::planPath(std::vector<const model::Cone*> const& cones, VehicleState const& state)
    {
 
 	   _pathPlanner->planPath(cones, state);

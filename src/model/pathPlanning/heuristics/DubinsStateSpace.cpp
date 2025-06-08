@@ -6,7 +6,7 @@
 
 namespace model {
     namespace pathPlanning {
-        double DubinsStateSpace::distance(const model::Pose& start, const model::Pose& end)
+        double DubinsStateSpace::distance(model::Pose const& start, model::Pose const& end)
         {
             //std::cout << "Start: " << start << std::endl;
             //std::cout << "End: " << end << std::endl;
@@ -33,7 +33,7 @@ namespace model {
             return distance;
         }
 
-        double DubinsStateSpace::simpleDistance(const model::Pose& start, const model::Point endPoint)
+        double DubinsStateSpace::simpleDistance(model::Pose const& start, const model::Point endPoint)
         {
             std::pair<double, double> costs(1.7e308, 1.7e308);
             _startLeftOrig = _leftOrigin(start);
@@ -47,14 +47,14 @@ namespace model {
             return std::min(costs.first, costs.second);
         }
 
-        model::Point DubinsStateSpace::rotatePoint(const Point& p, const Angle& a)
+        model::Point DubinsStateSpace::rotatePoint(Point const& p, Angle const& a)
         {
             double c = cos(a);
             double s = sin(a);
             return Point(p.X() * c - p.Y() * s, p.X() * s + p.Y() * c);
         }
 
-        double DubinsStateSpace::_RSR(const model::Pose& start, const model::Pose& end)
+        double DubinsStateSpace::_RSR(model::Pose const& start, model::Pose const& end)
         {
             // Start: right origin, end: right origin
             model::Point originVect(_endRightOrig - _startRightOrig);
@@ -68,7 +68,7 @@ namespace model {
             return startArcLength + straightLength + endArcLength;
         }
 
-        double DubinsStateSpace::_LSL(const model::Pose& start, const model::Pose& end)
+        double DubinsStateSpace::_LSL(model::Pose const& start, model::Pose const& end)
         {
             // Start: left origin, end: left origin
             model::Point originVect(_endLeftOrig - _startLeftOrig);
@@ -82,7 +82,7 @@ namespace model {
             return startArcLength + straightLength + endArcLength;
         }
 
-        double DubinsStateSpace::_LSR(const model::Pose& start, const model::Pose& end)
+        double DubinsStateSpace::_LSR(model::Pose const& start, model::Pose const& end)
         {
             // Start left, end right
             model::Point originVect(_endRightOrig - _startLeftOrig);
@@ -107,7 +107,7 @@ namespace model {
             return startArcLength + straightLength + endArcLength;
         }
 
-        double DubinsStateSpace::_RSL(const model::Pose& start, const model::Pose& end)
+        double DubinsStateSpace::_RSL(model::Pose const& start, model::Pose const& end)
         {
             // Start right, end left
             model::Point originVect(_endLeftOrig - _startRightOrig);
@@ -132,17 +132,17 @@ namespace model {
             return startArcLength + straightLength + endArcLength;
         }
 
-        double DubinsStateSpace::_RLR(const model::Pose& start, const model::Pose& end)
+        double DubinsStateSpace::_RLR(model::Pose const& start, model::Pose const& end)
         {
             return 1.7e308;
         }
 
-        double DubinsStateSpace::_LRL(const model::Pose& start, const model::Pose& end)
+        double DubinsStateSpace::_LRL(model::Pose const& start, model::Pose const& end)
         {
             return 1.7e308;
         }
 
-        double DubinsStateSpace::_leftStraight(const model::Pose& start, const model::Point& endPoint)
+        double DubinsStateSpace::_leftStraight(model::Pose const& start, model::Point const& endPoint)
         {
             // Start left, end: endPoint
             model::Point originVect(endPoint - _startLeftOrig);
@@ -174,7 +174,7 @@ namespace model {
 
         }
 
-        double DubinsStateSpace::_rightStraight(const model::Pose& start, const model::Point& endPoint)
+        double DubinsStateSpace::_rightStraight(model::Pose const& start, model::Point const& endPoint)
         {
             // Start left, end: endPoint
             model::Point originVect(endPoint - _startRightOrig);
@@ -207,21 +207,21 @@ namespace model {
         }
 
 
-        model::Point DubinsStateSpace::_leftOrigin(const model::Pose& p)
+        model::Point DubinsStateSpace::_leftOrigin(model::Pose const& p)
         {
             Angle rightAng = p.theta + M_PI / 2.0;
             Point norm = rotatePoint(Point(1, 0), rightAng);
             return Point(p) + norm * _turningRadius;
         }
 
-        model::Point DubinsStateSpace::_rightOrigin(const model::Pose& p)
+        model::Point DubinsStateSpace::_rightOrigin(model::Pose const& p)
         {
             Angle rightAng = p.theta - M_PI / 2.0;
             Point norm = rotatePoint(Point(1, 0), rightAng);
             return Point(p) + norm * _turningRadius;
         }
 
-        double DubinsStateSpace::_arcLength(const model::Point& first, const model::Point& origin, const model::Point& second, Direction dir) const
+        double DubinsStateSpace::_arcLength(model::Point const& first, model::Point const& origin, model::Point const& second, Direction dir) const
         {
             Point pVec = first - origin;
             Point tVec = second - origin;

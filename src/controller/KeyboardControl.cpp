@@ -6,7 +6,7 @@
 
 
 namespace controller {
-	model::ControlCommand KeyboardControl::drive(const model::VehicleState& state, const model::pathPlanning::PathPlanner& pathPlanner)
+	model::ControlCommand KeyboardControl::drive(model::VehicleState const& state, model::pathPlanning::PathPlanner const& pathPlanner)
 	{
 
 		return model::ControlCommand(detectSpeed(), detectAngle());

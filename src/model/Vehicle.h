@@ -30,7 +30,7 @@ namespace model {
 		void update(double dt);
 		Point getPosition() const override;
 		double getOrientation() const;
-		void planPath(const std::vector<const model::Cone*>& cones, const VehicleState & state);
+		void planPath(std::vector<const model::Cone*> const& cones, VehicleState const& state);
 		void setPlannedPath();
 		Path getPlannedPath() const;
 		void setGoal(Point goal);

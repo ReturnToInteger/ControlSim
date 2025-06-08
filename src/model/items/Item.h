@@ -5,8 +5,8 @@ namespace model {
 	{
 	public:
 		Item() = default;
-		Item(const Item&) = default;
-		Item& operator=(const Item&) = default;
+		Item(Item const&) = default;
+		Item& operator=(Item const&) = default;
 		Item(Item&& other) = default;
 		Item& operator=(Item&& other) = default;
 		virtual ~Item() = default;

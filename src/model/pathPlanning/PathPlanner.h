@@ -22,11 +22,11 @@ namespace model {
 		public:
 			PathPlanner(int iterations = 5, double deltaSpace = 1.5, double cellSize = 0.5, double steeringStep = M_PI / 18);
 			~PathPlanner() = default;
-			void planPath(const std::vector<const model::Cone*>& cones, const model::VehicleState& vehicleState);
+			void planPath(std::vector<const model::Cone*> const& cones, model::VehicleState const& vehicleState);
 			//Sets planned path based on current node
 			void setPlannedPath();
 			Path getPlannedPath() const;
-			void setGoal(const Point& goal);
+			void setGoal(Point const& goal);
 			void clear();
 			double getCellSize() const { return _cellSize; }
 
@@ -49,14 +49,14 @@ namespace model {
 			PathNode _currentNode;
 			DubinsStateSpace _dubins;
 
-			void _updateNeightbours(const std::vector<const model::Cone*>& cones, PathNode& node);
-			VehicleState _stepByDistance(const VehicleState& state, double distance, double steeringAngle);
-			std::tuple<int, int, int> _discretizePoint(const model::Pose& pose) const;
-			std::pair<bool, model::Pose> _detectCollision(const VehicleState& state, const std::vector<const model::Cone*>& cones) const;
-			std::pair<bool, model::Pose> _lazyDetectCollision(const VehicleState& state, const std::vector<const model::Cone*>& cones) const;
-			std::vector<model::Point> _getBoundary(const VehicleState& state) const;
-			Point _rotatePoint(const model::Point& point, const Angle& angle) const;
-			double _getHeuristics(const model::VehicleState& start, const model::Point& goal);
+			void _updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode& node);
+			VehicleState _stepByDistance(VehicleState const& state, double distance, double steeringAngle);
+			std::tuple<int, int, int> _discretizePoint(model::Pose const& pose) const;
+			std::pair<bool, model::Pose> _detectCollision(VehicleState const& state, std::vector<const model::Cone*> const& cones) const;
+			std::pair<bool, model::Pose> _lazyDetectCollision(VehicleState const& state, std::vector<const model::Cone*> const& cones) const;
+			std::vector<model::Point> _getBoundary(VehicleState const& state) const;
+			Point _rotatePoint(model::Point const& point, Angle const& angle) const;
+			double _getHeuristics(model::VehicleState const& start, model::Point const& goal);
 			// gets position-orientation pairs until new position is reached
 			std::vector<model::VehicleState> _stepUntilNew(VehicleState& state, double distanceStep);
 

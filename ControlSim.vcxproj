@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\controller\App.cpp" />
+    <ClCompile Include="src\model\eventHandlers\InputEventPublisher.cpp" />
     <ClCompile Include="src\model\mapReaders\MATLAB\MatlabMapReader.cpp" />
     <ClCompile Include="src\model\pathPlanning\heuristics\DubinsStateSpace.cpp" />
     <ClCompile Include="src\model\items\Path.cpp" />
@@ -40,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\controller\App.h" />
+    <ClInclude Include="src\model\eventHandlers\InputEventPublisher.h" />
+    <ClInclude Include="src\model\eventHandlers\InputEventHandler.h" />
     <ClInclude Include="src\model\mapReaders\MATLAB\MatlabMapReader.h" />
     <ClInclude Include="src\model\utils\Angle.h" />
     <ClInclude Include="src\model\pathPlanning\heuristics\DubinsStateSpace.h" />
@@ -47,6 +50,7 @@
     <ClInclude Include="src\model\controllerLogic\ControlCommand.h" />
     <ClInclude Include="src\model\controllerLogic\AIControl.h" />
     <ClInclude Include="src\model\pathPlanning\PathNode.h" />
+    <ClInclude Include="src\model\utils\FixSizedQueue.h" />
     <ClInclude Include="src\model\utils\Pose.h" />
     <ClInclude Include="src\model\vehicleModels\IVehicleModels.h" />
     <ClInclude Include="src\view\GridView.h" />

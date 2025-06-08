@@ -10,7 +10,7 @@ namespace view {
     {
     public:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-        ConeView(const model::Cone& cone);
+        ConeView(model::Cone const& cone);
         ConeView();
         ~ConeView() = default;
         sf::Vector2f getPosition() const override;

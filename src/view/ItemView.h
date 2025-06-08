@@ -9,6 +9,7 @@ namespace view {
 		ItemView(sf::Color color = sf::Color::Black) : _color(color) {}
         virtual sf::Vector2f getPosition() const = 0;
         bool isDetected=false;
+        //virtual const model::Item* getItem() const = 0;
 
     protected:
         // Pointer to the model object, if needed

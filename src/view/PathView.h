@@ -10,10 +10,11 @@ namespace view
     {
 	public:
 		PathView() = default;
-		PathView(const model::Path& path, sf::Color color = sf::Color::Red);
+		PathView(model::Path const& path, sf::Color color = {150,150,150});
 		~PathView() = default;
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 		sf::Vector2f getPosition() const override;
+		void setColor(sf::Color color) { _color = color; }
 	private:
 		const model::Path* _path;
 

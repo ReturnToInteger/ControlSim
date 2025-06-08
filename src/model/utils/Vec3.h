@@ -7,20 +7,20 @@ class Vec3 {
 public:
 	Vec3() : _data{ 0.0, 0.0, 0.0 } {}
 	Vec3(double x, double y, double z) : _data{ x, y, z } {}
-	Vec3(const Vec3& other) : _data{ other._data } {}
-	Vec3& operator=(const Vec3& other) {
+	Vec3(Vec3 const& other) : _data{ other._data } {}
+	Vec3& operator=(Vec3 const& other) {
 		if (this != &other) {
 			_data = other._data;
 		}
 		return *this;
 	}
-	Vec3 operator+(const Vec3& other) const {
+	Vec3 operator+(Vec3 const& other) const {
 		return Vec3(_data[0] + other._data[0], _data[1] + other._data[1], _data[2] + other._data[2]);
 	}
-	Vec3 operator-(const Vec3& other) const {
+	Vec3 operator-(Vec3 const& other) const {
 		return Vec3(_data[0] - other._data[0], _data[1] - other._data[1], _data[2] - other._data[2]);
 	}
-	Vec3& operator+=(const Vec3& other) {
+	Vec3& operator+=(Vec3 const& other) {
 		_data[0] += other._data[0];
 		_data[1] += other._data[1];
 		_data[2] += other._data[2];

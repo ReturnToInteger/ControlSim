@@ -47,7 +47,7 @@ int main() {
 	//std::cout << "Duration: " << dur.count() << std::endl;
 
 	controller::App app(
-		std::make_unique<model::Vehicle>(std::make_unique<controller::KeyboardControl>(), std::make_unique<model::pathPlanning::PathPlanner>(60, 3.0, 0.2)),
+		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(3), std::make_unique<model::pathPlanning::PathPlanner>(60, 3.0, 0.2)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>()
 	);

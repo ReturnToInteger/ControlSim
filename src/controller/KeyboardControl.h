@@ -12,7 +12,7 @@ namespace controller
 		public model::IControllerLogic  
 	{  
 		// Inherited via IControllerLogic  
-		model::ControlCommand drive(const model::VehicleState& state, const model::pathPlanning::PathPlanner& pathPlanner) override;
+		model::ControlCommand drive(model::VehicleState const& state, model::pathPlanning::PathPlanner const& pathPlanner) override;
 
 		double detectSpeed();
 
