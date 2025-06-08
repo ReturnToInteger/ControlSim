@@ -36,7 +36,7 @@
     <ClCompile Include="src\model\pathPlanning\heuristics\DubinsStateSpace.cpp" />
     <ClCompile Include="src\model\utils\Point.cpp" />
     <ClCompile Include="src\model\mapReaders\MATLAB\MatlabMapReader.cpp" />
-    <ClCompile Include="src\model\eventHandlers\InputEventPublisher.cpp" />
+    <ClCompile Include="src\model\events\InputEventPublisher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\model\items\Cone.h">
@@ -88,8 +88,8 @@
     <ClInclude Include="src\controller\App.h" />
     <ClInclude Include="src\model\mapReaders\MATLAB\MatlabMapReader.h" />
     <ClInclude Include="src\model\utils\FixSizedQueue.h" />
-    <ClInclude Include="src\model\eventHandlers\InputEventPublisher.h" />
-    <ClInclude Include="src\model\eventHandlers\InputEventHandler.h" />
+    <ClInclude Include="src\model\events\InputEventPublisher.h" />
+    <ClInclude Include="src\model\events\InputEventHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
