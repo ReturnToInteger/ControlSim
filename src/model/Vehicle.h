@@ -5,6 +5,7 @@
 #include <optional>
 #include "model/utils/Pose.h"
 #include "model/utils/Point.h"
+#include "model/utils/FixSizedQueue.h"
 #include "model/VehicleState.h"
 #include "model/pathPlanning/PathPlanner.h"
 #include "model/perception/Perception.h"
@@ -35,12 +36,13 @@ namespace model {
 		double getOrientation() const;
 		void planPath(std::vector<const model::Cone*> const& cones, VehicleState const& state);
 		void setPlannedPath();
-		Path getPlannedPath() const;
+		FixSizedQueue<Path> getPlannedPath() const;
 		void setGoal(Point goal);
 		Pose getPose();
 		void setPose(double x, double y, std::optional<double> orientation);
 		double getLength() const;
 		double getWidth() const;
+		double getWheelBase() const { _state->getWheelBase(); }
 		void clearPath();
 		double getSpeed() const;
 		VehicleState getStateCopy() const;

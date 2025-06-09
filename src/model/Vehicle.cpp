@@ -66,7 +66,7 @@ namespace model {
 	   _pathPlanner->setPlannedPath();
    }
 
-   Path model::Vehicle::getPlannedPath() const
+   FixSizedQueue<Path> model::Vehicle::getPlannedPath() const
    {
 	   return _pathPlanner->getPlannedPath();
    }
