@@ -6,6 +6,12 @@
 #include "model/events/InputEventPublisher.h"
 //#include "model/perception/Perception.h"
 
+template<typename ... Ts>                                                 
+struct overload : Ts ... {
+	using Ts::operator() ...;
+
+};
+template<class... Ts> overload(Ts...) -> overload<Ts...>;
 
 namespace model {
 	class Vehicle;
