@@ -11,6 +11,7 @@ namespace model {
     double sin(Angle const& a);
     double cos(Angle const& a);
 
+    // Normalized angle between -PI,PI
     struct Angle {
     public:
         Angle() :_a(0), _sin(0), _cos(1) {}
