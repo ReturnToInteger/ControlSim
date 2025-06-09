@@ -40,6 +40,7 @@ namespace view {
 		double getWidth() const { return _videoWidth; }
 		double getHeight() const { return _videoHeight; }
 		model::Point getClickGlobalPos() const { return _clickGlobalPos; }
+		void zoom(double factor);
 
 	private:
 		void _setupGrid();

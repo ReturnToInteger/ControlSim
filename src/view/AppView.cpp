@@ -44,13 +44,13 @@ namespace view {
 		_window.setView(_view);
 		//Drawing
 		_drawGrid();
-		_window.draw(_vehicleView);
 		for (auto const& coneView : _coneViews) {
 			_window.draw(coneView);
 		}
 		for (auto& path : _pathViews) {
 			_window.draw(path);
 		}
+		_window.draw(_vehicleView);
 		//if (_drawables) {
 		//	for (auto const& drawable : _drawables) {
 		//		_window.draw(drawable);
@@ -152,6 +152,14 @@ namespace view {
 		}
 	}
 
+	void AppView::zoom(double factor)
+	{
+		_zoom = _zoom * factor;
+		//std::cout << delta << std::endl;
+		_view.zoom(factor);
+
+	}
+
 	void AppView::_setupGrid()
 	{
 		sf::Vector2f topLeft(_window.mapPixelToCoords({ 0,0 }));
@@ -225,10 +233,6 @@ namespace view {
 		if (event.type == sf::Event::MouseWheelMoved)
 		{
 			int delta = event.mouseWheel.delta;
-			//double zoom = 1 - delta * 0.25;
-			//_zoom = _zoom * zoom;
-			////std::cout << delta << std::endl;
-			//_view.zoom(1 - delta * 0.25);
 			return model::events::Scrolled{ delta };
 		}
 		if (event.type == sf::Event::Resized) {
