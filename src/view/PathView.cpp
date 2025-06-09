@@ -13,7 +13,8 @@ void view::PathView::draw(sf::RenderTarget& target, sf::RenderStates states) con
     if (_path == nullptr) return;
     sf::VertexArray path;
     path.setPrimitiveType(sf::LinesStrip);
-    for (auto const& point : *_path) {
+    for (auto const& state: *_path) {
+        model::Pose point = state.getRearPose();
         path.append(sf::Vertex(sf::Vector2f(point.x, point.y),_color));
     }
     
