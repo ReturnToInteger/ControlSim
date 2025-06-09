@@ -24,6 +24,7 @@ namespace model {
 			return true;
 		}
 		std::deque<T> const& get() const { return _q; }
+		void set(std::deque<T> const& q) { _q = q; };
 	private:
 		std::deque<T> _q;
 		const int _size;
