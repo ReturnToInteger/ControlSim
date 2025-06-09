@@ -7,8 +7,9 @@ namespace model {
 	namespace pathPlanning {
 		PathPlanner::PathPlanner(int iterations, double deltaSpace, double cellSize, double steeringStep) :
 			_iterations(iterations), _deltaSpace(deltaSpace), _cellSize(cellSize), _steeringStep(steeringStep), _goal(-47.5, 10.0),
-			_dubins(3.0 / tan(M_PI / 6.0))
+			_dubins(3.0 / tan(M_PI / 6.0)), _plannedPaths(5)
 		{
+			
 		}
 
 		void PathPlanner::planPath(std::vector<const model::Cone*> const& cones, model::VehicleState const& vehicleState)
@@ -16,13 +17,14 @@ namespace model {
 
 			Angle maxSteeringAngle = vehicleState.getMaxSteeringAngle();
 			Angle beta = atan(tan(maxSteeringAngle) / 2);
-			double radius = vehicleState.getLength() / (tan(maxSteeringAngle) * cos(beta));
+			double radius = vehicleState.getWheelBase() / (tan(maxSteeringAngle) * cos(beta));
 
 			_dubins = DubinsStateSpace(radius);
 			int iter = 0;
 			_steeringAngles = { 0.0,
-				maxSteeringAngle * 0.2,-maxSteeringAngle * 0.2 ,
-				maxSteeringAngle * 0.4,-maxSteeringAngle * 0.4 ,
+				maxSteeringAngle * 0.05,-maxSteeringAngle * 0.05 ,
+				maxSteeringAngle * 0.25,-maxSteeringAngle * 0.25 ,
+				maxSteeringAngle * 0.5,-maxSteeringAngle * 0.5 ,
 				maxSteeringAngle * 0.75,-maxSteeringAngle * 0.75 ,
 				maxSteeringAngle,-maxSteeringAngle };
 
@@ -40,6 +42,7 @@ namespace model {
 			auto [isColliding, collisionPoint] = _detectCollision(startNode.state, cones);
 			if (isColliding) {
 				_collidingList.emplace(startPQ.key);
+				std::cout << "Inside a cone." << std::endl;
 				return;
 			}
 			// Add startNode to open list
@@ -48,9 +51,6 @@ namespace model {
 			//while (!_openList.empty()) {
 			while (!_openList.empty() && _openList.size() < MAX_CONTAINER_SIZE && _closedList.size() < MAX_CONTAINER_SIZE) {
 				// Find the node with the lowest cost in the open list
-				//auto minNodeIt = std::min_element(_openList.begin(), _openList.end(),
-				//	[](auto const& a, auto const& b) { return a.second < b.second; });
-				//PathNode currentNode = minNodeIt->second;
 
 				// Get smallest cost
 				PQNode top = _openQueue.top();
@@ -63,7 +63,7 @@ namespace model {
 				_openList.erase(it->first); // Remove the node from the open list
 
 				// or (currentNode.cost > _iterations)
-				if ((currentNode.state.getPosition() - _goal).magnitude() < _deltaSpace / 2.0) {
+				if ((currentNode.state.getPosition() - _goal).magnitude() < _deltaSpace ) {
 					_currentNode = currentNode;
 					return;
 				}
@@ -77,9 +77,9 @@ namespace model {
 			_currentNode = startNode;
 		}
 
-		Path PathPlanner::getPlannedPath() const
+		FixSizedQueue<Path> PathPlanner::getPlannedPath() const
 		{
-			return _plannedPath;
+			return _plannedPaths;
 		}
 
 		void PathPlanner::setGoal(Point const& goal)
@@ -91,17 +91,18 @@ namespace model {
 
 		void PathPlanner::setPlannedPath()
 		{
-			std::vector<Pose> path;
+			std::vector<VehicleState> path;
 			path.reserve(_iterations);
 			PathNode* currentNode = &_currentNode;
-			path.emplace_back(currentNode->state.getPose());
+			path.emplace_back(currentNode->state);
 			currentNode = currentNode->parent.get();
 			while (currentNode != nullptr && currentNode->parent.get() != currentNode) {
-				path.emplace_back(currentNode->state.getPose());
+				path.emplace_back(currentNode->state);
 				currentNode = currentNode->parent.get();
 			}
 			std::reverse(path.begin(), path.end());
-			_plannedPath = Path(path);
+			if (path.size()>=2)
+				_plannedPaths.push(Path(path));
 		}
 
 		void PathPlanner::_updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode& node)
@@ -121,9 +122,9 @@ namespace model {
 					bool isColliding = false;
 					model::Pose contactPoint;
 					//		Interpolate the path between the current node and the new node
-					std::vector<VehicleState> interpolatedState = _stepUntilNew(node.state, _deltaSpace / 2.0);
+					std::vector<VehicleState> interpolatedState = _stepUntilNew(node.state, _deltaSpace / 3.0);
 					for (auto& state : interpolatedState) {
-						auto collisionResult = _lazyDetectCollision(state, cones);
+						auto collisionResult = _detectCollision(state, cones);
 						if (collisionResult.first) {
 							isColliding = true;
 							contactPoint = collisionResult.second;
@@ -185,7 +186,7 @@ namespace model {
 		{
 			int x = static_cast<int>((pose.x - _cellSize / 2.0) / _cellSize);
 			int y = static_cast<int>((pose.y - _cellSize / 2.0) / _cellSize);
-			int angle = static_cast<int>(std::floor((pose.theta - M_PI / 20.0) / (2 * M_PI)) * 20) % 20;
+			int angle = static_cast<int>(std::floor(pose.theta / (2 * M_PI / 20.0))) % 20;
 			return std::make_tuple(x, y, angle);
 		}
 
@@ -248,8 +249,8 @@ namespace model {
 
 		double PathPlanner::_getHeuristics(model::VehicleState const& start, model::Point const& goalPoint)
 		{
-			//return (point - goal).magnitude();
-			return _dubins.simpleDistance(start.getPose(), goalPoint) + abs(start.getSteeringAngle()) / start.getMaxSteeringAngle();
+			return (Point(start.getPose()) - goalPoint).magnitude() + 10 * (start.getSteeringAngle() * start.getSteeringAngle()) / start.getMaxSteeringAngle();
+			//return _dubins.simpleDistance(start.getPose(), goalPoint) + 10*(start.getSteeringAngle()* start.getSteeringAngle()) / start.getMaxSteeringAngle();
 		}
 
 		std::vector<model::VehicleState> PathPlanner::_stepUntilNew(VehicleState& state, double distanceStep)

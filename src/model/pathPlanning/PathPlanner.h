@@ -10,6 +10,7 @@
 #include "model/pathPlanning/PathNode.h"
 #include "model/pathPlanning/heuristics/DubinsStateSpace.h"
 #include "model/items/Path.h"
+#include "model/utils/FixSizedQueue.h"
 
 #ifndef MAX_CONTAINER_SIZE
 #define MAX_CONTAINER_SIZE 10000
@@ -25,7 +26,7 @@ namespace model {
 			void planPath(std::vector<const model::Cone*> const& cones, model::VehicleState const& vehicleState);
 			//Sets planned path based on current node
 			void setPlannedPath();
-			Path getPlannedPath() const;
+			model::FixSizedQueue<Path> getPlannedPath() const;
 			void setGoal(Point const& goal);
 			void clear();
 			double getCellSize() const { return _cellSize; }
@@ -38,13 +39,13 @@ namespace model {
 				std::greater<PQNode>> _openQueue;
 			std::unordered_set<std::tuple<int, int, int>> _closedList;
 			std::unordered_set<std::tuple<int, int, int>> _collidingList;
-			Path _plannedPath;
+			model::FixSizedQueue<Path> _plannedPaths;
 			std::vector<double> _plannedOrientation;
 			const int _iterations;
 			const double _deltaSpace;
 			const double _steeringStep;
 			const double _cellSize;
-			std::array<double, 9> _steeringAngles;
+			std::array<double, 11> _steeringAngles;
 			Point _goal;
 			PathNode _currentNode;
 			DubinsStateSpace _dubins;
