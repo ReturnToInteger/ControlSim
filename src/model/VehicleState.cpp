@@ -7,9 +7,10 @@ namespace model
 {
 	VehicleState::VehicleState() :_length(DEF_LENGTH),
 		_width(DEF_WIDTH),
-		_frontPose( DEF_LENGTH / 2,0,0),
-		_centerPose( 0,0,0),
-		_rearPose( - DEF_LENGTH / 2,0,0),
+		_wheelBase(DEF_WHEELBASE),
+		_frontPose(-35+DEF_WHEELBASE / 2, 30,0),
+		_centerPose( -35,30,0),
+		_rearPose(-35 -DEF_WHEELBASE / 2, 30,0),
 		_centerTwist(0,0,0),
 		_speed(0),
 		_steeringAngle(0),
@@ -45,17 +46,12 @@ namespace model
 		_centerPose.x = x;
 		_centerPose.y = y;
 		_centerPose.theta = model::normAngle(orientation);
-		_frontPose.x = _centerPose.x + _length / 2 * cos(_centerPose.theta);
-		_frontPose.y = _centerPose.y + _length / 2 * sin(_centerPose.theta);
+		_frontPose.x = _centerPose.x + _wheelBase / 2 * cos(_centerPose.theta);
+		_frontPose.y = _centerPose.y + _wheelBase / 2 * sin(_centerPose.theta);
 		_frontPose.theta = _centerPose.theta + _steeringAngle;
-		_rearPose.x = _centerPose.x - _length / 2 * cos(_centerPose.theta);
-		_rearPose.y = _centerPose.y - _length / 2 * sin(_centerPose.theta);
+		_rearPose.x = _centerPose.x - _wheelBase / 2 * cos(_centerPose.theta);
+		_rearPose.y = _centerPose.y - _wheelBase / 2 * sin(_centerPose.theta);
 		_rearPose.theta = _centerPose.theta;
-	}
-
-	Pose VehicleState::getPose() const
-	{
-		return _centerPose;
 	}
 
 	void VehicleState::setTargetSpeed(double input)
@@ -92,34 +88,34 @@ namespace model
 
 	void VehicleState::_updateCoords(double speed, double dt)
 	{
-		_updateCenter(speed, dt);
-		_updateFront(dt);
-		_updateRear(dt);
+		//Angle beta(M_PI/2);
+		Angle slip = atan(tan(_steeringAngle) / 2);
+		_updateCenter(speed, dt, slip);
+		_updateFront(dt, slip);
+		_updateRear(dt, slip);
 	}
 
-	void model::VehicleState::_updateCenter(double speed, double dt)
+	void model::VehicleState::_updateCenter(double speed, double dt, Angle slip)
 	{
-		Angle beta = atan(tan(_steeringAngle) / 2);
-		//Angle beta(M_PI/2);
-		_centerTwist.omega = speed * tan(_steeringAngle) * cos(beta) / _length;
+		_centerTwist.omega = speed * tan(_steeringAngle) * cos(slip) / _wheelBase;
 		_centerPose.theta = _centerPose.theta + _centerTwist.omega * dt;
-		_centerTwist.vx = speed * cos(_centerPose.theta + beta);
-		_centerTwist.vy = speed * sin(_centerPose.theta + beta);
+		_centerTwist.vx = speed * cos(_centerPose.theta + slip);
+		_centerTwist.vy = speed * sin(_centerPose.theta + slip);
 		_centerPose.x += dt * _centerTwist.vx;
 		_centerPose.y += dt * _centerTwist.vy;
 	}
 
-	void VehicleState::_updateFront(double dt)
+	void model::VehicleState::_updateFront(double dt, Angle slip)
 	{
-		_frontPose.x = _centerPose.x + _length / 2 * cos(_centerPose.theta);
-		_frontPose.y = _centerPose.y + _length / 2 * sin(_centerPose.theta);
+		_frontPose.x = _centerPose.x + _wheelBase / 2 * cos(_centerPose.theta+slip);
+		_frontPose.y = _centerPose.y + _wheelBase / 2 * sin(_centerPose.theta+slip);
 		_frontPose.theta = _centerPose.theta + _steeringAngle;
 	}
 
-	void VehicleState::_updateRear(double dt)
+	void model::VehicleState::_updateRear(double dt, Angle slip)
 	{
-		_rearPose.x = _centerPose.x - _length / 2 * cos(_centerPose.theta);
-		_rearPose.y = _centerPose.y - _length / 2 * sin(_centerPose.theta);
+		_rearPose.x = _centerPose.x - _wheelBase / 2 * cos(_centerPose.theta-slip);
+		_rearPose.y = _centerPose.y - _wheelBase / 2 * sin(_centerPose.theta-slip);
 		_rearPose.theta = _centerPose.theta;
 	}
 

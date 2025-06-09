@@ -14,7 +14,10 @@
 
 #ifndef DEF_LENGTH  
 #define DEF_LENGTH 3.0
-#endif // !DEF_LENGTH  
+#endif // !DEF_LENGTH
+#ifndef DEF_WHEELBASE  
+#define DEF_WHEELBASE 2.0
+#endif // !DEF_WHEELBASE  
 #ifndef DEF_WIDTH  
 #define DEF_WIDTH 1.3  
 #endif // !DEF_WIDTH  
@@ -28,7 +31,7 @@
 #define DEF_MAX_SPEED 8.0  
 #endif // !DEF_MAX_SPEED  
 #ifndef DEF_MAX_ACCELERATION
-#define DEF_MAX_ACCELERATION 15.0
+#define DEF_MAX_ACCELERATION 3.0
 #endif // !DEF_MAX_ACCELERATION
 #ifndef DEF_MAX_BRAKE
 #define DEF_MAX_BRAKE 10.0
@@ -44,12 +47,15 @@ namespace model
         Point getPosition() const;
         double getOrientation() const;
 		void setPose(double x, double y, double orientation);
-        Pose getPose() const;
+        Pose getPose() const { return _centerPose; }
+        Pose getRearPose() const { return _rearPose; }
+        Pose getFrontPose() const { return _frontPose; }
         double getSpeed() const { return _speed; }
         double getSteeringAngle() const { return _steeringAngle; }
         double getSteeringRate() const { return _steeringRate; }
         double getLength() const { return _length; }
         double getWidth() const { return _width; }
+        double getWheelBase() const { return _wheelBase; }
         double getMaxSteeringAngle() const { return _maxSteeringAngle; }
         double getMaxSteeringRate() const { return _maxSteeringRate; }
         double getMaxSpeed() const { return _maxSpeed; }
@@ -73,6 +79,7 @@ namespace model
         //geometric parameters  
         double _length;
         double _width;
+        double _wheelBase;
 
         //constraints  
         double _maxSteeringAngle = DEF_MAX_STEERING_ANGLE;
@@ -88,9 +95,9 @@ namespace model
         void _updateSteering(double dt);
         void _updateDriving(double dt);
 		void _updateCoords(double speed,double dt);
-        void _updateCenter(double speed, double dt);
-        void _updateFront(double dt);
-        void _updateRear(double dt);
+        void _updateCenter(double speed, double dt, Angle slip);
+        void _updateFront(double dt, Angle slip);
+        void _updateRear(double dt, Angle slip);
 
         void _setSteeringAngle(double angle);
         void _setSteeringRate(double rate);
