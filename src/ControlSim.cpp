@@ -13,7 +13,7 @@
 #include "model/mapReaders/ManualMapReader.h"
 #include "model/mapReaders/MATLAB/MatlabMapReader.h"
 #include "controller/KeyboardControl.h"
-#include "model/controllerLogic/AIControl.h"
+#include "model/controllerLogic/PurePursuitControl.h"
 //#include "model/pathPlanning/Heuristics/DubinsStateSpace.h"
 #include "model/utils/ModelUtils.h"
 double Mod(double a, double b) {
@@ -47,7 +47,7 @@ int main() {
 	//std::cout << "Duration: " << dur.count() << std::endl;
 
 	controller::App app(
-		std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(3), std::make_unique<model::pathPlanning::PathPlanner>(60, 3.0, 0.2)),
+		std::make_unique<model::Vehicle>(std::make_unique<model::PurePursuitControl>(), std::make_unique<model::pathPlanning::PathPlanner>(60, 1.5, 0.2)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>()
 	);
@@ -77,7 +77,7 @@ int main() {
 	//std::array<model::Cone, 1> map({model::Cone(40,10,1.5)});
 	//map[0].setType(model::ConeType::UNKNOWN);
 	//controller::App app(
-	//	std::make_unique<model::Vehicle>(std::make_unique<model::AIControl>(2), std::make_unique<model::PathPlanner>(60, 3.0, 1.0)),
+	//	std::make_unique<model::Vehicle>(std::make_unique<model::PurePursuitControl>(), std::make_unique<model::pathPlanning::PathPlanner>(60, 3.0, 1.0)),
 	//	std::make_unique<model::ManualMapReader<std::array<model::Cone,1>>>(map),
 	//	std::make_unique<view::AppView>()
 	//);

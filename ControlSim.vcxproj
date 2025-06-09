@@ -24,7 +24,7 @@
     <ClCompile Include="src\model\mapReaders\MATLAB\MatlabMapReader.cpp" />
     <ClCompile Include="src\model\pathPlanning\heuristics\DubinsStateSpace.cpp" />
     <ClCompile Include="src\model\items\Path.cpp" />
-    <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
+    <ClCompile Include="src\model\controllerLogic\PurePursuitControl.cpp" />
     <ClCompile Include="src\model\utils\Point.cpp" />
     <ClCompile Include="src\view\GridView.cpp" />
     <ClCompile Include="src\view\PathView.cpp" />
@@ -48,7 +48,7 @@
     <ClInclude Include="src\model\pathPlanning\heuristics\DubinsStateSpace.h" />
     <ClInclude Include="src\model\items\Path.h" />
     <ClInclude Include="src\model\controllerLogic\ControlCommand.h" />
-    <ClInclude Include="src\model\controllerLogic\AIControl.h" />
+    <ClInclude Include="src\model\controllerLogic\PurePursuitControl.h" />
     <ClInclude Include="src\model\pathPlanning\PathNode.h" />
     <ClInclude Include="src\model\utils\FixSizedQueue.h" />
     <ClInclude Include="src\model\utils\Pose.h" />

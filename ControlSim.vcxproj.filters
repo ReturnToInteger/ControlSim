@@ -30,7 +30,7 @@
     <ClCompile Include="src\model\pathPlanning\PathPlanner.cpp" />
     <ClCompile Include="src\view\PathView.cpp" />
     <ClCompile Include="src\view\PerceptionView.cpp" />
-    <ClCompile Include="src\model\controllerLogic\AIControl.cpp" />
+    <ClCompile Include="src\model\controllerLogic\PurePursuitControl.cpp" />
     <ClCompile Include="src\model\items\Path.cpp" />
     <ClCompile Include="src\view\GridView.cpp" />
     <ClCompile Include="src\model\pathPlanning\heuristics\DubinsStateSpace.cpp" />
@@ -76,7 +76,7 @@
     <ClInclude Include="src\model\pathPlanning\PathPlanner.h" />
     <ClInclude Include="src\view\PathView.h" />
     <ClInclude Include="src\view\PerceptionView.h" />
-    <ClInclude Include="src\model\controllerLogic\AIControl.h" />
+    <ClInclude Include="src\model\controllerLogic\PurePursuitControl.h" />
     <ClInclude Include="src\model\controllerLogic\ControlCommand.h" />
     <ClInclude Include="src\model\pathPlanning\PathNode.h" />
     <ClInclude Include="src\model\items\Path.h" />
