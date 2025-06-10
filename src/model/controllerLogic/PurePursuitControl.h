@@ -6,19 +6,17 @@ namespace model {
     class Path;
     class VehicleState;
     struct Pose;
-    namespace pathPlanning {
-        class PathPlanner;
-    }
-    // 
+
     class PurePursuitControl :
         public IControllerLogic
     {
     public:
-        PurePursuitControl(int lookAhead = 1) : _lookAhead(lookAhead) {}
-        ControlCommand drive(VehicleState const& state, pathPlanning::PathPlanner const& pathPlanner) override;
-
+        PurePursuitControl(int lookAhead = 1) : _lookAhead(lookAhead), _previous( 0,0 ) {}
+        ControlCommand drive(VehicleState const& state, model::Path const& path) override;
+        ~PurePursuitControl() = default;
     private:
         VehicleState const* _getAtRange(Pose const& vehiclePose, Path const& path) const;
         int _lookAhead;
+        ControlCommand _previous;
     };
 }
