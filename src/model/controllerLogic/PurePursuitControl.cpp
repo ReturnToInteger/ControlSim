@@ -14,19 +14,14 @@
 
 
 namespace model {
-	ControlCommand PurePursuitControl::drive(VehicleState const& state, pathPlanning::PathPlanner const& pathPlanner)
+	ControlCommand model::PurePursuitControl::drive(VehicleState const& state, model::Path const& path)
 	{
-		auto paths = pathPlanner.getPlannedPath().get();
-		if (paths.empty()) {
-			return ControlCommand(.2, 0);
-		}
-		Path path = paths.back();
 		if (path.size() < 2) {
-			return ControlCommand(.2, 0);
+			return ControlCommand(.2, _previous.steeringAngle);
 		}
 		Pose currentPose=state.getRearPose();
 		const VehicleState* targetState = _getAtRange(currentPose, path);
-		if (!targetState) return ControlCommand(0, 0);
+		if (!targetState) return ControlCommand(0, _previous.steeringAngle);
 		Pose targetPose = targetState->getRearPose();
 		//const Pose targetPose = path[_lookAhead].getRearPose();
 		Angle targetAngle;
@@ -41,7 +36,8 @@ namespace model {
 		//else {
 		//	angleCommand = angleDiff/ maxAngle;
 		//}
-		return ControlCommand(1-std::min(abs(angleCommand),0.5), angleCommand);
+		_previous = ControlCommand(1 - std::min(abs(angleCommand), 0.5), angleCommand);
+		return _previous;
 	}
 
 	// Select the point that is the closest to the intersection of the lookahead radius and the path
@@ -52,7 +48,7 @@ namespace model {
 		if (path.size()<2) throw std::out_of_range::out_of_range("Path range has to be at least 2");
 		//double maxDelta = (path[0].getRearPose() - path[1].getRearPose()).magnitude() / 2.0;
 		double radius = (path[0].getRearPose() - path[1].getRearPose()).magnitude() * _lookAhead;
-		double maxDelta = (path[0].getRearPose() - path.back().getRearPose()).magnitude();
+		double maxDelta = (path[0].getRearPose() - path.back().getRearPose()).magnitude()*2;
 		double maxSteering = path[0].getMaxSteeringAngle();
 		//std::vector<VehicleState*> candidatePoses;
 		const VehicleState* withinRange = nullptr;
