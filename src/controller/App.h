@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <mutex>
+#include <functional>
 #include "model/items/Cone.h"
 #include "model/events/InputEventHandler.h"
 #include "model/events/InputEventPublisher.h"
@@ -31,28 +32,13 @@ namespace controller {
 		void operator()(events::PressedLShift const&) {std::cout << "Pressed LShift." << std::endl; }
 		void operator()(events::Scrolled const& i) {std::cout << "zoom: " << i.delta << std::endl; }
 		void operator()(events::ClickedAt const& i) {std::cout << "Clicked at :" << i.x << "; " << i.y << std::endl; }
-		void operator()(events::Resized const&) {std::cout << "Resizing..." << std::endl; }
+		void operator()(events::Resized const&) {std::cout << "Resized." << std::endl; }
 		void operator()(events::LostFocus const&) {std::cout << "Lost Focus." << std::endl; }
 		void operator()(events::GainedFocus const&) { std::cout << "Gained Focus." << std::endl; }
 		void operator()(events::None const&) {}
 	};
     class App : public events::InputEventHandler
     {
-    private:
-		std::vector<model::Cone> _cones;
-		std::unique_ptr<view::AppView> _view;
-		std::unique_ptr<model::Vehicle> _vehicle;
-		std::unique_ptr<model::Perception> _perception;
-		std::mutex _simLock;
-
-		// Need a reader, which will read the map 
-		std::unique_ptr<model::IMapReader> _mapReader;
-		// Should be moved inside path planner
-		void _calcGoal(std::vector<const model::Cone*> const& cones, model::VehicleState const& state);
-
-
-
-
 	public:
 		App(std::unique_ptr<model::Vehicle> vehicle,
 			std::unique_ptr<model::IMapReader> mapReader,
@@ -68,5 +54,24 @@ namespace controller {
 		// Inherited via InputEventHandler
 		void handleInputEvent(std::string const& src, events::InputEvent const& e) override;
 
+
+    private:
+		std::vector<model::Cone> _cones;
+		std::unique_ptr<view::AppView> _view;
+		std::unique_ptr<model::Vehicle> _vehicle;
+		std::unique_ptr<model::Perception> _perception;
+
+		// Threading
+		std::mutex _simLock;
+		std::mutex _pathLock;
+		std::condition_variable resetEvent;
+
+		// Need a reader, which will read the map 
+		std::unique_ptr<model::IMapReader> _mapReader;
+
+		void _pathPlanningWorker(std::vector<const model::Cone*>& detectedCones, std::atomic_bool& running, int const threadCount, int const index);
+		void _startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda);
+		// Should be moved inside path planner
+		void _calcGoal(std::vector<const model::Cone*> const& cones, model::VehicleState const& state);
 	};
 }
