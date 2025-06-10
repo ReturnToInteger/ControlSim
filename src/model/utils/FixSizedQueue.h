@@ -23,6 +23,13 @@ namespace model {
 			_q.pop_front();
 			return true;
 		}
+		// Return default value in case it's empty, quick fix for Vehicle for Path Planning input
+		T back() {
+			if (!_q.empty())
+				return _q.back();
+			else
+				return T();
+		}
 		std::deque<T> const& get() const { return _q; }
 		void set(std::deque<T> const& q) { _q = q; };
 	private:
