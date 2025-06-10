@@ -18,10 +18,15 @@ namespace model {
         Angle(double a) : _a(normAngle(a)), _sin(std::sin(a)), _cos(std::cos(a)) {}
         Angle& operator=(Angle const& other) {
             _a = other._a;
+            _sin = other._sin;
+            _cos = other._cos;
             return *this;
         }
         Angle& operator=(double val) {
             _a = normAngle(val);
+            _sin = std::sin(val);
+            _cos = std::cos(val);
+
             return *this;
         }
         operator double() const {
@@ -57,26 +62,26 @@ namespace model {
         }
         Angle& operator+=(Angle const& other) {
             _a = normAngle(_a + other._a);
-            _sin = sin(_a + other._a);
-            _cos = cos(_a + other._a);
+            _sin = sin(_a);
+            _cos = cos(_a);
             return *this;
         }
         Angle& operator-=(Angle const& other) {
             _a = normAngle(_a - other._a);
-            _sin = sin(_a + other._a);
-            _cos = cos(_a + other._a);
+            _sin = sin(_a);
+            _cos = cos(_a);
             return *this;
         }
         Angle& operator+=(double const& val) {
             _a = normAngle(_a + val);
-            _sin = sin(_a + val);
-            _cos = cos(_a + val);
+            _sin = sin(_a);
+            _cos = cos(_a);
             return *this;
         }
         Angle& operator-=(double const& val) {
             _a = normAngle(_a - val);
-            _sin = sin(_a + val);
-            _cos = cos(_a + val);
+            _sin = sin(_a);
+            _cos = cos(_a);
             return *this;
         }
         friend std::ostream& operator<<(std::ostream& os, Angle const& angle) {
@@ -90,6 +95,10 @@ namespace model {
         friend double cos(Angle const& a) {
             return a._cos;
         }
+        bool operator==(Angle const& other) const {
+            return std::abs(_a - other._a) < 1e-9; // or use a small epsilon
+        }
+
 
     private:
         double _a;
