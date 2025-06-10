@@ -7,5 +7,6 @@ namespace model {
 	class IVehicleModel {
 	public:
 		virtual std::pair<Pose, Twist> updateCoords() = 0;
+		virtual ~IVehicleModel() = default;
 	};
 }
