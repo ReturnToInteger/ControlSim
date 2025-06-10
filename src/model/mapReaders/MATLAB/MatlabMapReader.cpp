@@ -13,7 +13,7 @@ namespace model {
     std::vector<model::Cone> model::MatlabMapReader::Read()
     {
         MATFile* pmat;
-        mxArray* ConePosXLft, * ConePosYLft, *ConePosXRgt, * ConePosYRgt, * radius;
+        mxArray* ConePosXLft, * ConePosYLft, * ConePosXRgt, * ConePosYRgt, * radius;
         //const char* file = "TestTrack.mat";
 
 

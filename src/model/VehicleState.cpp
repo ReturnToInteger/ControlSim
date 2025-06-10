@@ -76,8 +76,14 @@ namespace model
 
 	void model::VehicleState::_updateSteering(double dt)
 	{
-		_setSteeringRate((_targetSteeringAngle - _steeringAngle) / dt);
-		_setSteeringAngle(_steeringAngle + _steeringRate * dt);
+		double delta = _targetSteeringAngle - _steeringAngle;
+		double maxStep = _maxSteeringRate * dt;
+		delta = clamp(delta, -maxStep, maxStep);
+		_setSteeringRate(delta / dt); 
+		_setSteeringAngle(_steeringAngle + delta);
+
+		//_setSteeringRate((_targetSteeringAngle - _steeringAngle) / dt);
+		//_setSteeringAngle(_steeringAngle + _steeringRate * dt);
 	}
 
 	void VehicleState::_updateDriving(double dt)

@@ -90,6 +90,7 @@
     <ClInclude Include="src\model\utils\FixSizedQueue.h" />
     <ClInclude Include="src\model\events\InputEventPublisher.h" />
     <ClInclude Include="src\model\events\InputEventHandler.h" />
+    <ClInclude Include="src\view\DebugDraw.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

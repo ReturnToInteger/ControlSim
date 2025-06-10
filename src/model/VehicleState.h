@@ -16,7 +16,7 @@
 #define DEF_LENGTH 3.0
 #endif // !DEF_LENGTH
 #ifndef DEF_WHEELBASE  
-#define DEF_WHEELBASE 2.0
+#define DEF_WHEELBASE 2.5
 #endif // !DEF_WHEELBASE  
 #ifndef DEF_WIDTH  
 #define DEF_WIDTH 1.3  

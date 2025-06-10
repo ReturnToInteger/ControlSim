@@ -53,6 +53,7 @@
     <ClInclude Include="src\model\utils\FixSizedQueue.h" />
     <ClInclude Include="src\model\utils\Pose.h" />
     <ClInclude Include="src\model\vehicleModels\IVehicleModels.h" />
+    <ClInclude Include="src\view\DebugDraw.h" />
     <ClInclude Include="src\view\GridView.h" />
     <ClInclude Include="src\view\PathView.h" />
     <ClInclude Include="src\view\PerceptionView.h" />
@@ -105,6 +106,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>true</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -163,7 +165,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ENABLE_DEBUG_DRAW</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Libraries\SFML\include; $(ProjectDir)\src; "C:\Program Files\MATLAB\R2024b\extern\include"; "E:\Program Files\MATLAB\R2024b\extern\include"</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>

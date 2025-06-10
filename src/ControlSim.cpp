@@ -22,34 +22,12 @@ double Mod(double a, double b) {
 
 int main() {
 
-	//double R_turning = 3 / tan(M_PI / 6.0);
-	//model::DubinsStateSpace space(R_turning);
-	//std::cout <<"Turning distance: " << R_turning << std::endl;
-	//auto durMultiple=model::timeFunction("Dubins distance", [&space]() {
-	//	for (int y = 0; y < 1000; y++) {
-	//		for (int x = 0; x < 1000; x++) {
-	//			int div = 24;
-	//			for (int a = 0; a < div; a++) {
-	//				space.simpleDistance(model::Pose(0, 0, 0), model::Point(double(x) * 0.5, double(y) * 0.5) );
-	//			}
-	//		}
-	//	}
-	//	space.distance(model::Pose(0, 0, 0), model::Pose(40, 0, M_PI / 2));
-	//	});
-	//std::cout << "Duration: " << durMultiple.count() << std::endl
-	//	<< "Avg: " << durMultiple.count() / (1000 * 1000 * 24) << std::endl;
 	
-	//double distance=0;
-	//auto dur = model::timeFunction("Dubins distance", [&space, &distance]() {
-	//	distance = space.simpleDistance(model::Pose(0, 0, 0), model::Point(1, -5.0));
-	//	});
-	//std::cout<< "Distance: "<< distance<< std::endl;
-	//std::cout << "Duration: " << dur.count() << std::endl;
-
 	controller::App app(
-		std::make_unique<model::Vehicle>(std::make_unique<model::PurePursuitControl>(), std::make_unique<model::pathPlanning::PathPlanner>(60, 1.5, 0.2)),
+		std::make_unique<model::Vehicle>(std::make_unique<model::PurePursuitControl>(), 
+			std::make_unique<model::pathPlanning::PathPlanner>(60, 1.5, 0.2)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
-		std::make_unique<view::AppView>()
+		std::make_unique<view::AppView>() /*nullptr*/
 	);
 	app.run();
 
