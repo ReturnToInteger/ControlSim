@@ -88,7 +88,7 @@ public:
 ```
 Called every simulation frame to update the vehicle based on input or planner.
 
-## Included Implementations
+## Example Implementations
 
 ### Map Readers
 
@@ -97,5 +97,5 @@ Called every simulation frame to update the vehicle based on input or planner.
 
 ### Controller Logic
 
-- `KeyboardControl` – Lets you control the car manually using keyboard input  
-- `AIControl` – Autonomous controller that handles steering and throttle based on a path planning algorithm
+- `KeyboardControl` – Lets you control the car manually using keyboard input
+- `PurePursuitControl` - AI algorithm to control the car along the path, using pure pursuit.
