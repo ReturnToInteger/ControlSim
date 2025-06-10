@@ -2,6 +2,10 @@
 #include "model/items/Cone.h"
 #include "model/utils/Angle.h"
 #include "model/utils/Pose.h"
+#ifdef ENABLE_DEBUG_DRAW
+#include "view/DebugDraw.h"
+#endif // ENABLE_DEBUG_DRAW
+
 
 model::Perception::Perception(std::vector<model::Cone> const& cones, double viewAngle, double depth) : _cones(cones), _viewAngle(viewAngle), _depth(depth)
 {
@@ -21,7 +25,27 @@ std::vector<model::Cone const*> model::Perception::detect(model::Pose const& pos
 				detectedCones.emplace_back(&cone);
 			}
 		}
-
+		//detectedCones.emplace_back(&cone);
 	}
+#ifdef ENABLE_DEBUG_DRAW
+	std::vector<model::Point> debugDraw;
+	debugDraw.emplace_back(Point(pose));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta + Angle(_viewAngle) / 2) * _depth, sin(pose.theta + Angle(_viewAngle) / 2) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta + Angle(_viewAngle) * 5 / 12) * _depth, sin(pose.theta + Angle(_viewAngle) * 5 / 12) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta + Angle(_viewAngle) / 3) * _depth, sin(pose.theta + Angle(_viewAngle) / 3) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta + Angle(_viewAngle) / 4) * _depth, sin(pose.theta + Angle(_viewAngle) / 4) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta + Angle(_viewAngle) / 6) * _depth, sin(pose.theta + Angle(_viewAngle) / 6) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta + Angle(_viewAngle) / 12) * _depth, sin(pose.theta + Angle(_viewAngle) / 12) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(model::cos(pose.theta) * _depth, model::sin(pose.theta) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta - Angle(_viewAngle) / 12) * _depth, sin(pose.theta - Angle(_viewAngle) / 12) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta - Angle(_viewAngle) / 6) * _depth, sin(pose.theta - Angle(_viewAngle) / 6) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta - Angle(_viewAngle) / 4) * _depth, sin(pose.theta - Angle(_viewAngle) / 4) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta - Angle(_viewAngle) / 3) * _depth, sin(pose.theta - Angle(_viewAngle) / 3) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta - Angle(_viewAngle) * 5 / 12) * _depth, sin(pose.theta - Angle(_viewAngle) * 5 / 12) * _depth));
+	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta - Angle(_viewAngle) / 2) * _depth, sin(pose.theta - Angle(_viewAngle) / 2) * _depth));
+	debugDraw.emplace_back(Point(pose));
+	view::DebugDraw::instance().lineStrip(debugDraw);
+#endif // ENABLE_DEBUG_DRAW
+
 	return detectedCones;
 }

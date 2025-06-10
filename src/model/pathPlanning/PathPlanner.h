@@ -13,7 +13,7 @@
 #include "model/utils/FixSizedQueue.h"
 
 #ifndef MAX_CONTAINER_SIZE
-#define MAX_CONTAINER_SIZE 10000
+#define MAX_CONTAINER_SIZE 500
 #endif // !MAX_CONTAINER_SIZE
 namespace model {
 	class Cone;
@@ -22,14 +22,14 @@ namespace model {
 		{
 		public:
 			PathPlanner(int iterations = 5, double deltaSpace = 1.5, double cellSize = 0.5, double steeringStep = M_PI / 18);
-			~PathPlanner() = default;
 			void planPath(std::vector<const model::Cone*> const& cones, model::VehicleState const& vehicleState);
 			//Sets planned path based on current node
 			void setPlannedPath();
-			model::FixSizedQueue<Path> getPlannedPath() const;
+			Path getPlannedPath() const;
 			void setGoal(Point const& goal);
 			void clear();
 			double getCellSize() const { return _cellSize; }
+
 
 		private:
 			// Storing nodes based on discrete pair of coordinates (x,y)
@@ -38,8 +38,10 @@ namespace model {
 				std::vector<PQNode>,
 				std::greater<PQNode>> _openQueue;
 			std::unordered_set<std::tuple<int, int, int>> _closedList;
+#ifdef ENABLE_DEBUG_DRAW
 			std::unordered_set<std::tuple<int, int, int>> _collidingList;
-			model::FixSizedQueue<Path> _plannedPaths;
+#endif // ENABLE_DEBUG_DRAW
+			Path _plannedPath;
 			std::vector<double> _plannedOrientation;
 			const int _iterations;
 			const double _deltaSpace;
@@ -50,7 +52,7 @@ namespace model {
 			PathNode _currentNode;
 			DubinsStateSpace _dubins;
 
-			void _updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode& node);
+			void _updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode const& node);
 			VehicleState _stepByDistance(VehicleState const& state, double distance, double steeringAngle);
 			std::tuple<int, int, int> _discretizePoint(model::Pose const& pose) const;
 			std::pair<bool, model::Pose> _detectCollision(VehicleState const& state, std::vector<const model::Cone*> const& cones) const;
@@ -59,7 +61,7 @@ namespace model {
 			Point _rotatePoint(model::Point const& point, Angle const& angle) const;
 			double _getHeuristics(model::VehicleState const& start, model::Point const& goal);
 			// gets position-orientation pairs until new position is reached
-			std::vector<model::VehicleState> _stepUntilNew(VehicleState& state, double distanceStep);
+			std::vector<model::VehicleState> _stepUntilNew(VehicleState const& state, double distanceStep);
 
 		};
 	}

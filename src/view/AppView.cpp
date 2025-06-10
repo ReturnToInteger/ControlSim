@@ -1,13 +1,17 @@
 #include "AppView.h" 
 #include <cassert>
 #include "model/items/Item.h"
+#ifdef ENABLE_DEBUG_DRAW
+#include "DebugDraw.h"
+#endif // ENABLE_DEBUG_DRAW
+
 
 namespace view {
 	AppView::AppView()
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
-		_zoom(1.0/45.0)
+		_zoom(1.0/8.0)
 	{
 	}
 
@@ -15,7 +19,7 @@ namespace view {
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
-		_zoom(1.0 / 45.0), 
+		_zoom(1.0/8.0), 
 		_vehicleView(vehicle)
 	{
 		_coneViews.reserve(map.size());
@@ -44,6 +48,10 @@ namespace view {
 		_window.setView(_view);
 		//Drawing
 		_drawGrid();
+		#ifdef ENABLE_DEBUG_DRAW
+		_window.draw(view::DebugDraw::instance());
+		#endif // ENABLE_DEBUG_DRAW
+
 		for (auto const& coneView : _coneViews) {
 			_window.draw(coneView);
 		}
@@ -164,7 +172,7 @@ namespace view {
 	{
 		sf::Vector2f topLeft(_window.mapPixelToCoords({ 0,0 }));
 		sf::Vector2f bottomRight(_window.mapPixelToCoords({ _videoWidth,_videoHeight }));
-		if (_cellSize / _zoom < 9.0) {
+		if (_cellSize / _zoom < 10.0) {
 			_gridLines.clear();
 			return;
 		}

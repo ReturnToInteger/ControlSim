@@ -2,19 +2,24 @@
 #include "model/items/Cone.h"
 #include "model/utils/Angle.h"
 #include "model/utils/Pose.h"
+#include <thread>
+
+#ifdef ENABLE_DEBUG_DRAW
+#include "view/DebugDraw.h"
+#endif // ENABLE_DEBUG_DRAW
+
 
 namespace model {
 	namespace pathPlanning {
 		PathPlanner::PathPlanner(int iterations, double deltaSpace, double cellSize, double steeringStep) :
 			_iterations(iterations), _deltaSpace(deltaSpace), _cellSize(cellSize), _steeringStep(steeringStep), _goal(-47.5, 10.0),
-			_dubins(3.0 / tan(M_PI / 6.0)), _plannedPaths(5)
+			_dubins(3.0 / tan(M_PI / 6.0))
 		{
 			
 		}
 
 		void PathPlanner::planPath(std::vector<const model::Cone*> const& cones, model::VehicleState const& vehicleState)
 		{
-
 			Angle maxSteeringAngle = vehicleState.getMaxSteeringAngle();
 			Angle beta = atan(tan(maxSteeringAngle) / 2);
 			double radius = vehicleState.getWheelBase() / (tan(maxSteeringAngle) * cos(beta));
@@ -22,13 +27,14 @@ namespace model {
 			_dubins = DubinsStateSpace(radius);
 			int iter = 0;
 			_steeringAngles = { 0.0,
-				maxSteeringAngle * 0.05,-maxSteeringAngle * 0.05 ,
-				maxSteeringAngle * 0.25,-maxSteeringAngle * 0.25 ,
-				maxSteeringAngle * 0.5,-maxSteeringAngle * 0.5 ,
-				maxSteeringAngle * 0.75,-maxSteeringAngle * 0.75 ,
-				maxSteeringAngle,-maxSteeringAngle };
+				0.05,-0.05 ,
+				0.25,-0.25 ,
+				0.5,-0.5 ,
+				0.75,-0.75 ,
+				1.0,-1.0 };
 
-			PathNode startNode(vehicleState,
+			PathNode startNode(
+				vehicleState,
 				0,
 				0 + _getHeuristics(vehicleState, _goal),
 				nullptr);
@@ -41,12 +47,15 @@ namespace model {
 			// Check collision for start node
 			auto [isColliding, collisionPoint] = _detectCollision(startNode.state, cones);
 			if (isColliding) {
+#ifdef ENABLE_DEBUG_DRAW
 				_collidingList.emplace(startPQ.key);
+#endif // ENABLE_DEBUG_DRAW
 				std::cout << "Inside a cone." << std::endl;
 				return;
 			}
 			// Add startNode to open list
 			_openList.emplace(startPQ.key, startNode);
+
 			_openQueue.emplace(startPQ);
 			//while (!_openList.empty()) {
 			while (!_openList.empty() && _openList.size() < MAX_CONTAINER_SIZE && _closedList.size() < MAX_CONTAINER_SIZE) {
@@ -63,8 +72,10 @@ namespace model {
 				_openList.erase(it->first); // Remove the node from the open list
 
 				// or (currentNode.cost > _iterations)
+				// Goal Reached
 				if ((currentNode.state.getPosition() - _goal).magnitude() < _deltaSpace ) {
 					_currentNode = currentNode;
+					//std::cout << "Goal reached in "<<iter<<" iterations." << std::endl;
 					return;
 				}
 				else {
@@ -77,9 +88,9 @@ namespace model {
 			_currentNode = startNode;
 		}
 
-		FixSizedQueue<Path> PathPlanner::getPlannedPath() const
+		Path PathPlanner::getPlannedPath() const
 		{
-			return _plannedPaths;
+			return _plannedPath;
 		}
 
 		void PathPlanner::setGoal(Point const& goal)
@@ -91,6 +102,24 @@ namespace model {
 
 		void PathPlanner::setPlannedPath()
 		{
+#ifdef ENABLE_DEBUG_DRAW
+			std::vector<Point> drawVect;
+			for (auto& node : _openList) {
+				drawVect.emplace_back(node.second.state.getPosition());
+			}
+			view::DebugDraw::instance().points(drawVect);
+			drawVect.clear();
+			for (auto& node : _closedList) {
+				drawVect.emplace_back(std::get<0>(node) * _cellSize, std::get<1>(node) * _cellSize);
+			}
+			view::DebugDraw::instance().points2(drawVect, sf::Color::Red);
+			drawVect.clear();
+			for (auto& node : _collidingList) {
+				drawVect.emplace_back(std::get<0>(node) * _cellSize, std::get<1>(node) * _cellSize);
+			}
+			view::DebugDraw::instance().points3(drawVect, sf::Color::White);
+#endif // ENABLE_DEBUG_DRAW
+
 			std::vector<VehicleState> path;
 			path.reserve(_iterations);
 			PathNode* currentNode = &_currentNode;
@@ -101,11 +130,10 @@ namespace model {
 				currentNode = currentNode->parent.get();
 			}
 			std::reverse(path.begin(), path.end());
-			if (path.size()>=2)
-				_plannedPaths.push(Path(path));
+			_plannedPath=Path(path);
 		}
 
-		void PathPlanner::_updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode& node)
+		void PathPlanner::_updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode const& node)
 		{
 			double maxSteeringAngle = node.state.getMaxSteeringAngle();
 
@@ -149,12 +177,13 @@ namespace model {
 						auto [it, isInserted] = _openList.emplace(newNodeKey, newNode);
 
 						if (isInserted) {
-							_openQueue.emplace(PQNode{ newNode.gCost,newNodeKey });
+
+							_openQueue.emplace(PQNode{ newNode.fCost,newNodeKey });
 						}
 						else if (newNode.gCost < _openList[newNodeKey].gCost) {
 							// if in open list, replace if cost is lower
 							_openList[newNodeKey] = newNode;
-							_openQueue.emplace(PQNode{ newNode.gCost,newNodeKey });
+							_openQueue.emplace(PQNode{ newNode.fCost,newNodeKey });
 						}
 
 					}
@@ -169,23 +198,23 @@ namespace model {
 		model::VehicleState PathPlanner::_stepByDistance(VehicleState const& state, double distance, double steeringAngle)
 		{
 			VehicleState copy = state;
-			double deltaTime;
-			deltaTime = distance / state.getMaxSpeed();
-			//if (deltaTime*state.getSpeed()<distance/2)
-			//	deltaTime *=2;
-
+			double traveled = 0;
+			double dt = 0.01; // small fixed step
 			copy.setTargetSpeed(copy.getMaxSpeed());
 			copy.setTargetSteeringAngle(steeringAngle);
-			copy.updateState(deltaTime);
+
+			while (traveled < distance) {
+				copy.updateState(dt);
+				traveled += copy.getSpeed() * dt;
+			}
+
 			return copy;
-
-
 		}
 
 		std::tuple<int, int, int> PathPlanner::_discretizePoint(model::Pose const& pose) const
 		{
-			int x = static_cast<int>((pose.x - _cellSize / 2.0) / _cellSize);
-			int y = static_cast<int>((pose.y - _cellSize / 2.0) / _cellSize);
+			int x = static_cast<int>(pose.x / _cellSize);
+			int y = static_cast<int>(pose.y / _cellSize);
 			int angle = static_cast<int>(std::floor(pose.theta / (2 * M_PI / 20.0))) % 20;
 			return std::make_tuple(x, y, angle);
 		}
@@ -198,9 +227,6 @@ namespace model {
 			double radius = cones[0]->getRadius();
 			double vhclLength = state.getLength(), vhclWidth = state.getWidth();
 			for (auto const& cone : cones) {
-				if (cone->getType() == model::ConeType::UNKNOWN) {
-					continue; // Skip unknown cones
-				}
 				Point relPos(cone->getPosition() - vehiclePosition);
 				if (relPos.magnitude() > (vhclLength * 1.5 + radius)) continue;
 				relPos = _rotatePoint(relPos, -vehicleOrientation);
@@ -249,11 +275,11 @@ namespace model {
 
 		double PathPlanner::_getHeuristics(model::VehicleState const& start, model::Point const& goalPoint)
 		{
-			return (Point(start.getPose()) - goalPoint).magnitude() + 10 * (start.getSteeringAngle() * start.getSteeringAngle()) / start.getMaxSteeringAngle();
-			//return _dubins.simpleDistance(start.getPose(), goalPoint) + 10*(start.getSteeringAngle()* start.getSteeringAngle()) / start.getMaxSteeringAngle();
+			//return (Point(start.getPose()) - goalPoint).magnitude(); //+ 10 * (start.getSteeringAngle() * start.getSteeringAngle()) / start.getMaxSteeringAngle();
+			return _dubins.simpleDistance(start.getPose(), goalPoint)+ (start.getSteeringAngle() * start.getSteeringAngle()) / start.getMaxSteeringAngle();
 		}
 
-		std::vector<model::VehicleState> PathPlanner::_stepUntilNew(VehicleState& state, double distanceStep)
+		std::vector<model::VehicleState> PathPlanner::_stepUntilNew(VehicleState const& state, double distanceStep)
 		{
 			distanceStep = std::min(std::max(distanceStep, _cellSize * 1.5), _deltaSpace);
 

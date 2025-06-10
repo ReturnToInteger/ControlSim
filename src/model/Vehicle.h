@@ -28,35 +28,43 @@ namespace model {
 
 	class Vehicle : public Item {  
 	public:
-		//Vehicle(std::unique_ptr<model::VehicleState> vehicleState, std::unique_ptr<controller::IControllerLogic> carControl);
 		Vehicle(std::unique_ptr<model::IControllerLogic> carControl,std::unique_ptr<model::pathPlanning::PathPlanner> pathPlanner);
 
+		// state and control methods
+
 		void update(double dt);
-		Point getPosition() const override;
-		double getOrientation() const;
-		void planPath(std::vector<const model::Cone*> const& cones, VehicleState const& state);
-		void setPlannedPath();
-		FixSizedQueue<Path> getPlannedPath() const;
-		void setGoal(Point goal);
-		Pose getPose();
+		Point getPosition() const override { return _state->getPosition(); }
+		double getOrientation() const { return _state->getOrientation(); }
+		Pose getPose() const { return _state->getPose(); }
 		void setPose(double x, double y, std::optional<double> orientation);
-		double getLength() const;
-		double getWidth() const;
+		double getLength() const { return _state->getLength(); }
+		double getWidth() const { return _state->getWidth(); }
 		double getWheelBase() const { _state->getWheelBase(); }
-		void clearPath();
-		double getSpeed() const;
-		VehicleState getStateCopy() const;
-		double getCellSize();
+		double getSpeed() const { return _state->getSpeed(); }
+		VehicleState getStateCopy() const { return *_state; }
+
+		// path planning methods
+
+		void planPath(std::vector<const model::Cone*> const& cones, VehicleState const& state, int i); 
+		void setPlannedPath(int i); 
+		FixSizedQueue<Path> getPlannedPaths() const; 
+		void setGoal(Point goal, int i); 
+		void setAllGoals(Point goal);
+		void clearPath(int i);
+		double getCellSize(int i=0) const;
+		void addPlanner();
 
 
-		~Vehicle() = default;  
+		~Vehicle();  
 
 	private:  
 		Vehicle();
 		std::unique_ptr<model::IControllerLogic> _control; 
 		std::unique_ptr<model::VehicleState> _state;
 		std::unique_ptr<model::Perception> _perception;
-		std::unique_ptr<model::pathPlanning::PathPlanner> _pathPlanner;
+		std::vector<std::unique_ptr<model::pathPlanning::PathPlanner>> _pathPlanners;
+
+		FixSizedQueue<Path> _paths;
 
 	};  
 }
