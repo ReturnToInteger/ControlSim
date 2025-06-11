@@ -18,10 +18,36 @@
 namespace model {
 	class Cone;
 	namespace pathPlanning {
+		enum class SteeringMode
+		{
+			LOW,
+			MEDIUM,
+			HIGH,
+			EXTREME
+		}; 
+
+		struct SteeringPresets {
+			static constexpr std::array<double, 5> steeringModeLOW = { 0, -0.5, 0.5, -1, 1 };
+			static constexpr std::array<double, 7> steeringModeMEDIUM = { 0, -0.33, 0.33 - 0.67, 0.67, -1, 1 };
+			static constexpr std::array<double, 9> steeringModeHIGH = { 0, -0.25, 0.25, -0.5, 0.5, -0.75, 0.75, -1, 1 };
+			static constexpr std::array<double, 11> steeringModeEXTREME = { 0.0, 0.2,-0.2 , 0.4,-0.4 , 0.6,-0.6 , 0.8,-0.8 , 1.0, -1.0 };
+		};
+
+		// cellSize
+		// stepSize
+		// angleBins
+		// SteeringMode: LOW, MEDIUM, HIGH, EXTREME
+		struct PlannerConfig {
+			double cellSize;
+			double stepSize;
+			int angleBins;
+			SteeringMode steeringMode;
+		};
+
 		class PathPlanner
 		{
 		public:
-			PathPlanner(int iterations = 5, double deltaSpace = 1.5, double cellSize = 0.5, double steeringStep = M_PI / 18);
+			PathPlanner(PlannerConfig config);
 			void planPath(std::vector<const model::Cone*> const& cones, model::VehicleState const& vehicleState);
 			//Sets planned path based on current node
 			void setPlannedPath();
@@ -42,12 +68,13 @@ namespace model {
 			std::unordered_set<std::tuple<int, int, int>> _collidingList;
 #endif // ENABLE_DEBUG_DRAW
 			Path _plannedPath;
-			std::vector<double> _plannedOrientation;
-			const int _iterations;
-			const double _deltaSpace;
-			const double _steeringStep;
+			const int _angleBins;
+			const double _stepSize;
 			const double _cellSize;
-			std::array<double, 11> _steeringAngles;
+			const double* _steeringAngles;
+			int _anglesSize;
+			void _selectSteeringMode(SteeringMode const& mode, double const*& angles, int& size);
+
 			Point _goal;
 			PathNode _currentNode;
 			DubinsStateSpace _dubins;
@@ -62,6 +89,7 @@ namespace model {
 			double _getHeuristics(model::VehicleState const& start, model::Point const& goal);
 			// gets position-orientation pairs until new position is reached
 			std::vector<model::VehicleState> _stepUntilNew(VehicleState const& state, double distanceStep);
+			
 
 		};
 	}

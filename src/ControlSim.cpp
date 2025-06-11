@@ -14,18 +14,18 @@
 #include "model/mapReaders/MATLAB/MatlabMapReader.h"
 #include "controller/KeyboardControl.h"
 #include "model/controllerLogic/PurePursuitControl.h"
-//#include "model/pathPlanning/Heuristics/DubinsStateSpace.h"
+#include "model/pathPlanning/PathPlanner.h"
 #include "model/utils/ModelUtils.h"
 double Mod(double a, double b) {
 	return std::fmod(std::fmod(a, b) + b, b);
 }
 
 int main() {
-
+	model::pathPlanning::PlannerConfig plannerConfig={ 0.2,1.5,20,model::pathPlanning::SteeringMode::EXTREME };
 	
 	controller::App app(
 		std::make_unique<model::Vehicle>(std::make_unique<model::PurePursuitControl>(), 
-			std::make_unique<model::pathPlanning::PathPlanner>(60, 1.5, 0.2)),
+			std::make_unique<model::pathPlanning::PathPlanner>(plannerConfig)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>() /*nullptr*/
 	);

@@ -3,6 +3,8 @@
 #include "model/utils/Angle.h"
 #include "model/utils/Pose.h"
 #include <thread>
+#include <algorithm>
+#include <stdexcept>
 
 #ifdef ENABLE_DEBUG_DRAW
 #include "view/DebugDraw.h"
@@ -11,11 +13,11 @@
 
 namespace model {
 	namespace pathPlanning {
-		PathPlanner::PathPlanner(int iterations, double deltaSpace, double cellSize, double steeringStep) :
-			_iterations(iterations), _deltaSpace(deltaSpace), _cellSize(cellSize), _steeringStep(steeringStep), _goal(-47.5, 10.0),
+		PathPlanner::PathPlanner(PlannerConfig config) :
+			_stepSize(config.stepSize), _cellSize(config.cellSize), _angleBins(config.angleBins),_goal(-47.5, 10.0),
 			_dubins(3.0 / tan(M_PI / 6.0))
 		{
-			
+			_selectSteeringMode(config.steeringMode, _steeringAngles, _anglesSize);
 		}
 
 		void PathPlanner::planPath(std::vector<const model::Cone*> const& cones, model::VehicleState const& vehicleState)
@@ -26,12 +28,6 @@ namespace model {
 
 			_dubins = DubinsStateSpace(radius);
 			int iter = 0;
-			_steeringAngles = { 0.0,
-				0.05,-0.05 ,
-				0.25,-0.25 ,
-				0.5,-0.5 ,
-				0.75,-0.75 ,
-				1.0,-1.0 };
 
 			PathNode startNode(
 				vehicleState,
@@ -39,7 +35,7 @@ namespace model {
 				0 + _getHeuristics(vehicleState, _goal),
 				nullptr);
 			// If start is within goal, return
-			if ((startNode.state.getPosition() - _goal).magnitude() < _deltaSpace / 2.0) {
+			if ((startNode.state.getPosition() - _goal).magnitude() < _stepSize / 2.0) {
 				std::cout << "Reached Goal" << std::endl;
 				return;
 			}
@@ -73,7 +69,7 @@ namespace model {
 
 				// or (currentNode.cost > _iterations)
 				// Goal Reached
-				if ((currentNode.state.getPosition() - _goal).magnitude() < _deltaSpace ) {
+				if ((currentNode.state.getPosition() - _goal).magnitude() < _stepSize ) {
 					_currentNode = currentNode;
 					//std::cout << "Goal reached in "<<iter<<" iterations." << std::endl;
 					return;
@@ -121,7 +117,6 @@ namespace model {
 #endif // ENABLE_DEBUG_DRAW
 
 			std::vector<VehicleState> path;
-			path.reserve(_iterations);
 			PathNode* currentNode = &_currentNode;
 			path.emplace_back(currentNode->state);
 			currentNode = currentNode->parent.get();
@@ -133,14 +128,38 @@ namespace model {
 			_plannedPath=Path(path);
 		}
 
+		void PathPlanner::_selectSteeringMode(SteeringMode const& mode, double const*& angles, int & size)
+		{
+			switch (mode) {
+			case SteeringMode::LOW:
+				angles = SteeringPresets::steeringModeLOW.data();
+				size = SteeringPresets::steeringModeLOW.size();
+				break;
+			case SteeringMode::MEDIUM:
+				angles = SteeringPresets::steeringModeMEDIUM.data();
+				size = SteeringPresets::steeringModeMEDIUM.size();
+				break;
+			case SteeringMode::HIGH:
+				angles = SteeringPresets::steeringModeHIGH.data();
+				size = SteeringPresets::steeringModeHIGH.size();
+				break;
+			case SteeringMode::EXTREME:
+				angles = SteeringPresets::steeringModeEXTREME.data();
+				size = SteeringPresets::steeringModeEXTREME.size();
+				break;
+			default:
+				throw std::out_of_range("Invalid planner config (SteeringMode).");
+			}
+		}
+
 		void PathPlanner::_updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode const& node)
 		{
 			double maxSteeringAngle = node.state.getMaxSteeringAngle();
 
-			for (auto& steeringAngle : _steeringAngles) {
+			for (int i = 0; i < _anglesSize;i++) {
 				//std::cout << "steering angle: " << steeringAngle << std::endl;
 				PathNode newNode = node;
-				newNode.state = _stepByDistance(node.state, _deltaSpace, steeringAngle);
+				newNode.state = _stepByDistance(node.state, _stepSize, _steeringAngles[i]);
 				newNode.parent = std::make_shared<PathNode>(node);
 
 				// Check if the new node is in the closed list
@@ -150,7 +169,7 @@ namespace model {
 					bool isColliding = false;
 					model::Pose contactPoint;
 					//		Interpolate the path between the current node and the new node
-					std::vector<VehicleState> interpolatedState = _stepUntilNew(node.state, _deltaSpace / 3.0);
+					std::vector<VehicleState> interpolatedState = _stepUntilNew(node.state, _stepSize / 3.0);
 					for (auto& state : interpolatedState) {
 						auto collisionResult = _detectCollision(state, cones);
 						if (collisionResult.first) {
@@ -171,7 +190,7 @@ namespace model {
 					}
 					else {
 						//calculate cost and heuristics
-						newNode.gCost = node.gCost + _deltaSpace;
+						newNode.gCost = node.gCost + _stepSize;
 						newNode.fCost = newNode.gCost + _getHeuristics(node.state, _goal);
 						// if not in open list, add it
 						auto [it, isInserted] = _openList.emplace(newNodeKey, newNode);
@@ -281,11 +300,11 @@ namespace model {
 
 		std::vector<model::VehicleState> PathPlanner::_stepUntilNew(VehicleState const& state, double distanceStep)
 		{
-			distanceStep = std::min(std::max(distanceStep, _cellSize * 1.5), _deltaSpace);
+			distanceStep = std::min(std::max(distanceStep, _cellSize * 1.5), _stepSize);
 
 			std::vector<VehicleState> states;
 			double currentStep = distanceStep;
-			while (currentStep < _deltaSpace - 1e-8) {
+			while (currentStep < _stepSize - 1e-8) {
 				//VehicleState currentState = _stepByDistance(state, currentStep, state.getSteeringAngle());
 				states.push_back(_stepByDistance(state, currentStep, state.getSteeringAngle()));
 				currentStep += distanceStep;
