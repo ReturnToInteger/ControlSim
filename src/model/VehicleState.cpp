@@ -16,8 +16,7 @@ namespace model
 		_steeringAngle(0),
 		_steeringRate(0),
 		_acceleration(0),
-		_targetSpeed(0),
-		_targetSteeringAngle(0),
+		_target(0,0),
 		_brakeAcceleration(0)
 	{
 	}
@@ -56,11 +55,16 @@ namespace model
 
 	void VehicleState::setTargetSpeed(double input)
 	{
-		_targetSpeed = clamp(input, -1, 1)*_maxSpeed;
+		_target.speed = clamp(input, -1, 1)*_maxSpeed;
 	}
 	void VehicleState::setTargetSteeringAngle(double input)
 	{
-		_targetSteeringAngle = clamp(input, -1, 1) * _maxSteeringAngle;
+		_target.steeringAngle = clamp(input, -1, 1) * _maxSteeringAngle;
+	}
+	void VehicleState::setTarget(ControlCommand targetCommand)
+	{
+		_target.speed = targetCommand.speed * _maxSpeed;
+		_target.steeringAngle = targetCommand.steeringAngle * _maxSteeringAngle;
 	}
 	void VehicleState::updateState(double dt) {
 		_updateControl(dt);
@@ -76,19 +80,21 @@ namespace model
 
 	void model::VehicleState::_updateSteering(double dt)
 	{
-		double delta = _targetSteeringAngle - _steeringAngle;
+		// Idealistic, set by interpolating (instead of control)
+		double delta = _target.steeringAngle - _steeringAngle;
 		double maxStep = _maxSteeringRate * dt;
 		delta = clamp(delta, -maxStep, maxStep);
 		_setSteeringRate(delta / dt); 
 		_setSteeringAngle(_steeringAngle + delta);
 
-		//_setSteeringRate((_targetSteeringAngle - _steeringAngle) / dt);
+		// P control
+		//_setSteeringRate((_target.steeringAngle - _steeringAngle) / dt);
 		//_setSteeringAngle(_steeringAngle + _steeringRate * dt);
 	}
 
 	void VehicleState::_updateDriving(double dt)
 	{
-		_setAcceleration((_targetSpeed - _speed) / dt, 0);
+		_setAcceleration((_target.speed - _speed) / dt, 0);
 		_setSpeed(_speed + _acceleration * dt);
 	}
 

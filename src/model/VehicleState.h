@@ -6,6 +6,7 @@
 #include "model/utils/Pose.h"
 #include "model/utils/Angle.h"
 #include "model/utils/ModelUtils.h"
+#include "controllerLogic/ControlCommand.h"
 
 
 #ifndef M_PI
@@ -61,6 +62,8 @@ namespace model
         double getMaxSpeed() const { return _maxSpeed; }
         void setTargetSpeed(double input);
         void setTargetSteeringAngle(double input);
+        void setTarget(ControlCommand targetCommand);
+        ControlCommand getTarget() const { return _target; }
         void updateState(double dt);
 
     private:
@@ -90,6 +93,7 @@ namespace model
         //targets
         double _targetSpeed = 0.0;
         double _targetSteeringAngle = 0.0;
+        ControlCommand _target;
 
 		void _updateControl(double dt);
         void _updateSteering(double dt);

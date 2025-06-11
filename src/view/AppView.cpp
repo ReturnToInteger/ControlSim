@@ -34,9 +34,9 @@ namespace view {
 	{
 		_window.create(sf::VideoMode(_videoWidth, _videoHeight), "Vehicle Simulation");
 		_window.setFramerateLimit(_frameRate);
-		_view.setSize(_videoWidth, _videoHeight);
+		_view.setSize(static_cast<float>(_videoWidth), static_cast<float>(_videoHeight));
 		_view.setCenter(_vehicleView.getPosition());
-		_view.zoom(_zoom);
+		_view.zoom(static_cast<float>(_zoom));
 		_window.setView(_view);
 	}
 
@@ -80,9 +80,9 @@ namespace view {
 				auto resized = event.size;
 				_videoWidth = resized.width;
 				_videoHeight = resized.height;
-				_view.setSize(resized.width, resized.height);
+				_view.setSize(static_cast<float>(resized.width), static_cast<float>(resized.height));
 				_view.setCenter(_vehicleView.getPosition());
-				_view.zoom(_zoom);
+				_view.zoom(static_cast<float>(_zoom));
 				
 				_notify("AppView", model::events::Resized{});
 			} 
@@ -164,7 +164,7 @@ namespace view {
 	{
 		_zoom = _zoom * factor;
 		//std::cout << delta << std::endl;
-		_view.zoom(factor);
+		_view.zoom(static_cast<float>(factor));
 
 	}
 
@@ -190,16 +190,16 @@ namespace view {
 
 		// vertical lines
 		for (int x = startX; x <= endX; ++x) {
-			float px = x * cellSize;
-			lines.append(sf::Vertex(sf::Vector2f(px, startY * cellSize), lineColor));
-			lines.append(sf::Vertex(sf::Vector2f(px, endY * cellSize), lineColor));
+			float px = static_cast<float>(x * cellSize);
+			lines.append(sf::Vertex(sf::Vector2f(px, static_cast<float>(startY * cellSize)), lineColor));
+			lines.append(sf::Vertex(sf::Vector2f(px, static_cast<float>(endY * cellSize)), lineColor));
 		}
 
 		// horizontal lines
 		for (int y = startY; y <= endY; ++y) {
-			float py = y * cellSize;
-			lines.append(sf::Vertex(sf::Vector2f(startX * cellSize, py), lineColor));
-			lines.append(sf::Vertex(sf::Vector2f(endX * cellSize, py), lineColor));
+			float py = static_cast<float>(y * cellSize);
+			lines.append(sf::Vertex(sf::Vector2f(static_cast<float>(startX * cellSize), py), lineColor));
+			lines.append(sf::Vertex(sf::Vector2f(static_cast<float>(endX * cellSize), py), lineColor));
 		}
 		_gridLines = lines;
 	}

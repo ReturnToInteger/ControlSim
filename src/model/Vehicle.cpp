@@ -35,8 +35,7 @@ namespace model {
 			dt = 0;
 		}
 		model::ControlCommand command = _control->drive(*_state, _paths.back());
-		_state->setTargetSpeed(command.speed);
-		_state->setTargetSteeringAngle(command.steeringAngle);
+		_state->setTarget(command);
 		_state->updateState(dt);
 	}
 
@@ -78,7 +77,7 @@ namespace model {
 	void Vehicle::setAllGoals(Point goal)
 	{
 #ifdef ENABLE_DEBUG_DRAW
-		view::DebugDraw::instance().circle(sf::Vector2f(goal.X(), goal.Y()), 0.5, sf::Color::Cyan);
+		view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
 #endif // ENABLE_DEBUG_DRAW
 
 		for (int i=0; i < _pathPlanners.size(); i++) {

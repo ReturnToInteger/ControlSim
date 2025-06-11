@@ -10,7 +10,7 @@ namespace model {
 		VehicleState state;
 		// Current cost from start
 		double gCost;
-		// Current cost + heuristic cost to goal
+		// Estimated goal (Current cost + heuristics)
 		double fCost;
 		// Parent for reconstruction
 		std::shared_ptr<PathNode> parent;
@@ -25,7 +25,7 @@ namespace model {
 
 	// Used in the priority queue, to find the minimum fCost in O(1) time
 	struct PQNode {
-		// Current cost + heuristic cost to goal for priority queue
+		// Estimated goal (Current cost + heuristics)
 		double fCost;
 		// Key for the hashmap, discretization of the pose variable
 		std::tuple<int,int,int> key;

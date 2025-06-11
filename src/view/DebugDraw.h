@@ -24,7 +24,7 @@ namespace view {
             _points.setPrimitiveType(sf::Points);
 
             for (auto const& point : points) {
-                _points.append(sf::Vertex(sf::Vector2f(point.X(), point.Y()), color));
+                _points.append(sf::Vertex(sf::Vector2f(static_cast<float>(point.X()), static_cast<float>(point.Y())), color));
             }
         }
         void points2(std::vector<model::Point> points, sf::Color color = sf::Color::Red) {
@@ -32,7 +32,7 @@ namespace view {
             _points2.setPrimitiveType(sf::Points);
 
             for (auto const& point : points) {
-                _points2.append(sf::Vertex(sf::Vector2f(point.X(), point.Y()), color));
+                _points2.append(sf::Vertex(sf::Vector2f(static_cast<float>(point.X()), static_cast<float>(point.Y())), color));
             }
         }
         void points3(std::vector<model::Point> points, sf::Color color = sf::Color::Red) {
@@ -40,7 +40,7 @@ namespace view {
             _points3.setPrimitiveType(sf::Points);
 
             for (auto const& point : points) {
-                _points3.append(sf::Vertex(sf::Vector2f(point.X(), point.Y()), color));
+                _points3.append(sf::Vertex(sf::Vector2f(static_cast<float>(point.X()), static_cast<float>(point.Y())), color));
             }
         }
         void lineStrip(std::vector<model::Point> points, sf::Color color = {255,255,255,127}) {
@@ -48,13 +48,13 @@ namespace view {
             _lineStrip.setPrimitiveType(sf::LineStrip);
 
             for (auto const& point : points) {
-                _lineStrip.append(sf::Vertex(sf::Vector2f(point.X(), point.Y()), color));
+                _lineStrip.append(sf::Vertex(sf::Vector2f(static_cast<float>(point.X()), static_cast<float>(point.Y())), color));
             }
         }
 
-        void circle(sf::Vector2f center, float radius, sf::Color color = sf::Color::Green) {
+        void circle(model::Point center, float radius, sf::Color color = sf::Color::Green) {
             sf::CircleShape c(radius);
-            c.setPosition(center - sf::Vector2f(radius, radius));
+            c.setPosition(sf::Vector2f(static_cast<float>(center.X()), static_cast<float>(center.Y())) - sf::Vector2f(radius, radius));
             c.setFillColor(sf::Color::Transparent);
             c.setOutlineColor(color);
             c.setOutlineThickness(0.5f);

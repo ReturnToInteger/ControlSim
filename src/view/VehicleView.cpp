@@ -10,8 +10,8 @@ void view::VehicleView::draw(sf::RenderTarget& target, sf::RenderStates states =
 	}
 	auto position = _vehicle->getPosition();
 
-	sf::RectangleShape vehicleShape(sf::Vector2f(_vehicle->getLength(),
-		_vehicle->getWidth()));
+	sf::RectangleShape vehicleShape(sf::Vector2f(static_cast<float>(_vehicle->getLength()),
+		static_cast<float>(_vehicle->getWidth())));
 
 	sf::Sprite sprite(_texture);
 	//vehicleSprite.setTextureRect(sf::IntRect(
@@ -20,11 +20,11 @@ void view::VehicleView::draw(sf::RenderTarget& target, sf::RenderStates states =
 	//	static_cast<int>(_vehicle->getLength()) * 10
 	//));
 	sf::Vector2u size=_texture.getSize();
-	sprite.setOrigin(size.x/2.0, size.y/2.0);
-	sprite.setRotation(_vehicle->getOrientation() / M_PI * 180+90);
-	sprite.setScale(_vehicle->getWidth() / size.x, _vehicle->getLength() / size.y);
+	sprite.setOrigin(static_cast<float>(size.x/2.0), static_cast<float>(size.y/2.0));
+	sprite.setRotation(static_cast<float>(_vehicle->getOrientation() / M_PI * 180+90));
+	sprite.setScale(static_cast<float>(_vehicle->getWidth() / size.x), static_cast<float>(_vehicle->getLength() / size.y));
 	//vehicleSprite.setFillColor(_color);
-	sprite.setPosition(position.X(),position.Y());
+	sprite.setPosition(static_cast<float>(position.X()), static_cast<float>(position.Y()));
 	target.draw(sprite);
 }
 
@@ -48,7 +48,7 @@ sf::Vector2f view::VehicleView::getPosition() const
 		return sf::Vector2f(0, 0);
 	}
 	auto position = _vehicle->getPosition();
-	return sf::Vector2f(position.X(),position.Y());
+	return sf::Vector2f(static_cast<float>(position.X()), static_cast<float>(position.Y()));
 }
 
 double view::VehicleView::getOrientation() const

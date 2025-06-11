@@ -71,25 +71,46 @@ namespace model {
 			const int _angleBins;
 			const double _stepSize;
 			const double _cellSize;
-			const double* _steeringAngles;
-			int _anglesSize;
-			void _selectSteeringMode(SteeringMode const& mode, double const*& angles, int& size);
+			const double* _steeringInputs;
+			size_t _anglesSize;
+			void _selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
 
 			Point _goal;
-			PathNode _currentNode;
+			PathNode _finalNode;
 			DubinsStateSpace _dubins;
 
 			void _updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode const& node);
 			VehicleState _stepByDistance(VehicleState const& state, double distance, double steeringAngle);
 			std::tuple<int, int, int> _discretizePoint(model::Pose const& pose) const;
+			// Returns if it collides with 100% accuracy, and vehicle pose
+			// More computationally expensive
 			std::pair<bool, model::Pose> _detectCollision(VehicleState const& state, std::vector<const model::Cone*> const& cones) const;
+
+			// Simple collision detection that uses vehicle width
+			// Less computationally expensive
 			std::pair<bool, model::Pose> _lazyDetectCollision(VehicleState const& state, std::vector<const model::Cone*> const& cones) const;
+
+			//		Detect collision between a node and one step away by interpolating
+			// Returns the first collision if it happens, and the vehicle's pose
+			// If there is no collision, the return is the vehicle's new pose
+			std::pair<bool, model::Pose> _checkCollisionWithinStep(int stepCount,VehicleState const& state, std::vector<const model::Cone*> const& cones);
+
+			PathNode _createNewNode(PathNode const& node, double steeringInput);
+			void _processValidNode(PathNode & node, std::tuple<int, int, int> const& key);
+			
 			std::vector<model::Point> _getBoundary(VehicleState const& state) const;
 			Point _rotatePoint(model::Point const& point, Angle const& angle) const;
 			double _getHeuristics(model::VehicleState const& start, model::Point const& goal);
 			// gets position-orientation pairs until new position is reached
 			std::vector<model::VehicleState> _stepUntilNew(VehicleState const& state, double distanceStep);
+
+			bool _isAtGoal(const model::VehicleState& state) const;
+			bool _hasMoreNodes() const; 
+			PQNode _getNextOpenNode();
+			PathNode _extractNode(decltype(_openList)::iterator it);
+
 			
+			void _setDubins(double maxSteering, double wheelBase);
 
 		};
 	}

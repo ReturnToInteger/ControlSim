@@ -1,4 +1,4 @@
-#include "PathPlanner.h"
+﻿#include "PathPlanner.h"
 #include "model/items/Cone.h"
 #include "model/utils/Angle.h"
 #include "model/utils/Pose.h"
@@ -17,72 +17,82 @@ namespace model {
 			_stepSize(config.stepSize), _cellSize(config.cellSize), _angleBins(config.angleBins),_goal(-47.5, 10.0),
 			_dubins(3.0 / tan(M_PI / 6.0))
 		{
-			_selectSteeringMode(config.steeringMode, _steeringAngles, _anglesSize);
+			_selectSteeringMode(config.steeringMode, _steeringInputs, _anglesSize);
 		}
 
 		void PathPlanner::planPath(std::vector<const model::Cone*> const& cones, model::VehicleState const& vehicleState)
 		{
-			Angle maxSteeringAngle = vehicleState.getMaxSteeringAngle();
-			Angle beta = atan(tan(maxSteeringAngle) / 2);
-			double radius = vehicleState.getWheelBase() / (tan(maxSteeringAngle) * cos(beta));
+			_setDubins(vehicleState.getMaxSteeringAngle(),vehicleState.getWheelBase());
 
-			_dubins = DubinsStateSpace(radius);
-			int iter = 0;
-
-			PathNode startNode(
-				vehicleState,
-				0,
-				0 + _getHeuristics(vehicleState, _goal),
-				nullptr);
 			// If start is within goal, return
-			if ((startNode.state.getPosition() - _goal).magnitude() < _stepSize / 2.0) {
+			if (_isAtGoal(vehicleState)) {
 				std::cout << "Reached Goal" << std::endl;
 				return;
 			}
-			PQNode startPQ{ startNode.fCost,_discretizePoint(vehicleState.getPose()) };
+
+			// Process first node
+			PQNode startPQ{ _getHeuristics(vehicleState, _goal),_discretizePoint(vehicleState.getPose()) };
+			PathNode startNode(
+				vehicleState,
+				0,
+				startPQ.fCost,
+				nullptr);
+
 			// Check collision for start node
-			auto [isColliding, collisionPoint] = _detectCollision(startNode.state, cones);
-			if (isColliding) {
-#ifdef ENABLE_DEBUG_DRAW
+			auto [isColliding, collisionPoint] = _detectCollision(vehicleState, cones);
+			if (!isColliding) {
+				// Add startNode to open list
+				_openList.emplace(startPQ.key, startNode);
+				_openQueue.emplace(startPQ);
+			}
+			else {
+				#ifdef ENABLE_DEBUG_DRAW
 				_collidingList.emplace(startPQ.key);
-#endif // ENABLE_DEBUG_DRAW
+				#endif // ENABLE_DEBUG_DRAW
 				std::cout << "Inside a cone." << std::endl;
 				return;
 			}
-			// Add startNode to open list
-			_openList.emplace(startPQ.key, startNode);
 
-			_openQueue.emplace(startPQ);
-			//while (!_openList.empty()) {
-			while (!_openList.empty() && _openList.size() < MAX_CONTAINER_SIZE && _closedList.size() < MAX_CONTAINER_SIZE) {
-				// Find the node with the lowest cost in the open list
+			int iter = 0;
+			while (_hasMoreNodes()) {
+				// Find the node with the lowest cost in the open list, mark it visited, and explore it
 
 				// Get smallest cost
-				PQNode top = _openQueue.top();
-				_openQueue.pop();
-				_closedList.emplace(top.key); // Add the node to the closed list
-				auto it = _openList.find(top.key);
-				if (it == _openList.end()) continue; // stale node
-				if (top.fCost > it->second.fCost + 1e-8) continue;
-				PathNode currentNode(it->second);
-				_openList.erase(it->first); // Remove the node from the open list
+				PQNode top = _getNextOpenNode();
 
-				// or (currentNode.cost > _iterations)
+				auto it = _openList.find(top.key);
+				if (it == _openList.end()|| top.fCost > it->second.fCost + 1e-8) 
+					continue; // stale node
+
+				// Set the current node
+				PathNode currentNode = _extractNode(it);
+
 				// Goal Reached
-				if ((currentNode.state.getPosition() - _goal).magnitude() < _stepSize ) {
-					_currentNode = currentNode;
-					//std::cout << "Goal reached in "<<iter<<" iterations." << std::endl;
+				if (_isAtGoal(currentNode.state)) {
+					_finalNode = currentNode;
 					return;
 				}
 				else {
 					_updateNeightbours(cones, currentNode);
 				}
-
 				iter++;
 			}
-			std::cout << "Path not found after " << iter << " iterations." << std::endl;
-			_currentNode = startNode;
+			//std::cout << "Path not found after " << iter << " iterations." << std::endl;
+			_finalNode = startNode;
 		}
+
+		PQNode PathPlanner::_getNextOpenNode() {
+			PQNode top = _openQueue.top();
+			_openQueue.pop();
+			_closedList.emplace(top.key);
+			return top;
+		}
+		PathNode PathPlanner::_extractNode(decltype(_openList)::iterator it) {
+			PathNode current = std::move(it->second);  
+			_openList.erase(it);
+			return current;
+		}
+
 
 		Path PathPlanner::getPlannedPath() const
 		{
@@ -117,7 +127,7 @@ namespace model {
 #endif // ENABLE_DEBUG_DRAW
 
 			std::vector<VehicleState> path;
-			PathNode* currentNode = &_currentNode;
+			PathNode* currentNode = &_finalNode;
 			path.emplace_back(currentNode->state);
 			currentNode = currentNode->parent.get();
 			while (currentNode != nullptr && currentNode->parent.get() != currentNode) {
@@ -128,23 +138,23 @@ namespace model {
 			_plannedPath=Path(path);
 		}
 
-		void PathPlanner::_selectSteeringMode(SteeringMode const& mode, double const*& angles, int & size)
+		void PathPlanner::_selectSteeringMode(SteeringMode const& mode, double const*& inputs, size_t & size)
 		{
 			switch (mode) {
 			case SteeringMode::LOW:
-				angles = SteeringPresets::steeringModeLOW.data();
+				inputs = SteeringPresets::steeringModeLOW.data();
 				size = SteeringPresets::steeringModeLOW.size();
 				break;
 			case SteeringMode::MEDIUM:
-				angles = SteeringPresets::steeringModeMEDIUM.data();
+				inputs = SteeringPresets::steeringModeMEDIUM.data();
 				size = SteeringPresets::steeringModeMEDIUM.size();
 				break;
 			case SteeringMode::HIGH:
-				angles = SteeringPresets::steeringModeHIGH.data();
+				inputs = SteeringPresets::steeringModeHIGH.data();
 				size = SteeringPresets::steeringModeHIGH.size();
 				break;
 			case SteeringMode::EXTREME:
-				angles = SteeringPresets::steeringModeEXTREME.data();
+				inputs = SteeringPresets::steeringModeEXTREME.data();
 				size = SteeringPresets::steeringModeEXTREME.size();
 				break;
 			default:
@@ -152,65 +162,27 @@ namespace model {
 			}
 		}
 
-		void PathPlanner::_updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode const& node)
+		void model::pathPlanning::PathPlanner::_updateNeightbours(std::vector<const model::Cone*> const& cones, PathNode const& node)
 		{
 			double maxSteeringAngle = node.state.getMaxSteeringAngle();
-
 			for (int i = 0; i < _anglesSize;i++) {
-				//std::cout << "steering angle: " << steeringAngle << std::endl;
-				PathNode newNode = node;
-				newNode.state = _stepByDistance(node.state, _stepSize, _steeringAngles[i]);
-				newNode.parent = std::make_shared<PathNode>(node);
+				// Set leaf partly
+				PathNode newNode = _createNewNode(node, _steeringInputs[i]);
+				std::tuple<int, int, int> newNodeKey = _discretizePoint(newNode.state.getPose());
 
 				// Check if the new node is in the closed list
-				std::tuple<int, int, int> newNodeKey = _discretizePoint(newNode.state.getPose());
 				if (_closedList.find(newNodeKey) == _closedList.end()) {
-					// Collision check
-					bool isColliding = false;
-					model::Pose contactPoint;
-					//		Interpolate the path between the current node and the new node
-					std::vector<VehicleState> interpolatedState = _stepUntilNew(node.state, _stepSize / 3.0);
-					for (auto& state : interpolatedState) {
-						auto collisionResult = _detectCollision(state, cones);
-						if (collisionResult.first) {
-							isColliding = true;
-							contactPoint = collisionResult.second;
-							break;
-						}
-					}
-					if (!isColliding) {
-						auto collisionResult = _detectCollision(newNode.state, cones);
-						isColliding = collisionResult.first;
-						contactPoint = collisionResult.second;
-					}
+					//	Interpolate the path between the current node and the new node and check each collision
+					auto [isColliding, contactPose] = _checkCollisionWithinStep(3, node.state, cones);
 					// if collision add to closed list
 					if (isColliding) {
-						std::tuple<int, int, Angle> collidingKey = _discretizePoint(contactPoint);
-						_closedList.emplace(newNodeKey);
+						std::tuple<int, int, int> collidingKey = _discretizePoint(contactPose);
+						_closedList.emplace(collidingKey);
 					}
 					else {
-						//calculate cost and heuristics
-						newNode.gCost = node.gCost + _stepSize;
-						newNode.fCost = newNode.gCost + _getHeuristics(node.state, _goal);
-						// if not in open list, add it
-						auto [it, isInserted] = _openList.emplace(newNodeKey, newNode);
-
-						if (isInserted) {
-
-							_openQueue.emplace(PQNode{ newNode.fCost,newNodeKey });
-						}
-						else if (newNode.gCost < _openList[newNodeKey].gCost) {
-							// if in open list, replace if cost is lower
-							_openList[newNodeKey] = newNode;
-							_openQueue.emplace(PQNode{ newNode.fCost,newNodeKey });
-						}
-
+						_processValidNode(newNode, newNodeKey);
 					}
 				}
-
-
-
-
 			}
 		}
 
@@ -234,15 +206,18 @@ namespace model {
 		{
 			int x = static_cast<int>(pose.x / _cellSize);
 			int y = static_cast<int>(pose.y / _cellSize);
-			int angle = static_cast<int>(std::floor(pose.theta / (2 * M_PI / 20.0))) % 20;
+			double shiftedTheta = pose.theta + M_PI;  // now in [0, 2π)
+			double binWidth = 2 * M_PI / _angleBins;
+			int angle = static_cast<int>(std::floor(shiftedTheta / binWidth));
 			return std::make_tuple(x, y, angle);
 		}
 
+
 		std::pair<bool, model::Pose> PathPlanner::_detectCollision(VehicleState const& state, std::vector<const model::Cone*> const& cones) const
 		{
-			model::Point vehiclePosition(state.getPosition());
+			if (cones.empty()) return { false, state.getPose() };
+			model::Point vehiclePosition = state.getPosition();
 			Angle vehicleOrientation = state.getOrientation();
-			if (cones.empty()) return { false, Pose() };
 			double radius = cones[0]->getRadius();
 			double vhclLength = state.getLength(), vhclWidth = state.getWidth();
 			for (auto const& cone : cones) {
@@ -254,32 +229,84 @@ namespace model {
 				double distance = (relPos - clampedPoint).magnitude();
 				// within radius and margin for error
 				if (distance < radius) {
-					Point contactPoint = _rotatePoint(clampedPoint, vehicleOrientation) + vehiclePosition;
-					return { true, Pose(contactPoint.X(),contactPoint.Y(), vehicleOrientation) };
+					//Point contactPoint = _rotatePoint(clampedPoint, vehicleOrientation) + vehiclePosition;
+					return { true, state.getPose() };
 				}
 			}
-			return { false,Pose() }; // No collision
+			return { false,state.getPose() }; // No collision
 		}
 
 		std::pair<bool, model::Pose> PathPlanner::_lazyDetectCollision(VehicleState const& state, std::vector<const model::Cone*> const& cones) const
 		{
+			if (cones.empty()) return { false, state.getPose() };
+
 			model::Point vehiclePosition(state.getPosition());
 			Angle vehicleOrientation = state.getOrientation();
-			if (cones.empty()) return { false, Pose() };
 			double radius = cones[0]->getRadius();
 			double vhclLength = state.getLength(), vhclWidth = state.getWidth();
 			for (auto const& cone : cones) {
-				if (cone->getType() == model::ConeType::UNKNOWN) {
-					continue; // Skip unknown cones
-				}
 				Point relPos(cone->getPosition() - vehiclePosition);
 				if (relPos.magnitude() > (vhclLength * 1.5 + radius)) continue;
 				// within radius and margin for error
 				if (relPos.magnitude() < radius + vhclWidth / 2.0) {
-					return { true, Pose(vehiclePosition.X(),vehiclePosition.Y(), vehicleOrientation) };
+					return { true, Pose(state.getPose()) };
 				}
 			}
-			return { false,Pose() }; // No collision
+			return { false,state.getPose() }; // No collision
+		}
+
+		std::pair<bool, model::Pose> PathPlanner::_checkCollisionWithinStep(int stepCount, VehicleState const& state, std::vector<const model::Cone*> const& cones)
+		{
+			if (cones.empty()) return { false, Pose() };
+
+			double smallStepSize = clamp(_stepSize / stepCount, _cellSize * 1.5, _stepSize);
+			bool isColliding=false;
+			Pose contactPose;
+			double currentStep = smallStepSize;
+			while (currentStep < _stepSize - 1e-8) {
+				auto collisionResult = _detectCollision(_stepByDistance(state, currentStep, state.getTarget().steeringAngle), cones);
+				if (collisionResult.first) {
+					isColliding = true;
+					contactPose = collisionResult.second;
+					break;
+				}
+				currentStep += smallStepSize;
+			}
+			if (!isColliding) {
+				auto collisionResult = _detectCollision(_stepByDistance(state, _stepSize, state.getTarget().steeringAngle), cones);
+				isColliding = collisionResult.first;
+				contactPose = collisionResult.second;
+			}
+
+			return { isColliding,contactPose };
+		}
+
+		PathNode PathPlanner::_createNewNode(PathNode const& node, double steeringInput)
+		{
+			PathNode newNode;
+			newNode.state = _stepByDistance(node.state, _stepSize, steeringInput);
+			newNode.parent = std::make_shared<PathNode>(node);
+			return newNode;
+		}
+
+		void PathPlanner::_processValidNode(PathNode & node, std::tuple<int, int, int> const& key)
+		{
+			//calculate cost and heuristics
+			node.gCost = node.parent->gCost + _stepSize;
+			node.fCost = node.gCost + _getHeuristics(node.state, _goal);
+			// if not in open list, add it
+			auto [it, isInserted] = _openList.emplace(key, node);
+
+			if (isInserted) {
+
+				_openQueue.emplace(PQNode{ node.fCost,key });
+			}
+			else if (node.gCost < _openList[key].gCost) {
+				// if in open list, replace if cost is lower
+				_openList[key] = node;
+				_openQueue.emplace(PQNode{ node.fCost,key });
+			}
+
 		}
 
 		std::vector<model::Point> PathPlanner::_getBoundary(VehicleState const& state) const
@@ -294,7 +321,7 @@ namespace model {
 
 		double PathPlanner::_getHeuristics(model::VehicleState const& start, model::Point const& goalPoint)
 		{
-			//return (Point(start.getPose()) - goalPoint).magnitude(); //+ 10 * (start.getSteeringAngle() * start.getSteeringAngle()) / start.getMaxSteeringAngle();
+			//return (Point(start.getPose()) - goalPoint).magnitude()+(start.getSteeringAngle() * start.getSteeringAngle()) / start.getMaxSteeringAngle();
 			return _dubins.simpleDistance(start.getPose(), goalPoint)+ (start.getSteeringAngle() * start.getSteeringAngle()) / start.getMaxSteeringAngle();
 		}
 
@@ -310,6 +337,25 @@ namespace model {
 				currentStep += distanceStep;
 			}
 			return states;
+		}
+
+		bool PathPlanner::_isAtGoal(const model::VehicleState& state) const
+		{
+			return (state.getPosition() - _goal).magnitude() < _stepSize;
+		}
+
+		bool PathPlanner::_hasMoreNodes() const {
+			return !_openList.empty() &&
+				_openList.size() < MAX_CONTAINER_SIZE &&
+				_closedList.size() < MAX_CONTAINER_SIZE;
+		}
+
+
+		void PathPlanner::_setDubins(double maxSteering, double wheelBase)
+		{
+			Angle beta = atan(tan(maxSteering) / 2);
+			double radius = wheelBase / (tan(maxSteering) * cos(beta));
+			_dubins = DubinsStateSpace(radius);
 		}
 
 		void PathPlanner::clear()
