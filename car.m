@@ -43,10 +43,10 @@ classdef car < matlab.mixin.Copyable
         function obj=updateState(obj)
             beta=atan(tan(obj.SteeringAngle(1))/2);
             temp=obj.SteeringAngle(1)+obj.h*obj.SteeringAngle(2);
-            if abs(temp)<2/8*pi
+            if abs(temp)<pi/6
                 obj.SteeringAngle(1)=temp;
             else
-                obj.SteeringAngle(1)=sign(temp)*2/8*pi;
+                obj.SteeringAngle(1)=sign(temp)*pi/6;
             end
             obj.Centre(6)=obj.Speed*tan(obj.SteeringAngle(1))*cos(beta)/obj.Length;
             obj.Centre(3)=mod(obj.Centre(3)+obj.h*obj.Centre(6)+pi,2*pi)-pi;
@@ -64,38 +64,44 @@ classdef car < matlab.mixin.Copyable
         end
         
         function obj=steer(obj,ddelta)
-            obj.SteeringAngle(2)=sign(ddelta)*min(pi/4,abs(ddelta));
+            obj.SteeringAngle(1)=sign(ddelta)*min(pi/6,abs(ddelta));
         end
-        function g=costFun(obj)
+        function f=costFun(obj)
             [d,o]=obj.dist(obj.Map);
 
-            g=log(d^2)+tan(abs(o)/2)+tan(obj.SteeringAngle(1)*2)^2;
+            %f=log(d^2)+tan(abs(o)/2)+tan(obj.SteeringAngle(1)*2)^2;
+            f=o+atan(50*d/obj.Speed);
 
         end
         function [d,o,j]=dist(obj,M)
-            C=obj.Centre;
+            %C=obj.Centre;
+            F=obj.Front;
 
-            rel=M-C(1:2)';
+            rel=M-F(1:2)';
             vis=100;
             [q, param]=min(sum(rel.^2,2));
-            G=rel(param,:);
+            %G=rel(param,:);
             
-            op=(G(:,2)*sin(C(3))-G(:,1)*cos(C(3)));
+            op=(rel(:,2)*sin(F(3))-rel(:,1)*cos(F(3)));
             [i, j]=min(abs(op));
             op2=op;
             op2(j)=[Inf];
             [i2, j2]=min(abs(op2));
             if abs(i-i2)<0.001
-                if norm(G(j2,:))<norm(G(j,:))
+                if norm(rel(j2,:))<norm(rel(j,:))
                     j=j2;
                 end
             end
-            if norm(G(j,:))<obj.h*obj.Speed
-                obj.j=j;
-            end
-            d=norm(G(j,:));
+            %if norm(rel(j,:))<obj.h*obj.Speed
+            %    obj.j=j;
+            %end
+            d=norm(rel(j,:))*sign(op(j));
             
-            phi=atan2(G(j,2),G(j,1));
+            if (j<size(rel,1))
+                phi=atan2(rel(j+1,2)-rel(j,2),rel(j+1,1)-rel(j,1));
+            else
+                phi=atan2(rel(j,2)-rel(j-1,2),rel(j,1)-rel(j-1,1));
+            end
 %             if (j>1 && j<size(M,1))
 %                 phi= atan2(M(j+1,2) - M(j-1,2),M(j+1,1) - M(j-1,1));
 %             elseif j<size(M,1)
@@ -106,13 +112,15 @@ classdef car < matlab.mixin.Copyable
 %                 throw(MException("MyComponent:noSuchVariable","Not enough points in F"));
 %             end
 
-            o=C(3)-phi;
-            if o>=pi
-                o=2*pi-o;
-            end
-            if o<=-pi
-                o=-2*pi-o;
-            end
+            o=phi-F(3);
+            o = mod(o+pi, 2*pi)-pi;
+
+            %if o>=pi
+            %    o=2*pi-o;
+            %end
+            %if o<=-pi
+            %    o=-2*pi-o;
+            %end
         end
     end
 end

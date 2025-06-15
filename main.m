@@ -18,7 +18,7 @@ h=0.1;
 
 v=15;
 steering=[0 0];
-x0=[-2 -3];
+x0=[1, 0];
 th0=0;
 %map
 
@@ -58,7 +58,7 @@ fdur=h;
 tic;
 
 for i=2:it
-    dd=-pi/2:pi/8:pi/2;
+    dd=-pi/6:pi/18:pi/6;
     m=zeros(length(dd),1);
     for j=1:length(dd)
         a=steer(copy(c),dd(j));
@@ -78,7 +78,7 @@ for i=2:it
 
     
 %     [f(i,1), k]=min(min(min(m,[],3),[],2));
-    [f(i,1), k]=min(m);
+    [~, k]=min(m);
     steer(c,dd(k));
     try
         c.updateState();
