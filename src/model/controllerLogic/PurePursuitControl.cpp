@@ -7,7 +7,7 @@
 #include "model/utils/Pose.h"
 #include "model/utils/Angle.h"
 #include "model/utils/Point.h"
-
+#include "view/DebugDraw.h"
 #include <stdexcept>
 
 
@@ -17,11 +17,15 @@ namespace model {
 	ControlCommand model::PurePursuitControl::drive(VehicleState const& state, model::Path const& path)
 	{
 		if (path.size() < 2) {
-			return ControlCommand(.2, _previous.steeringAngle);
+			return ControlCommand(.2, _previous.normSteering);
 		}
 		Pose currentPose=state.getRearPose();
 		const VehicleState* targetState = _getAtRange(currentPose, path);
-		if (!targetState) return ControlCommand(0, _previous.steeringAngle);
+		if (!targetState) return ControlCommand(0.2, _previous.normSteering);
+		#ifdef ENABLE_DEBUG_DRAW
+		view::DebugDraw::instance().circle2(targetState->getPosition(), static_cast<float>(0.15));
+		#endif // ENABLE_DEBUG_DRAW
+
 		Pose targetPose = targetState->getRearPose();
 		//const Pose targetPose = path[_lookAhead].getRearPose();
 		Angle targetAngle;
@@ -49,7 +53,7 @@ namespace model {
 		//double maxDelta = (path[0].getRearPose() - path[1].getRearPose()).magnitude() / 2.0;
 		double radius = (path[0].getRearPose() - path[1].getRearPose()).magnitude() * _lookAhead;
 		double maxDelta = (path[0].getRearPose() - path.back().getRearPose()).magnitude()*2;
-		double maxSteering = path[0].getMaxSteeringAngle();
+		Angle maxSteering = path[0].getMaxSteeringAngle();
 		//std::vector<VehicleState*> candidatePoses;
 		const VehicleState* withinRange = nullptr;
 		double min = INFINITY;
@@ -59,10 +63,13 @@ namespace model {
 			Angle targetAngle = atan2(pose.y - vehiclePose.y, pose.x - vehiclePose.x);
 			Angle angleDiff = targetAngle - vehiclePose.theta;
 			Angle angleControl = atan(sin(angleDiff) * state.getWheelBase() * 2.0 / (Point(vehiclePose) - Point(pose)).magnitude());
-			if (abs((double)angleControl)<=maxSteering && magnitude >= radius && magnitude <= maxDelta) {
+			Point normal(cos(vehiclePose.theta), sin(vehiclePose.theta));
+			double dist = normal.X() * (pose.x - vehiclePose.x) + normal.Y() * (pose.y - vehiclePose.y);
+			if (abs(radian(angleControl))<=radian(maxSteering) && magnitude >= radius && magnitude <= maxDelta&& dist>0) {
 				if (magnitude < min) {
 					min = magnitude;
-					withinRange = &state;
+					withinRange = &state; 
+					return withinRange;
 				}
 			}
 		}

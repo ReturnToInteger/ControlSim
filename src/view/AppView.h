@@ -35,22 +35,25 @@ namespace view {
 		void setCones(std::vector<model::Cone> const& cones);
 		void setPath(model::Path const& path);
 		void setPath(std::deque<model::Path> const& pathVector);
-		void setConeDetectedFlag(std::vector<const model::Cone*> detectedCones);
+		void setConeDetectedFlag(std::unordered_set<const model::Cone*> detectedCones);
 		void setGridSize(double const& cellSize) { _cellSize = cellSize; }
 		double getWidth() const { return _videoWidth; }
 		double getHeight() const { return _videoHeight; }
 		model::Point getClickGlobalPos() const { return _clickGlobalPos; }
 		void zoom(double factor);
+		void rotate(double val);
 
 	private:
 		void _setupGrid();
 		void _drawGrid();
-		model::events::InputEvent _translateToInput(sf::Event e);
+		model::events::InputEvent _translateEventToInput(sf::Event event);
 		sf::RenderWindow _window;
 		int _videoWidth;
 		int _videoHeight;
 		int _frameRate;
 		double _zoom;
+		double _lastX;
+
 		model::Point _startPos;
 		model::Point _clickGlobalPos;
 		double _cellSize;

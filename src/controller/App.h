@@ -5,14 +5,15 @@
 #include "model/items/Cone.h"
 #include "model/events/InputEventHandler.h"
 #include "model/events/InputEventPublisher.h"
+#include <unordered_set>
 //#include "model/perception/Perception.h"
 
 template<typename ... Ts>                                                 
-struct overload : Ts ... {
+struct Overload : Ts ... {
 	using Ts::operator() ...;
 
 };
-template<class... Ts> overload(Ts...) -> overload<Ts...>;
+template<class... Ts> Overload(Ts...) -> Overload<Ts...>;
 
 namespace model {
 	class Vehicle;
@@ -35,7 +36,9 @@ namespace controller {
 		void operator()(events::Resized const&) {std::cout << "Resized." << std::endl; }
 		void operator()(events::LostFocus const&) {std::cout << "Lost Focus." << std::endl; }
 		void operator()(events::GainedFocus const&) { std::cout << "Gained Focus." << std::endl; }
+		void operator()(events::RightClickDown const& c) { std::cout << "Right Click Down: " <<c.lastX<<"; "<<c.lastX << std::endl; }
 		void operator()(events::None const&) {}
+
 	};
     class App : public events::InputEventHandler
     {
@@ -69,9 +72,9 @@ namespace controller {
 		// Need a reader, which will read the map 
 		std::unique_ptr<model::IMapReader> _mapReader;
 
-		void _pathPlanningWorker(std::vector<const model::Cone*>& detectedCones, std::atomic_bool& running, int const threadCount, int const index);
+		void _pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, std::atomic_bool& running, int const threadCount, int const index);
 		void _startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda);
 		// Should be moved inside path planner
-		void _calcGoal(std::vector<const model::Cone*> const& cones, model::VehicleState const& state);
+		model::Point _calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, double maxDist,int i);
 	};
 }

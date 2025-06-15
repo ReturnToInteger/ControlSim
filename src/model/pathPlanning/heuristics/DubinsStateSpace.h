@@ -4,7 +4,7 @@
 namespace model {
 	class Point;
 	struct Pose;
-	struct Angle;
+	class Angle;
 	namespace pathPlanning {
 		enum Direction { LEFT, RIGHT };
 		class DubinsStateSpace {

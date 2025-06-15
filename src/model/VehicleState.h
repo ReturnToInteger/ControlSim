@@ -13,57 +13,69 @@
 #define M_PI 3.14159265358979323846 
 #endif
 
-#ifndef DEF_LENGTH  
-#define DEF_LENGTH 3.0
-#endif // !DEF_LENGTH
-#ifndef DEF_WHEELBASE  
-#define DEF_WHEELBASE 2.5
-#endif // !DEF_WHEELBASE  
-#ifndef DEF_WIDTH  
-#define DEF_WIDTH 1.3  
-#endif // !DEF_WIDTH  
-#ifndef DEF_MAX_STEERING_ANGLE  
-#define DEF_MAX_STEERING_ANGLE M_PI /6.0
-#endif // !DEF_MAX_STEERING_ANGLE  
-#ifndef DEF_MAX_STEERING_RATE  
-#define DEF_MAX_STEERING_RATE M_PI /3.0
-#endif // !DEF_MAX_STEERING_RATE  
-#ifndef DEF_MAX_SPEED  
-#define DEF_MAX_SPEED 8.0  
-#endif // !DEF_MAX_SPEED  
-#ifndef DEF_MAX_ACCELERATION
-#define DEF_MAX_ACCELERATION 3.0
-#endif // !DEF_MAX_ACCELERATION
-#ifndef DEF_MAX_BRAKE
-#define DEF_MAX_BRAKE 10.0
-#endif // !DEF_MAX_BRAKE
 namespace model
 {
 	class VehicleState
 	{
 	public:
+        struct DefaultConstraints {
+            static constexpr double length = 3.0;  
+            static constexpr double wheelBase = 2.5;  
+            static constexpr double width = 1.3;  
+            static constexpr double maxSteeringAngle = M_PI / 6.0;  
+            static constexpr double maxSteeringRate = M_PI / 3.0;  
+            static constexpr double maxSpeed = 10.0;  
+            static constexpr double maxAcceleration = 3.0;  
+            static constexpr double maxBrake = 10.0;  
+        };
+        struct Constraints {
+            double length;
+            double wheelBase;
+            double width;
+            Angle maxSteeringAngle;
+            double maxSteeringRate;
+            double maxSpeed;
+            double maxAcceleration;
+            double maxBrake;
+
+            Constraints()
+                : length(DefaultConstraints::length),
+                wheelBase(DefaultConstraints::wheelBase),
+                width(DefaultConstraints::width),
+                maxSteeringAngle(DefaultConstraints::maxSteeringAngle),
+                maxSteeringRate(DefaultConstraints::maxSteeringRate),
+                maxSpeed(DefaultConstraints::maxSpeed),
+                maxAcceleration(DefaultConstraints::maxAcceleration),
+                maxBrake(DefaultConstraints::maxBrake) {
+            }
+        };
+
+
 		VehicleState();
         std::array<Point, 3> getAllPositions() const;
-        std::array<double, 3> getAllOrientations() const;
+        std::array<Angle, 3> getAllOrientations() const;
         Point getPosition() const;
-        double getOrientation() const;
-		void setPose(double x, double y, double orientation);
-        Pose getPose() const { return _centerPose; }
-        Pose getRearPose() const { return _rearPose; }
-        Pose getFrontPose() const { return _frontPose; }
-        double getSpeed() const { return _speed; }
-        double getSteeringAngle() const { return _steeringAngle; }
-        double getSteeringRate() const { return _steeringRate; }
-        double getLength() const { return _length; }
-        double getWidth() const { return _width; }
-        double getWheelBase() const { return _wheelBase; }
-        double getMaxSteeringAngle() const { return _maxSteeringAngle; }
-        double getMaxSteeringRate() const { return _maxSteeringRate; }
-        double getMaxSpeed() const { return _maxSpeed; }
+        Angle getOrientation() const;
+		void setPose(double x, double y, Angle orientation);
+        void setPose(Pose pose);
+        Pose getPose() const;
+        Pose getRearPose() const;
+        Pose getFrontPose() const;
+        double getSpeed() const;
+        Angle getSteeringAngle() const;
+        double getSteeringRate() const;
+        double getLength() const;
+        double getWidth() const;
+        double getWheelBase() const;
+        Angle getMaxSteeringAngle() const;
+        double getMaxSteeringRate() const;
+        double getMaxSpeed() const;
         void setTargetSpeed(double input);
         void setTargetSteeringAngle(double input);
         void setTarget(ControlCommand targetCommand);
-        ControlCommand getTarget() const { return _target; }
+        ControlCommand getTarget() const;
+
+        // Update based on state
         void updateState(double dt);
 
     private:
@@ -73,24 +85,14 @@ namespace model
         Pose _frontPose;
         Pose _rearPose;
         Twist _centerTwist;
-        //input parameters  
         double _speed;
         double _acceleration;
+        double _brakeAcceleration;
         Angle _steeringAngle;
         double _steeringRate;
-        double _brakeAcceleration;
-        //geometric parameters  
-        double _length;
-        double _width;
-        double _wheelBase;
-
-        //constraints  
-        double _maxSteeringAngle = DEF_MAX_STEERING_ANGLE;
-        double _maxSteeringRate = DEF_MAX_STEERING_RATE;
-        double _maxSpeed = DEF_MAX_SPEED;
-        double _maxAcceleration = DEF_MAX_ACCELERATION;
-        double _maxBrake = DEF_MAX_BRAKE;
-        //targets
+        //parameters and constraints
+        Constraints _constraints;
+       //targets
         double _targetSpeed = 0.0;
         double _targetSteeringAngle = 0.0;
         ControlCommand _target;
@@ -103,13 +105,53 @@ namespace model
         void _updateFront(double dt, Angle slip);
         void _updateRear(double dt, Angle slip);
 
-        void _setSteeringAngle(double angle);
+        void _setSteeringAngle(Angle angle);
         void _setSteeringRate(double rate);
         void _setSpeed(double speed);
         void _setAcceleration(double acceleration, double brake);
 
+    public:
+
 
 	};
+
+    inline Pose VehicleState::getPose() const { return _centerPose; }
+    inline Pose VehicleState::getRearPose() const { return _rearPose; }
+    inline Pose VehicleState::getFrontPose() const { return _frontPose; }
+    inline std::array<Point, 3> VehicleState::getAllPositions() const
+    {
+        return { Point(_centerPose.x,_centerPose.y), Point(_frontPose.x,_frontPose.y),Point(_rearPose.x,_rearPose.y) };
+    }
+    inline std::array<Angle, 3> VehicleState::getAllOrientations() const
+    {
+        return { _centerPose.theta,_frontPose.theta,_rearPose.theta };
+    }
+    inline Point VehicleState::getPosition() const
+    {
+        return Point(_centerPose.x, _centerPose.y);
+    }
+    inline Angle VehicleState::getOrientation() const { return _centerPose.theta; }
+    inline double VehicleState::getSpeed() const { return _speed; }
+    inline Angle VehicleState::getSteeringAngle() const { return _steeringAngle; }
+    inline double VehicleState::getSteeringRate() const { return _steeringRate; }
+    inline double VehicleState::getLength() const { return _constraints.length; }
+    inline double VehicleState::getWidth() const { return _constraints.width; }
+    inline double VehicleState::getWheelBase() const { return _constraints.wheelBase; }
+    inline Angle VehicleState::getMaxSteeringAngle() const { return _constraints.maxSteeringAngle; }
+    inline double VehicleState::getMaxSteeringRate() const { return _constraints.maxSteeringRate; }
+    inline double VehicleState::getMaxSpeed() const { return _constraints.maxSpeed; }
+    inline void VehicleState::setTargetSpeed(double input)
+    {
+        _target.normSpeed = clamp(input, -1, 1);
+    }
+    inline void VehicleState::setTargetSteeringAngle(double input)
+    {
+        _target.normSteering = clamp(input, -1, 1);
+    }
+    inline void VehicleState::setTarget(ControlCommand targetCommand)
+    {
+        _target.normSpeed = targetCommand.normSpeed;
+        _target.normSteering = targetCommand.normSteering;
+    }
+    inline ControlCommand VehicleState::getTarget() const { return _target; }
 }
-
-

@@ -40,7 +40,7 @@ namespace model {
 	}
 
 
-	void model::Vehicle::planPath(std::vector<const model::Cone*> const& cones, VehicleState const& state, int i)
+	void model::Vehicle::planPath(std::unordered_set<const model::Cone*> const& cones, VehicleState const& state, int i)
 	{
 		if (i >= _pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
 		_pathPlanners[i]->planPath(cones, state);
@@ -62,6 +62,11 @@ namespace model {
 		return _paths;
 	}
 
+	std::vector<Point>Vehicle::getGoal()
+	{
+
+	}
+
 	void Vehicle::setGoal(Point goal, int i)
 	{
 		if (i >= _pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
@@ -76,9 +81,9 @@ namespace model {
 
 	void Vehicle::setAllGoals(Point goal)
 	{
-#ifdef ENABLE_DEBUG_DRAW
-		view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
-#endif // ENABLE_DEBUG_DRAW
+		//#ifdef ENABLE_DEBUG_DRAW
+		//view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
+		//#endif // ENABLE_DEBUG_DRAW
 
 		for (int i=0; i < _pathPlanners.size(); i++) {
 			setGoal(goal, i);

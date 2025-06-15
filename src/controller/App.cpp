@@ -15,6 +15,11 @@
 #include <windows.h>
 #include <string>
 
+#ifdef ENABLE_DEBUG_DRAW
+#include <view/DebugDraw.h>
+#endif // ENABLE_DEBUG_DRAW
+
+
 
 
 namespace controller {
@@ -38,7 +43,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			_cones.emplace_back(data.getPosition(), data.getRadius(), data.getType());
 		}
 
-		_perception = std::make_unique<model::Perception>(_cones, M_PI / 2.0, 15);
+		_perception = std::make_unique<model::Perception>(_cones, radian(75), 15);
 
 		double cellSize = _vehicle->getCellSize();
 		double frameTime;
@@ -49,10 +54,11 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			_view->setGridSize(cellSize);
 			frameTime = _view->getFrameTime();
 		}
-		else frameTime = 1.0 / 60.0;
+		else 
+			frameTime = 1.0 / 60.0;
 		std::atomic<bool> running = true;
-		std::vector<const model::Cone*> detectedCones = _perception->detect(_vehicle->getPose());
-		const int threadCount = 5;
+		std::unordered_set<const model::Cone*> detectedCones = _perception->detect(_vehicle->getPose());
+		const int threadCount = 1;
 		std::function<void(int)> pathPlanningLambda = [this, &detectedCones, &running, &threadCount](int index) {
 			_pathPlanningWorker(detectedCones, running, threadCount, index);
 			};
@@ -63,8 +69,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 		double updateTime = 0;
 		SimpleTimer frameTimer;
 		int iter = 0;
-		bool open = true;
-		while (open) {
+		while (_view->isOpen()) {
 			double deltaTime = frameTimer.elapsedSeconds();
 			// Update the vehicle
 			// Locked basically the whole loop, maybe it doesn't need to be like this, but this is fast to compute
@@ -86,6 +91,10 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 				_vehicle->update(clamp(deltaTime,frameTime,frameTime*5));
 				if (_view) {
 					pathCopy=_vehicle->getPlannedPaths().get();
+				}				
+				auto currentDetected = _perception->detect(_vehicle->getPose());
+				for (auto const& cone: currentDetected) {
+					detectedCones.emplace(cone);
 				}
 			}
 			if (_view) {
@@ -94,17 +103,9 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 				// Render the simulation
 				_view->render();
 			}
-
-			{
-				std::lock_guard<std::mutex> lock(_simLock);
-				detectedCones = _perception->detect(_vehicle->getPose());
-			}
-			iter++;
-			if (_view) {
-				open = _view->isOpen();
-			}
 			if (!_view)
 				std::this_thread::sleep_for(std::chrono::duration<double>(frameTime - deltaTime));
+			iter++;
 		}
 		running.store(false);
 		for (auto& t : threads) {
@@ -120,7 +121,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 	// Reads Perception ✓ safe
 	// Reads VehicleState ✓ safe
 	// Modifies _vehicle ?
-	void App::_pathPlanningWorker(std::vector<const model::Cone*>& detectedCones,std::atomic_bool& running,int const threadCount, int const index)
+	void App::_pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones,std::atomic_bool& running,int const threadCount, int const index)
 	{
 		std::cout << "Planning index is: " << index << std::endl;
 
@@ -134,14 +135,28 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 		int iter = 0;
 		// Sorted durations of calls for statistics
 		std::vector<double> sorted_time;
+		
+		model::Point goal1;
+		model::Point goal2;
+
+		{
+			std::lock_guard<std::mutex> lock(_simLock);
+			goal1 = _vehicle->getPosition();
+		} 
+		goal2 = goal1;
+
+		model::VehicleState stateCopy;
+		double filterParam = 0.75;
 		while (running.load(std::memory_order_relaxed)) {
 
 			// Read data from main
-			std::vector<const model::Cone*> detectedCopy;
+			std::unordered_set<const model::Cone*> detectedCopy;
 			model::VehicleState stateCopy;
 			{
 				std::lock_guard<std::mutex> lock(_simLock);
 				detectedCopy = detectedCones;
+				if (iter % (100 * (index + 1)) == 0)
+					detectedCones.clear();
 				stateCopy = _vehicle->getStateCopy();
 			} // End of reading
 
@@ -152,7 +167,14 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			_vehicle->clearPath(index);
 
 			// Bit of a hack to get the furthest 2 cones middle point
-			_calcGoal(detectedCopy, stateCopy);
+			goal1 = (1 - filterParam) * _calcGoal(detectedCopy, stateCopy, 10, index) + filterParam * goal1;
+			goal2 = (1 - filterParam) * _calcGoal(detectedCopy, stateCopy, 150, index) + filterParam * goal2;
+			_vehicle->setGoal(goal1, index);
+			_vehicle->setGoal(goal2, index);
+			#ifdef ENABLE_DEBUG_DRAW
+			view::DebugDraw::instance().circle(goal1, 0.5, sf::Color::Cyan);
+			view::DebugDraw::instance().circle(goal2, 0.5, sf::Color::Green);
+			#endif // ENABLE_DEBUG_DRAW
 
 			// Time path planning
 			dur = model::timeFunction("Path planning", [this, &detectedCopy, &stateCopy, &index]() {
@@ -201,30 +223,39 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 		// Log
 		std::visit(InputTranslate(), e);
 		// Events
-		std::visit(overload{ 
+		double rotateSpeed = 6.0;
+		std::visit(Overload{ 
 			[this](model::events::PressedEsc const&) {_view->close(); },
-			[this](model::events::ClickedAt const& click) {
-					std::lock_guard<std::mutex> lock(_simLock);
-					_vehicle->setAllGoals(model::Point(click.x,click.y));
-					},
+			//[this](model::events::ClickedAt const& click) {
+			//		std::lock_guard<std::mutex> lock(_simLock);
+			//		#ifdef ENABLE_DEBUG_DRAW
+			//		view::DebugDraw::instance().circle(model::Point(click.x, click.y), 0.5, sf::Color::Red);
+			//		#endif // ENABLE_DEBUG_DRAW
+
+			//		_vehicle->setAllGoals(model::Point(click.x,click.y));
+			//		},
 			[this](model::events::Scrolled const& s) {_view->zoom(1 - s.delta * 0.25); },
+			[this,  rotateSpeed](model::events::RightClickDown const& c) {
+				double delta = c.currentX- c.lastX;
+				_view->rotate(delta*rotateSpeed*_view->getFrameTime()); 
+			},
 			[](auto&&) {}
 			}, e);
 	}
-	void App::_calcGoal(std::vector<const model::Cone*> const& cones, model::VehicleState const& state)
+	model::Point controller::App::_calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, double maxDist, int i)
 	{
-		double maxL = 0, maxR = 0, maxDist = 10;
+		double maxL = 0, maxR = 0;
 		const model::Cone* maxLCone = nullptr, * maxRCone = nullptr;
 		for (auto const& cone : cones) {
 			double magnitude = (cone->getPosition() - state.getPosition()).magnitude();
 			if (cone->getType() == model::ConeType::LEFT) {
-				if (magnitude > maxL&& magnitude <=maxDist) {
+				if (magnitude > maxL && magnitude <= maxDist) {
 					maxLCone = cone;
 					maxL = magnitude;
 				}
 			}
 			if (cone->getType() == model::ConeType::RIGHT) {
-				if (magnitude > maxR && magnitude<= maxDist) {
+				if (magnitude > maxR && magnitude <= maxDist) {
 					maxRCone = cone;
 					maxR = magnitude;
 				}
@@ -233,19 +264,36 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 		if (maxRCone && maxLCone) {
 			model::Point goal((maxRCone->getPosition() + maxLCone->getPosition()) / 2.0);
 
-			_vehicle->setAllGoals(goal);
+			//#ifdef ENABLE_DEBUG_DRAW
+			//view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
+			//#endif // ENABLE_DEBUG_DRAW
+			return goal;
 		}
 		else if (maxRCone) {
-			model::Point goal(maxRCone->getPosition());
-			model::Angle direction = state.getOrientation()+M_PI;
-			model::Point offset(_vehicle->getLength()/2 * cos(direction), _vehicle->getLength()/2 * sin(direction));
-			_vehicle->setAllGoals(goal+offset);
+			model::Angle direction = state.getOrientation() + M_PI / 2.0;
+			model::Point offset(_vehicle->getLength()/2* cos(direction), _vehicle->getLength()/2 * sin(direction));
+			model::Point goal(maxRCone->getPosition() + offset);
+
+			//#ifdef ENABLE_DEBUG_DRAW
+			//view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
+			//#endif // ENABLE_DEBUG_DRAW
+			return goal;
 		}
 		else if (maxLCone) {
-			model::Point goal(maxLCone->getPosition());
-			model::Angle direction = state.getOrientation() - M_PI ;
+			model::Angle direction = state.getOrientation() - M_PI / 2.0;
 			model::Point offset(_vehicle->getLength()/2 * cos(direction), _vehicle->getLength()/2 * sin(direction));
-			_vehicle->setAllGoals(goal+offset);
+			model::Point goal(maxLCone->getPosition()+offset);
+
+			//#ifdef ENABLE_DEBUG_DRAW
+			//view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
+			//#endif // ENABLE_DEBUG_DRAW
+			return goal;
+		}
+		else {
+			//model::Angle direction = state.getOrientation();
+			//model::Point offset(maxDist * cos(direction), maxDist * sin(direction));
+
+			return _vehicle->getPosition();// +offset;
 		}
 
 	}

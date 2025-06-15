@@ -32,3 +32,9 @@ namespace model {
 	};
 
 }
+
+// Non-member operator to support double * Point
+inline model::Point operator*(double val, model::Point const& point)
+{
+	return point*val;
+}

@@ -14,10 +14,11 @@ namespace model {
 		double fCost;
 		// Parent for reconstruction
 		std::shared_ptr<PathNode> parent;
-		PathNode(VehicleState const& state, double g, double f, PathNode* p)
-			: state(state), gCost(g), fCost(f), parent(p) {
+		int stage;
+		PathNode(VehicleState const& state, double g, double f, PathNode* p,int stage)
+			: state(state), gCost(g), fCost(f), parent(p), stage(stage){
 		}
-		PathNode() : gCost(INFINITY), fCost(INFINITY), parent(nullptr) {}
+		PathNode() : gCost(INFINITY), fCost(INFINITY), parent(nullptr), stage(0) {}
 		bool operator<(PathNode const& other) const {
 			return fCost< other.fCost;
 		}
@@ -28,7 +29,7 @@ namespace model {
 		// Estimated goal (Current cost + heuristics)
 		double fCost;
 		// Key for the hashmap, discretization of the pose variable
-		std::tuple<int,int,int> key;
+		std::tuple<int,int,int,int> key;
 		// Comparison to find the best candidate from the open list, used in the priority queue
 		bool operator>(PQNode const& other) const {
 			return fCost > other.fCost;

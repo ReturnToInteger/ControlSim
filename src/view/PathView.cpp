@@ -15,7 +15,7 @@ void view::PathView::draw(sf::RenderTarget& target, sf::RenderStates states) con
     path.setPrimitiveType(sf::LinesStrip);
     for (auto const& state: *_path) {
         model::Pose point = state.getPose();
-        path.append(sf::Vertex(sf::Vector2f(point.x, point.y),_color));
+        path.append(sf::Vertex(sf::Vector2f(static_cast<float>(point.x), static_cast<float>(point.y)), _color));
     }
     
     target.draw(path);
@@ -24,5 +24,5 @@ void view::PathView::draw(sf::RenderTarget& target, sf::RenderStates states) con
 sf::Vector2f view::PathView::getPosition() const
 {
     auto position = _path->getPosition();
-   return sf::Vector2f(position.X(),position.Y()); // Access the position of the first vertex
+   return sf::Vector2f(static_cast<float>(position.X()), static_cast<float>(position.Y())); // Access the position of the first vertex
 }

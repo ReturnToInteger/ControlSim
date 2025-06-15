@@ -58,7 +58,7 @@ namespace view {
 		for (auto& path : _pathViews) {
 			_window.draw(path);
 		}
-		_window.draw(_vehicleView);
+		//_window.draw(_vehicleView);
 		//if (_drawables) {
 		//	for (auto const& drawable : _drawables) {
 		//		_window.draw(drawable);
@@ -88,13 +88,25 @@ namespace view {
 			} 
 			else
 			{
-				model::events::InputEvent e = _translateToInput(event);
+				model::events::InputEvent e = _translateEventToInput(event);
 				if (!std::holds_alternative<model::events::None>(e))
 					_notify("AppView", e);
 			}
 
-
 		}
+
+		// Poll keys not in event
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
+			sf::Vector2i pixelPos = sf::Mouse::getPosition(_window);
+			if (_lastX < 0) {
+				_lastX = pixelPos.x;
+			}
+
+			_notify("AppView", model::events::RightClickDown{ _lastX,(double)pixelPos.x });
+			_lastX = pixelPos.x;
+		}
+		else 
+			_lastX = -1;
 	}
 
 	bool AppView::isOpen() const
@@ -150,7 +162,7 @@ namespace view {
 
 	}
 
-	void AppView::setConeDetectedFlag(std::vector<const model::Cone*> detectedCones)
+	void AppView::setConeDetectedFlag(std::unordered_set<const model::Cone*> detectedCones)
 	{
 		for (auto& coneView : _coneViews) {
 			coneView.isDetected = false;
@@ -166,6 +178,11 @@ namespace view {
 		//std::cout << delta << std::endl;
 		_view.zoom(static_cast<float>(factor));
 
+	}
+
+	void AppView::rotate(double delta)
+	{
+		_view.rotate(static_cast<float>(delta));
 	}
 
 	void AppView::_setupGrid()
@@ -209,7 +226,7 @@ namespace view {
 		_window.draw(_gridLines);
 	}
 
-	model::events::InputEvent AppView::_translateToInput(sf::Event event)
+	model::events::InputEvent view::AppView::_translateEventToInput(sf::Event event)
 	{
 
 		if (event.type == sf::Event::KeyPressed) {
@@ -240,7 +257,7 @@ namespace view {
 		}
 		if (event.type == sf::Event::MouseWheelMoved)
 		{
-			int delta = event.mouseWheel.delta;
+			int delta =event.mouseWheel.delta;
 			return model::events::Scrolled{ delta };
 		}
 		if (event.type == sf::Event::Resized) {

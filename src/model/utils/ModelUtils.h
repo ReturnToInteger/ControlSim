@@ -77,15 +77,16 @@ namespace model {
 
 namespace std
 {
-	template <typename T1, typename T2, typename T3>
-    struct hash<tuple<T1,T2,T3>>
+	template <typename T1, typename T2, typename T3, typename T4>
+    struct hash<tuple<T1,T2,T3,T4>>
     {
-        inline size_t operator()(tuple<T1,T2,T3> const& p) const
+        inline size_t operator()(tuple<T1,T2,T3,T4> const& p) const
         {
             size_t seed = 0;
             model::hash_combine(seed, std::get<0>(p));
             model::hash_combine(seed, std::get<1>(p));
             model::hash_combine(seed, std::get<2>(p));
+            model::hash_combine(seed, std::get<3>(p));
             return seed;
         }
     };

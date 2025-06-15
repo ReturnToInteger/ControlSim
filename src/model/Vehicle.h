@@ -34,7 +34,7 @@ namespace model {
 
 		void update(double dt);
 		Point getPosition() const override { return _state->getPosition(); }
-		double getOrientation() const { return _state->getOrientation(); }
+		Angle getOrientation() const { return _state->getOrientation(); }
 		Pose getPose() const { return _state->getPose(); }
 		void setPose(double x, double y, std::optional<double> orientation);
 		double getLength() const { return _state->getLength(); }
@@ -45,10 +45,11 @@ namespace model {
 
 		// path planning methods
 
-		void planPath(std::vector<const model::Cone*> const& cones, VehicleState const& state, int i); 
+		void planPath(std::unordered_set<const model::Cone*> const& cones, VehicleState const& state, int i);
 		void setPlannedPath(int i); 
-		FixSizedQueue<Path> getPlannedPaths() const; 
-		void setGoal(Point goal, int i); 
+		FixSizedQueue<Path> getPlannedPaths() const;
+		std::vector<Point> getGoal();
+		void setGoal(Point goal, int i);
 		void setAllGoals(Point goal);
 		void clearPath(int i);
 		double getCellSize(int i=0) const;

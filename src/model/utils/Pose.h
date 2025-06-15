@@ -43,7 +43,7 @@ namespace model {
         bool operator==(Pose const& other) const
         {
             double dE = 1e-6;
-            return abs(x - other.x) < dE && abs(y - other.y) < dE && abs(theta - other.theta) < dE;
+            return abs(x - other.x) < dE && abs(y - other.y) < dE && abs(radian(theta - other.theta)) < dE;
         }
 
         friend std::ostream& operator<<(std::ostream& os, Pose const& pose) {

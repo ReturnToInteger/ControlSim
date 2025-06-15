@@ -7,102 +7,135 @@
 
 namespace model {
     double normAngle(double const& orientation);
-    struct Angle;
-    double sin(Angle const& a);
-    double cos(Angle const& a);
 
     // Normalized angle between -PI,PI
-    struct Angle {
+    class Angle {
     public:
-        Angle() :_a(0), _sin(0), _cos(1) {}
-        Angle(double a) : _a(normAngle(a)), _sin(std::sin(a)), _cos(std::cos(a)) {}
-        Angle& operator=(Angle const& other) {
-            _a = other._a;
-            _sin = other._sin;
-            _cos = other._cos;
-            return *this;
-        }
-        Angle& operator=(double val) {
-            _a = normAngle(val);
-            _sin = std::sin(val);
-            _cos = std::cos(val);
+        Angle() : _a(0) {}
+        Angle(double a) : _a(normAngle(a)) {}
 
-            return *this;
-        }
-        operator double() const {
+        // Explicit conversion to double (avoid accidental conversions)
+        explicit operator double() const 
+        {
             return _a;
         }
 
-        Angle operator+(Angle const& other) const {
+        double asRadians() const 
+        {
+            return _a;
+        }
+        double asDegrees() const 
+        {
+            return _a / M_PI * 180;;
+        }
+
+        // Arithmetic operators
+        Angle operator+(Angle const& other) const 
+        {
             return Angle(_a + other._a);
         }
-        Angle operator-(Angle const& other) const {
+        Angle operator-(Angle const& other) const 
+        {
             return Angle(_a - other._a);
         }
-        Angle operator+(double const& val) const {
+        Angle operator+(double val) const 
+        {
             return Angle(_a + val);
         }
-        Angle operator-(double const& val) const {
+        Angle operator-(double val) const 
+        {
             return Angle(_a - val);
         }
 
-        bool operator>(Angle const& other) const {
-            if (abs(_a - other._a) < M_PI)
-                return _a > other._a;
-            else if (_a > other._a)
-                return false;
-            else return true;
-        }
-        bool operator<(Angle const& other) const {
-            if (abs(_a - other._a) < M_PI)
-                return _a < other._a;
-            else if (_a < other._a)
-                return false;
-            else return true;
-        }
-        Angle& operator+=(Angle const& other) {
-            _a = normAngle(_a + other._a);
-            _sin = sin(_a);
-            _cos = cos(_a);
+        Angle& operator+=(Angle const& other) 
+        {
+            *this = *this + other;
             return *this;
         }
-        Angle& operator-=(Angle const& other) {
-            _a = normAngle(_a - other._a);
-            _sin = sin(_a);
-            _cos = cos(_a);
+        Angle& operator-=(Angle const& other) 
+        {
+            *this = *this - other;
             return *this;
         }
-        Angle& operator+=(double const& val) {
-            _a = normAngle(_a + val);
-            _sin = sin(_a);
-            _cos = cos(_a);
+        Angle& operator+=(double val) 
+        {
+            *this = *this + val;
             return *this;
         }
-        Angle& operator-=(double const& val) {
-            _a = normAngle(_a - val);
-            _sin = sin(_a);
-            _cos = cos(_a);
+        Angle& operator-=(double val) 
+        {
+            *this = *this - val;
             return *this;
         }
-        friend std::ostream& operator<<(std::ostream& os, Angle const& angle) {
+        // Multiply Angle by double (scale)
+        Angle operator*(double val) const 
+        {
+            return Angle(_a * val);
+        }
+
+        // Divide Angle by double
+        Angle operator/(double val) const 
+        {
+            return Angle(_a / val);
+        }
+
+        Angle operator-() const 
+        {
+            return Angle(-_a);
+        }
+
+        // operator* not defined
+
+
+        bool isClockwiseTo(Angle const& other) const
+        {
+            return normAngle(_a - other._a) > 0;
+        }
+        bool isCounterClockwiseTo(Angle const& other) const 
+        {
+            return normAngle(_a - other._a) < 0;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, Angle const& angle)
+        {
             os << angle._a;
             return os;
         }
 
-        friend double sin(Angle const& a) {
-            return a._sin;
-        }
-        friend double cos(Angle const& a) {
-            return a._cos;
-        }
-        bool operator==(Angle const& other) const {
-            return std::abs(_a - other._a) < 1e-9; // or use a small epsilon
-        }
-
 
     private:
-        double _a;
-        double _sin;
-        double _cos;
+        double _a;   // normalized angle in radians
     };
+
+    // Functions for convenience
+    inline double sin(Angle const& a) { return std::sin(a.asRadians()); }
+    inline double cos(Angle const& a) { return std::cos(a.asRadians()); }
+    inline double tan(Angle const& a) { return std::tan(a.asRadians()); }
+    inline double radian(Angle const& a) { return a.asRadians(); }
+    inline double degree(Angle const& a) { return a.asDegrees(); }
+    inline Angle radian(double const& d) { return d/180.0*M_PI; }
+    inline Angle clampRelativeToZero(Angle const& angle, Angle const& maxAbs) 
+    {
+        double val = angle.asRadians();
+        double maxVal = std::abs(maxAbs.asRadians()); // ensure positive
+
+        if (val > maxVal) return Angle(maxVal);
+        if (val < -maxVal) return Angle(-maxVal);
+        return angle;
+    }
+
+    // Non-member operator to support double * Angle
+    inline Angle operator*(double val, Angle const& angle)
+    {
+        return Angle(angle.asRadians() * val);
+    }
+    // Returns ratio of two angles as double
+    inline double operator/(Angle const& lhs, Angle const& rhs)
+    {
+        return lhs.asRadians() / rhs.asRadians();
+    }
+
+
+
+
 }

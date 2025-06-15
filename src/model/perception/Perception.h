@@ -3,6 +3,8 @@
 //#include <model/utils/ModelUtils.h>
 #include <corecrt_math_defines.h>
 #include "model/items/Cone.h"
+#include "model/utils/Angle.h"
+#include <unordered_set>
 
 namespace model {
 	struct Pose;
@@ -15,9 +17,9 @@ namespace model {
 		const double _viewAngle;
 		const double _depth;
 	public:
-		Perception(std::vector<model::Cone> const& cones, double viewAngle=M_PI*2.0/3.0, double depth=40);
+		Perception(std::vector<model::Cone> const& cones, Angle viewAngle=M_PI*2.0/3.0, double depth=40);
 		~Perception() = default;
-		std::vector<model::Cone const*> detect(model::Pose const& pose);
+		std::unordered_set<model::Cone const*> detect(model::Pose const& pose);
 
 	};
 }

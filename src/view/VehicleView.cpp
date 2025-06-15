@@ -21,7 +21,7 @@ void view::VehicleView::draw(sf::RenderTarget& target, sf::RenderStates states =
 	//));
 	sf::Vector2u size=_texture.getSize();
 	sprite.setOrigin(static_cast<float>(size.x/2.0), static_cast<float>(size.y/2.0));
-	sprite.setRotation(static_cast<float>(_vehicle->getOrientation() / M_PI * 180+90));
+	sprite.setRotation(static_cast<float>(degree(getOrientation())+90));
 	sprite.setScale(static_cast<float>(_vehicle->getWidth() / size.x), static_cast<float>(_vehicle->getLength() / size.y));
 	//vehicleSprite.setFillColor(_color);
 	sprite.setPosition(static_cast<float>(position.X()), static_cast<float>(position.Y()));
@@ -51,10 +51,10 @@ sf::Vector2f view::VehicleView::getPosition() const
 	return sf::Vector2f(static_cast<float>(position.X()), static_cast<float>(position.Y()));
 }
 
-double view::VehicleView::getOrientation() const
+model::Angle view::VehicleView::getOrientation() const
 {
 	if (_vehicle == nullptr) {
-		return 0;
+		throw std::runtime_error("Vehicle doesn't exist");
 	}
 	return _vehicle->getOrientation();
 }

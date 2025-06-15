@@ -5,12 +5,10 @@
 
 namespace model
 {
-	VehicleState::VehicleState() :_length(DEF_LENGTH),
-		_width(DEF_WIDTH),
-		_wheelBase(DEF_WHEELBASE),
-		_frontPose(-35+DEF_WHEELBASE / 2, 30,0),
+	VehicleState::VehicleState() : _constraints(),
+		_frontPose(-35+ DefaultConstraints::wheelBase / 2, 30,0),
 		_centerPose( -35,30,0),
-		_rearPose(-35 -DEF_WHEELBASE / 2, 30,0),
+		_rearPose(-35 - DefaultConstraints::wheelBase / 2, 30,0),
 		_centerTwist(0,0,0),
 		_speed(0),
 		_steeringAngle(0),
@@ -20,52 +18,25 @@ namespace model
 		_brakeAcceleration(0)
 	{
 	}
-	std::array<Point, 3> VehicleState::getAllPositions() const
-	{
-		return { Point(_centerPose.x,_centerPose.y), Point(_frontPose.x,_frontPose.y),Point(_rearPose.x,_rearPose.y) };
-	}
 
-	std::array<double, 3> VehicleState::getAllOrientations() const
-	{
-		return { _centerPose.theta,_frontPose.theta,_rearPose.theta };
-	}
-
-	Point VehicleState::getPosition() const
-	{
-		return Point(_centerPose.x, _centerPose.y);
-	}
-
-	double VehicleState::getOrientation() const
-	{
-		return _centerPose.theta;
-	}
-
-	void model::VehicleState::setPose(double x, double y, double orientation)
+	void model::VehicleState::setPose(double x, double y, Angle orientation)
 	{
 		_centerPose.x = x;
 		_centerPose.y = y;
-		_centerPose.theta = model::normAngle(orientation);
-		_frontPose.x = _centerPose.x + _wheelBase / 2 * cos(_centerPose.theta);
-		_frontPose.y = _centerPose.y + _wheelBase / 2 * sin(_centerPose.theta);
+		_centerPose.theta = orientation;
+		_frontPose.x = _centerPose.x + _constraints.wheelBase / 2 * cos(_centerPose.theta);
+		_frontPose.y = _centerPose.y + _constraints.wheelBase / 2 * sin(_centerPose.theta);
 		_frontPose.theta = _centerPose.theta + _steeringAngle;
-		_rearPose.x = _centerPose.x - _wheelBase / 2 * cos(_centerPose.theta);
-		_rearPose.y = _centerPose.y - _wheelBase / 2 * sin(_centerPose.theta);
+		_rearPose.x = _centerPose.x - _constraints.wheelBase / 2 * cos(_centerPose.theta);
+		_rearPose.y = _centerPose.y - _constraints.wheelBase / 2 * sin(_centerPose.theta);
 		_rearPose.theta = _centerPose.theta;
 	}
 
-	void VehicleState::setTargetSpeed(double input)
+	void VehicleState::setPose(Pose pose)
 	{
-		_target.speed = clamp(input, -1, 1)*_maxSpeed;
+		setPose(pose.x, pose.y, pose.theta);
 	}
-	void VehicleState::setTargetSteeringAngle(double input)
-	{
-		_target.steeringAngle = clamp(input, -1, 1) * _maxSteeringAngle;
-	}
-	void VehicleState::setTarget(ControlCommand targetCommand)
-	{
-		_target.speed = targetCommand.speed * _maxSpeed;
-		_target.steeringAngle = targetCommand.steeringAngle * _maxSteeringAngle;
-	}
+
 	void VehicleState::updateState(double dt) {
 		_updateControl(dt);
 		_updateCoords(_speed, dt);
@@ -81,10 +52,10 @@ namespace model
 	void model::VehicleState::_updateSteering(double dt)
 	{
 		// Idealistic, set by interpolating (instead of control)
-		double delta = _target.steeringAngle - _steeringAngle;
-		double maxStep = _maxSteeringRate * dt;
-		delta = clamp(delta, -maxStep, maxStep);
-		_setSteeringRate(delta / dt); 
+		Angle delta = _target.normSteering*getMaxSteeringAngle() - _steeringAngle;
+		double maxStep = _constraints.maxSteeringRate * dt;
+		delta = clampRelativeToZero(delta, maxStep);
+		_setSteeringRate(radian(delta) / dt); 
 		_setSteeringAngle(_steeringAngle + delta);
 
 		// P control
@@ -94,7 +65,7 @@ namespace model
 
 	void VehicleState::_updateDriving(double dt)
 	{
-		_setAcceleration((_target.speed - _speed) / dt, 0);
+		_setAcceleration((_target.normSpeed*getMaxSpeed() - _speed) / dt, 0);
 		_setSpeed(_speed + _acceleration * dt);
 	}
 
@@ -109,7 +80,7 @@ namespace model
 
 	void model::VehicleState::_updateCenter(double speed, double dt, Angle slip)
 	{
-		_centerTwist.omega = speed * tan(_steeringAngle) * cos(slip) / _wheelBase;
+		_centerTwist.omega = speed * tan(_steeringAngle) * cos(slip) / _constraints.wheelBase;
 		_centerPose.theta = _centerPose.theta + _centerTwist.omega * dt;
 		_centerTwist.vx = speed * cos(_centerPose.theta + slip);
 		_centerTwist.vy = speed * sin(_centerPose.theta + slip);
@@ -119,35 +90,35 @@ namespace model
 
 	void model::VehicleState::_updateFront(double dt, Angle slip)
 	{
-		_frontPose.x = _centerPose.x + _wheelBase / 2 * cos(_centerPose.theta+slip);
-		_frontPose.y = _centerPose.y + _wheelBase / 2 * sin(_centerPose.theta+slip);
+		_frontPose.x = _centerPose.x + _constraints.wheelBase / 2 * cos(_centerPose.theta+slip);
+		_frontPose.y = _centerPose.y + _constraints.wheelBase / 2 * sin(_centerPose.theta+slip);
 		_frontPose.theta = _centerPose.theta + _steeringAngle;
 	}
 
 	void model::VehicleState::_updateRear(double dt, Angle slip)
 	{
-		_rearPose.x = _centerPose.x - _wheelBase / 2 * cos(_centerPose.theta-slip);
-		_rearPose.y = _centerPose.y - _wheelBase / 2 * sin(_centerPose.theta-slip);
+		_rearPose.x = _centerPose.x - _constraints.wheelBase / 2 * cos(_centerPose.theta-slip);
+		_rearPose.y = _centerPose.y - _constraints.wheelBase / 2 * sin(_centerPose.theta-slip);
 		_rearPose.theta = _centerPose.theta;
 	}
 
 
 
-	void VehicleState::_setSteeringAngle(double angle)
+	void VehicleState::_setSteeringAngle(Angle angle)
 	{
-		_steeringAngle = clamp(angle, -_maxSteeringAngle, _maxSteeringAngle);
+		_steeringAngle = clampRelativeToZero(angle, _constraints.maxSteeringAngle);
 		//std::cout << "steering angle: " << _steeringAngle << std::endl;
 	}
 
 	void VehicleState::_setSteeringRate(double rate)
 	{
-		_steeringRate = clamp(rate, -_maxSteeringRate, _maxSteeringRate);
+		_steeringRate = clamp(rate, -_constraints.maxSteeringRate, _constraints.maxSteeringRate);
 		//std::cout << "steering rate: " << _steeringRate << std::endl;
 	}
 
 	void VehicleState::_setSpeed(double speed)
 	{
-		_speed = clamp(speed, -_maxSpeed, _maxSpeed);
+		_speed = clamp(speed, -_constraints.maxSpeed, _constraints.maxSpeed);
 		//std::cout << "speed: " << _speed << std::endl;
 	}
 
@@ -155,7 +126,7 @@ namespace model
 	{
 
 
-		_acceleration = clamp(acceleration, -_maxAcceleration, _maxAcceleration);
+		_acceleration = clamp(acceleration, -_constraints.maxAcceleration, _constraints.maxAcceleration);
 		if (_speed > 0) {
 			_acceleration -= brake;
 		}

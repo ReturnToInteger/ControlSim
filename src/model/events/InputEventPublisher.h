@@ -14,7 +14,8 @@ namespace model {
 		struct Resized {};
 		struct LostFocus {};
 		struct GainedFocus {};
-		using InputEvent = std::variant<PressedEsc, PressedLShift, Scrolled, ClickedAt, Resized, LostFocus, GainedFocus, None>;
+		struct RightClickDown { double lastX, currentX; };
+		using InputEvent = std::variant<PressedEsc, PressedLShift, Scrolled, ClickedAt, Resized, LostFocus, GainedFocus, RightClickDown, None>;
 
 		class InputEventHandler;
 

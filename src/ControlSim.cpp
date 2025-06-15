@@ -21,6 +21,7 @@ double Mod(double a, double b) {
 }
 
 int main() {
+
 	model::pathPlanning::PlannerConfig plannerConfig={ 0.2,1.5,20,model::pathPlanning::SteeringMode::EXTREME };
 	
 	controller::App app(
