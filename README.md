@@ -20,6 +20,8 @@ This project started as a Formula Student Car simulation in MATLAB. I revisited 
  > Tested on Visual Studio 2022; older versions should work if they support C++17.  
 - C++17
 - SFML 2.6.2 (needed if you want graphics)
+- ImGui 1.89.9
+- Imgui-SFML 2.6.x
 
 Optional:
  - MATLAB (needed for reading `mat` files using `MatlabMapReader`)
@@ -43,11 +45,13 @@ Open the .sln file in Visual Studio and follow the setup instructions below.
 2. **SFML setup:**  
    - Install SFML and add its `include` and `lib` folders to your project settings.  (Set up for `C:\Libraries\SFML\`)
    - Copy SFML DLLs to your build output folder or add their location to `PATH`.
-
+3. **IMGUI with SFML**
+   - Follow the instructions here: https://github.com/SFML/imgui-sfml/tree/2.6.x
 3. **Build and Run:**  
    - Open the `.sln` file in Visual Studio.  
    - Build the project (Debug or Release).  
    - Run the executable.
+
 
 ## MATLAB Support
 
