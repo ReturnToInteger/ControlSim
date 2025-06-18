@@ -11,40 +11,74 @@ namespace model {
             //std::cout << "Start: " << start << std::endl;
             //std::cout << "End: " << end << std::endl;
             double relX = start.x - end.x, relY = start.y - end.y;
-            std::vector<double> costs;
-            costs.reserve(6);
 
             _startLeftOrig = _leftOrigin(start);
             _startRightOrig = _rightOrigin(start);
             _endLeftOrig = _leftOrigin(end);
             _endRightOrig = _rightOrigin(end);
 
-            costs.emplace_back(_RSR(start, end));
-            costs.emplace_back(_LSL(start, end));
-            costs.emplace_back(_RSL(start, end));
-            costs.emplace_back(_LSR(start, end));
-            // CCC only valid if distance is less 4r_min
-            if (relX * relX + relY * relY < 16 * _turningRadius * _turningRadius) {
-                costs.emplace_back(_LRL(start, end));
-                costs.emplace_back(_RLR(start, end));
-            }
+            double cost = _RSR(start, end);
+            double min = cost;
+            cost = _LSL(start, end);
+            if (cost < min)
+                min = cost;
+            cost = _RSL(start, end);
+            if (cost < min)
+                min = cost;
+            cost= _LSR(start, end);
+            if (cost < min)
+                min = cost;
+            //// CCC only valid if distance is less 4r_min
+            //if (relX * relX + relY * relY < 16 * _turningRadius * _turningRadius) {
+            //    costs.emplace_back(_LRL(start, end));
+            //    costs.emplace_back(_RLR(start, end));
+            //}
 
-            double distance = *std::min_element(costs.begin(), costs.end());
+            double distance = min;
             return distance;
         }
 
-        double DubinsStateSpace::simpleDistance(model::Pose const& start, const model::Point endPoint)
+        double DubinsStateSpace::simpleDistance(model::Pose const& start, model::Point const& endPoint)
         {
-            std::pair<double, double> costs(1.7e308, 1.7e308);
+            //std::pair<double, double> costs(1.7e308, 1.7e308);
+            // Calc rightside and leftside turning min turning radius origin
             _startLeftOrig = _leftOrigin(start);
             _startRightOrig = _rightOrigin(start);
-            model::Point originToEnd = _startRightOrig - endPoint;
-            if (originToEnd * originToEnd < _turningRadius * _turningRadius) return _arcLength(Point(start), _startRightOrig, endPoint, Direction::RIGHT);
-            originToEnd = _startLeftOrig - endPoint;
-            if (originToEnd * originToEnd < _turningRadius * _turningRadius) return _arcLength(Point(start), _startLeftOrig, endPoint, Direction::LEFT);
-            costs.first = _leftStraight(start, endPoint);
-            costs.second = _rightStraight(start, endPoint);
-            return std::min(costs.first, costs.second);
+
+            // If goal is inside the turning radius, return some default value
+            // Right side
+            model::Point originToGoal = _startRightOrig - endPoint;
+            if (originToGoal * originToGoal < _turningRadius * _turningRadius) return std::max(_arcLength(Point(start), _startRightOrig, endPoint, Direction::RIGHT),_turningRadius*M_PI);
+            // Left side
+            originToGoal = _startLeftOrig - endPoint;
+            if (originToGoal * originToGoal < _turningRadius * _turningRadius) return std::max(_arcLength(Point(start), _startLeftOrig, endPoint, Direction::LEFT), _turningRadius*M_PI);
+            // Get distances on both left and right directions, and return the minimum
+            double costLeft = _leftStraight(start, endPoint);
+            double costRight = _rightStraight(start, endPoint);
+            return std::min(costLeft, costRight);
+        }
+
+        double DubinsStateSpace::multipleDistance(model::Pose const& start, model::Point const& wayPoint, model::Point const& endPoint)
+        {
+            double bestCost = INFINITY;
+            double bestTheta = 0.0;
+            double angleStep = M_PI / 8;
+
+            for (double theta = 0; theta < 2 * M_PI; theta += angleStep) {
+                Pose wpPose(wayPoint.X(), wayPoint.Y(), theta);
+
+                double cost1 = distance(start, wpPose);
+                double cost2 = simpleDistance(wpPose, endPoint);
+
+                double total = cost1 + cost2;
+
+                if (total < bestCost) {
+                    bestCost = total;
+                    bestTheta = theta;
+                }
+            }
+            return bestCost;
+
         }
 
         model::Point DubinsStateSpace::rotatePoint(Point const& p, Angle const& a)

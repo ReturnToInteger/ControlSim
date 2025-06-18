@@ -11,8 +11,13 @@ namespace model {
 		public:
 			DubinsStateSpace() : _turningRadius(0) {}
 			DubinsStateSpace(double const& turningRadius) : _turningRadius(turningRadius) {}
+			// Dubins distance
 			double distance(model::Pose const& start, model::Pose const& end);
-			double simpleDistance(model::Pose const& start, const model::Point endPoint);
+			// Simplified Dubins distance without known end orientation
+			double simpleDistance(model::Pose const& start, model::Point const& endPoint);
+			// Multiple waypoints, rough optimization by brute-force
+			double multipleDistance(model::Pose const& start, model::Point const& wayPoint, model::Point const& endPoint);
+
 			Point rotatePoint(Point const& p, Angle const& a);
 
 		private:

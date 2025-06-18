@@ -30,6 +30,7 @@ namespace model {
 				std::cout << "Reached Goal" << std::endl;
 				return;
 			}
+			
 
 			// Process first node
 			PQNode startPQ{ _getHeuristics(vehicleState, _goals.front()),_discretizePoint(vehicleState.getPose(),0)};
@@ -174,9 +175,9 @@ namespace model {
 				inputs = SteeringPresets::steeringModeHIGH.data();
 				size = SteeringPresets::steeringModeHIGH.size();
 				break;
-			case SteeringMode::EXTREME:
-				inputs = SteeringPresets::steeringModeEXTREME.data();
-				size = SteeringPresets::steeringModeEXTREME.size();
+			case SteeringMode::SQUARED:
+				inputs = SteeringPresets::steeringModeSQUARED.data();
+				size = SteeringPresets::steeringModeSQUARED.size();
 				break;
 			default:
 				throw std::out_of_range("Invalid planner config (SteeringMode).");
@@ -316,7 +317,7 @@ namespace model {
 			node.gCost = node.parent->gCost + _stepSize;
 			double heuritics;
 			if (stage == 0) {
-				heuritics = _getHeuristics(node.state, _goals.front())+ _getHeuristics(_goals.front(), _goals.back());
+				heuritics = _getHeuristics(node.state, _goals.front(), _goals.back());
 			} else
 				heuritics = _getHeuristics(node.state, _goals.back());
 
@@ -357,6 +358,12 @@ namespace model {
 
 		}
 
+		double PathPlanner::_getHeuristics(model::VehicleState const& start, model::Point const& wayPoint, model::Point const& goalPoint)
+		{
+			return _dubins.multipleDistance(start.getPose(), wayPoint, goalPoint) 
+				+ (start.getSteeringAngle() / start.getMaxSteeringAngle()) * (start.getSteeringAngle() / start.getMaxSteeringAngle());
+		}
+
 		std::vector<model::VehicleState> PathPlanner::_stepUntilNew(VehicleState const& state, double distanceStep)
 		{
 			distanceStep = std::min(std::max(distanceStep, _cellSize * 1.5), _stepSize);
@@ -377,9 +384,13 @@ namespace model {
 				return (state.getPosition() - _goals.front()).magnitude() < _stepSize;
 
 			}
-			else
-			return (state.getPosition() - _goals.back()).magnitude() < _stepSize;
-
+			else {
+				Point relPos = state.getPosition() - _goals.back();
+				Angle theta = state.getOrientation();
+				double xDist = relPos.X() * cos(theta) + relPos.Y() * sin(theta);
+				double yDist = - relPos.X() * sin(theta) + relPos.Y() * cos(theta);
+				return abs(yDist) < _stepSize && abs(xDist) < _stepSize;
+			}
 
 
 		}

@@ -13,7 +13,7 @@
 #include "model/utils/FixSizedQueue.h"
 
 #ifndef MAX_CONTAINER_SIZE
-#define MAX_CONTAINER_SIZE 400
+#define MAX_CONTAINER_SIZE 1000
 #endif // !MAX_CONTAINER_SIZE
 namespace model {
 	class Cone;
@@ -23,20 +23,22 @@ namespace model {
 			LOW,
 			MEDIUM,
 			HIGH,
-			EXTREME
+			SQUARED
 		}; 
 
 		struct SteeringPresets {
 			static constexpr std::array<double, 5> steeringModeLOW = { 0, -0.5, 0.5, -1, 1 };
-			static constexpr std::array<double, 7> steeringModeMEDIUM = { 0, -0.33, 0.33 - 0.67, 0.67, -1, 1 };
-			static constexpr std::array<double, 9> steeringModeHIGH = { 0, -0.25, 0.25, -0.5, 0.5, -0.75, 0.75, -1, 1 };
-			static constexpr std::array<double, 11> steeringModeEXTREME = { 0.0, 0.2,-0.2 , 0.4,-0.4 , 0.6,-0.6 , 0.8,-0.8 , 1.0, -1.0 };
+			static constexpr std::array<double, 9> steeringModeMEDIUM = { 0, -0.25, 0.25, -0.5, 0.5, -0.75, 0.75, -1, 1 };
+			static constexpr std::array<double, 11> steeringModeHIGH = { 0.0, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6, 0.8, -0.8, 1.0, -1.0 };
+			static constexpr std::array<double, 13> steeringModeSQUARED = { 0.0, 0.05, -0.05, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6, 1.0, -1.0 };
 		};
 
 		// cellSize
 		// stepSize
 		// angleBins
-		// SteeringMode: LOW, MEDIUM, HIGH, EXTREME
+		// SteeringMode: 
+		// // linear=LOW, MEDIUM, HIGH
+		// // higher density near smaller angles: SQUARED
 		struct PlannerConfig {
 			double cellSize;
 			double stepSize;
@@ -73,12 +75,12 @@ namespace model {
 			const double _cellSize;
 			const double* _steeringInputs;
 			size_t _anglesSize;
-			void _selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
 
 			FixSizedQueue<Point> _goals;
 			PathNode _finalNode;
 			DubinsStateSpace _dubins;
 
+			void _selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
 			void _updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage);
 			VehicleState _stepByDistance(VehicleState const& state, double distance, double steeringInput);
 			std::tuple<int, int, int,int> _discretizePoint(model::Pose const& pose, int stage) const;
@@ -100,8 +102,12 @@ namespace model {
 			
 			std::vector<model::Point> _getBoundary(VehicleState const& state) const;
 			Point _rotatePoint(model::Point const& point, Angle const& angle) const;
+			// Dubins
 			double _getHeuristics(model::VehicleState const& start, model::Point const& goal);
+			// Eucledian only
 			double _getHeuristics(model::Point const& startPoint, model::Point const& goalPoint);
+			// Multiple waypoints
+			double _getHeuristics(model::VehicleState const& start, model::Point const& wayPoint, model::Point const& goalPoint);
 
 			// gets position-orientation pairs until new position is reached
 			std::vector<model::VehicleState> _stepUntilNew(VehicleState const& state, double distanceStep);
