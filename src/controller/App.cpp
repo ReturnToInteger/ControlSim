@@ -149,7 +149,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 		goal2 = goal1;
 
 		model::VehicleState stateCopy;
-		double filterParam = 0.75;
+		double filterParam = 0.25;
 		while (running.load(std::memory_order_relaxed)) {
 
 			// Read data from main
@@ -168,8 +168,12 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			_vehicle->clearPath(index);
 
 			// Bit of a hack to get the furthest 2 cones middle point
-			goal1 = (1 - filterParam) * _calcGoal(detectedCopy, stateCopy, 10, index) + filterParam * goal1;
-			goal2 = (1 - filterParam) * _calcGoal(detectedCopy, stateCopy, 150, index) + filterParam * goal2;
+			model::Point previous1(goal1);
+			_calcGoal(detectedCopy, stateCopy, goal1, 10, index);
+			goal1 = (1 - filterParam) * goal1 + filterParam * previous1;
+			model::Point previous2(goal2);
+			_calcGoal(detectedCopy, stateCopy, goal2, 150, index);
+			goal2 = (1 - filterParam) * goal2 + filterParam * previous2;
 			_vehicle->setGoal(goal1, index);
 			_vehicle->setGoal(goal2, index);
 			#ifdef ENABLE_DEBUG_DRAW
@@ -243,7 +247,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			[](auto&&) {}
 			}, e);
 	}
-	model::Point controller::App::_calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, double maxDist, int i)
+	bool controller::App::_calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, model::Point& currentGoal, double maxDist, int i)
 	{
 		double maxL = 0, maxR = 0;
 		const model::Cone* maxLCone = nullptr, * maxRCone = nullptr;
@@ -265,40 +269,35 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			}
 		}
 		if (maxRCone && maxLCone) {
-			model::Point goal((maxRCone->getPosition() + maxLCone->getPosition()) / 2.0);
+			currentGoal=(maxRCone->getPosition() + maxLCone->getPosition()) / 2.0;
 
 			//#ifdef ENABLE_DEBUG_DRAW
 			//view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
 			//#endif // ENABLE_DEBUG_DRAW
-			return goal;
+			return true;
 		}
 		else if (maxRCone) {
 			model::Angle direction = state.getOrientation() + M_PI / 2.0;
 			model::Point offset(_vehicle->getLength()/2* cos(direction), _vehicle->getLength()/2 * sin(direction));
-			model::Point goal(maxRCone->getPosition() + offset);
+			currentGoal=maxRCone->getPosition() + offset;
 
 			//#ifdef ENABLE_DEBUG_DRAW
 			//view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
 			//#endif // ENABLE_DEBUG_DRAW
-			return goal;
+			return true;
 		}
 		else if (maxLCone) {
 			model::Angle direction = state.getOrientation() - M_PI / 2.0;
 			model::Point offset(_vehicle->getLength()/2 * cos(direction), _vehicle->getLength()/2 * sin(direction));
-			model::Point goal(maxLCone->getPosition()+offset);
+			currentGoal=maxLCone->getPosition()+offset;
 
 			//#ifdef ENABLE_DEBUG_DRAW
 			//view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
 			//#endif // ENABLE_DEBUG_DRAW
-			return goal;
+			return true;
 		}
-		else {
-			model::Angle direction = state.getOrientation();
-			model::Point offset(_vehicle->getLength() * cos(direction), _vehicle->getLength()* sin(direction));
-
-			return _vehicle->getPosition() +offset;
-		}
-
+		else 
+			return false;
 	}
 
 }

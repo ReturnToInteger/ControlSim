@@ -71,7 +71,7 @@ namespace controller {
 
 		void _pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, std::atomic_bool& running, int const threadCount, int const index);
 		void _startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda);
-		// Should be moved inside path planner
-		model::Point _calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, double maxDist,int i);
+		// Should be moved to model
+		bool _calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, model::Point& currentGoal,double maxDist, int i);
 	};
 }
