@@ -64,7 +64,7 @@ namespace model {
 
 	std::vector<Point>Vehicle::getGoal()
 	{
-
+		return std::vector<Point>();
 	}
 
 	void Vehicle::setGoal(Point goal, int i)

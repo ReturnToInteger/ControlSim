@@ -1,28 +1,22 @@
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <cstdlib>
 
-
-#include "model/utils/Point.h"
-#include "model/items/Cone.h"
+//#include "model/mapReaders/ManualMapReader.h"
+//#include "model/items/Cone.h"
 
 #include "model/Vehicle.h"
 #include "controller/App.h"
 #include "view/AppView.h"
 
-#include "model/mapReaders/ManualMapReader.h"
 #include "model/mapReaders/MATLAB/MatlabMapReader.h"
 #include "controller/KeyboardControl.h"
 #include "model/controllerLogic/PurePursuitControl.h"
 #include "model/pathPlanning/PathPlanner.h"
-#include "model/utils/ModelUtils.h"
 double Mod(double a, double b) {
 	return std::fmod(std::fmod(a, b) + b, b);
 }
 
 int main() {
 
-	model::pathPlanning::PlannerConfig plannerConfig={ 0.2,1.5,20,model::pathPlanning::SteeringMode::EXTREME };
+	model::pathPlanning::PlannerConfig plannerConfig={ 0.2,1.5,20,model::pathPlanning::SteeringMode::HIGH };
 	
 	controller::App app(
 		std::make_unique<model::Vehicle>(std::make_unique<model::PurePursuitControl>(), 

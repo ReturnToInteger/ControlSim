@@ -17,5 +17,6 @@ namespace view {
     private:
         sf::Color _typeToColor(const model::Cone * cone) const;
         const model::Cone* _cone;
+        mutable sf::CircleShape _shape;
     };
 }

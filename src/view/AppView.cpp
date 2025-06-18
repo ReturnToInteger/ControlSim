@@ -1,6 +1,8 @@
 #include "AppView.h" 
 #include <cassert>
 #include "model/items/Item.h"
+#include "imgui.h"
+#include "imgui-sfml.h"
 #ifdef ENABLE_DEBUG_DRAW
 #include "DebugDraw.h"
 #endif // ENABLE_DEBUG_DRAW
@@ -58,7 +60,7 @@ namespace view {
 		for (auto& path : _pathViews) {
 			_window.draw(path);
 		}
-		//_window.draw(_vehicleView);
+		_window.draw(_vehicleView);
 		//if (_drawables) {
 		//	for (auto const& drawable : _drawables) {
 		//		_window.draw(drawable);

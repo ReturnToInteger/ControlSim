@@ -93,6 +93,9 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 					pathCopy=_vehicle->getPlannedPaths().get();
 				}				
 				auto currentDetected = _perception->detect(_vehicle->getPose());
+				if (iter % (60) == 0)
+					detectedCones.clear();
+
 				for (auto const& cone: currentDetected) {
 					detectedCones.emplace(cone);
 				}
@@ -134,7 +137,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 		// Track iterations
 		int iter = 0;
 		// Sorted durations of calls for statistics
-		std::vector<double> sorted_time;
+		std::vector<double> sortedTime;
 		
 		model::Point goal1;
 		model::Point goal2;
@@ -155,8 +158,6 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			{
 				std::lock_guard<std::mutex> lock(_simLock);
 				detectedCopy = detectedCones;
-				if (iter % (100 * (index + 1)) == 0)
-					detectedCones.clear();
 				stateCopy = _vehicle->getStateCopy();
 			} // End of reading
 
@@ -182,26 +183,26 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 				});
 
 			time += dur.count();
-			sorted_time.emplace_back(dur.count());
+			sortedTime.emplace_back(dur.count());
 			// Sending data back to main
 			{
 				std::lock_guard<std::mutex> lock(_simLock);
 				_vehicle->setPlannedPath(index);
 				} // End of sending data
-			double sleepDur = 0.005 * threadCount * (double)(index+1.0) / (double)threadCount; // Spread out thread execution over time
-			std::this_thread::sleep_for(std::chrono::duration<double>(sleepDur - dur.count())); // Sleep to avoid pointless CPU overload.
+			double sleepDur = std::max(0.005 * threadCount * (double)(index+1.0) / (double)threadCount-dur.count(),0.005); // Spread out thread execution over time
+			std::this_thread::sleep_for(std::chrono::duration<double>(sleepDur)); // Sleep to avoid pointless CPU overload.
 			// End of dealing with the current pathPlanner
 			iter++;
 		}
-		std::sort(sorted_time.begin(), sorted_time.end());
+		std::sort(sortedTime.begin(), sortedTime.end());
 		std::lock_guard<std::mutex> lock(_pathLock);
 		std::cout << "________________" << std::endl <<
 			"THREAD ID: " << std::this_thread::get_id() << std::endl <<
 			"Avg. path planning time: " << time / iter << std::endl <<
 			"Path planning iterations: " << iter << std::endl <<
-			"Slowest: " << sorted_time.back() << std::endl <<
-			"Slowest (99th percentile): " << sorted_time[static_cast<size_t>(sorted_time.size() * 0.99)] << std::endl <<
-			"Slowest (9th percentile): " << sorted_time[static_cast<size_t>(sorted_time.size() * 0.9)] << std::endl;
+			"Slowest: " << sortedTime.back() << std::endl <<
+			"Slowest (99th percentile): " << sortedTime[static_cast<size_t>(sortedTime.size() * 0.99)] << std::endl <<
+			"Slowest (9th percentile): " << sortedTime[static_cast<size_t>(sortedTime.size() * 0.9)] << std::endl;
 
 	}
 
@@ -246,16 +247,18 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 	{
 		double maxL = 0, maxR = 0;
 		const model::Cone* maxLCone = nullptr, * maxRCone = nullptr;
+		Point pos = state.getPosition();
+		Angle theta = state.getOrientation();
 		for (auto const& cone : cones) {
-			double magnitude = (cone->getPosition() - state.getPosition()).magnitude();
-			if (cone->getType() == model::ConeType::LEFT) {
-				if (magnitude > maxL && magnitude <= maxDist) {
+			Point relPos = cone->getPosition() - pos;
+			double magnitude = relPos.magnitude();
+			double xDist = relPos.X() * cos(theta) + relPos.Y() * sin(theta);
+			if (magnitude <= maxDist && xDist > 0) {
+				if (cone->getType() == model::ConeType::LEFT&& magnitude > maxL) {
 					maxLCone = cone;
 					maxL = magnitude;
 				}
-			}
-			if (cone->getType() == model::ConeType::RIGHT) {
-				if (magnitude > maxR && magnitude <= maxDist) {
+				if (cone->getType() == model::ConeType::RIGHT&& magnitude > maxR) {
 					maxRCone = cone;
 					maxR = magnitude;
 				}
@@ -290,10 +293,10 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			return goal;
 		}
 		else {
-			//model::Angle direction = state.getOrientation();
-			//model::Point offset(maxDist * cos(direction), maxDist * sin(direction));
+			model::Angle direction = state.getOrientation();
+			model::Point offset(_vehicle->getLength() * cos(direction), _vehicle->getLength()* sin(direction));
 
-			return _vehicle->getPosition();// +offset;
+			return _vehicle->getPosition() +offset;
 		}
 
 	}

@@ -5,12 +5,13 @@
 #include <unordered_map>
 #include <deque>
 
+
 #include "model/utils/Point.h"
 #include "model/items/Cone.h"
+#include "model/items/Path.h"
 #include "VehicleView.h"
 #include "ConeView.h"
 #include "PathView.h"
-#include "model/items/Path.h"
 #include "model/events/InputEventPublisher.h"
 
 namespace model {

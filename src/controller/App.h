@@ -52,11 +52,8 @@ namespace controller {
 
 		~App();
 
-
-
 		// Inherited via InputEventHandler
 		void handleInputEvent(std::string const& src, events::InputEvent const& e) override;
-
 
     private:
 		std::vector<model::Cone> _cones;
