@@ -193,9 +193,14 @@ namespace model {
 		void model::pathPlanning::PathPlanner::_updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage)
 		{
 			//std::cout << "Start of _uNb" << std::endl;
+			auto sharedParent = std::make_shared<PathNode>(node);
+
 			for (int i = 0; i < _anglesSize;i++) {
 				// Set leaf partly
-				PathNode newNode = _createNewNode(node, _steeringInputs[i], stage);
+				PathNode newNode;
+				newNode.state = _stepByDistance(node.state, _stepSize, _steeringInputs[i]);
+				newNode.stage = stage;
+
 				std::tuple<int, int, int,int> newNodeKey = _discretizePoint(newNode.state.getPose(),stage);
 
 				// Check if the new node is in the closed list
@@ -208,7 +213,9 @@ namespace model {
 						_closedList.emplace(collidingKey);
 					}
 					else {
-						newNode.parent = std::make_shared<PathNode>(node);
+						newNode.parent = sharedParent;
+						newNode.gCost = node.gCost + _stepSize;
+
 						_processValidNode(newNode, newNodeKey,stage);
 					}
 				}
@@ -321,14 +328,12 @@ namespace model {
 
 		void PathPlanner::_processValidNode(PathNode & node, std::tuple<int, int, int,int> const& key,int stage)
 		{
-			//calculate cost and heuristics
-			node.gCost = node.parent->gCost + _stepSize;
-			double heuritics;
+			double heuristics;
 			if (stage == 0) {
-				heuritics = _getHeuristics(node.state, _goals.front(), _goals.back());
+				heuristics = _getHeuristics(node.state, _goals.front(), _goals.back());
 			} else
-				heuritics = _getHeuristics(node.state, _goals.back());
-			double fCost = node.gCost + heuritics;
+				heuristics = _getHeuristics(node.state, _goals.back());
+			double fCost = node.gCost + heuristics;
 			node.fCost = fCost;
 			// if not in open list, add it
 			auto [it, isInserted] = _openList.emplace(key, std::move(node));
