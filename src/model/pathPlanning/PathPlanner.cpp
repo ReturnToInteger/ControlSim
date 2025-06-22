@@ -14,21 +14,25 @@
 namespace model {
 	namespace pathPlanning {
 		PathPlanner::PathPlanner(PlannerConfig config) :
-			_stepSize(config.stepSize), _cellSize(config.cellSize), _angleBins(config.angleBins), _goals(2),
+			_stepSize(config.stepSize), 
+			_cellSize(config.cellSize), 
+			_angleBins(config.angleBins), 
+			_goals(static_cast<int>(config.waypoints)+1), 
+			_maxContainerSize(config.maxContainerSize),
 			_dubins(3.0 / tan(M_PI / 6.0))
 		{
 			_goals.push(Point(-47.5, 10.0));
 			_selectSteeringMode(config.steeringMode, _steeringInputs, _anglesSize);
 		}
 
-		void PathPlanner::planPath(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& vehicleState)
+		bool PathPlanner::planPath(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& vehicleState)
 		{
 			_setDubins(vehicleState.getMaxSteeringAngle(),vehicleState.getWheelBase());
 
 			// If start is within goal, return
 			if (_isAtGoal(vehicleState, 1)) {
 				std::cout << "Reached Goal" << std::endl;
-				return;
+				return true;
 			}
 			
 
@@ -54,7 +58,7 @@ namespace model {
 				_collidingList.emplace(startPQ.key);
 				#endif // ENABLE_DEBUG_DRAW
 				std::cout << "Inside a cone." << std::endl;
-				return;
+				return false;
 			}
 
 			int iter = 0;
@@ -90,7 +94,7 @@ namespace model {
 					// Goal Reached
 					if (_isAtGoal(currentNode.state, 1)) {
 						_finalNode = currentNode;
-						return;
+						return true;
 					}
 					else {
 						_updateNeightbours(cones, currentNode, 1);
@@ -99,9 +103,11 @@ namespace model {
 				iter++;
 			}
 			//std::cout << "Path not found after " << iter << " iterations." << std::endl;
+			// if it only reaches the first goal, we still return a valid path
 			if (reachedFirst)
-				return;
+				return false;
 			_finalNode = startNode;
+			return false;
 		}
 
 		PQNode model::pathPlanning::PathPlanner::_popAndCloseNextNode() {
@@ -149,7 +155,7 @@ namespace model {
 #endif // ENABLE_DEBUG_DRAW
 
 			std::vector<VehicleState> path;
-			PathNode* currentNode = &_finalNode;
+			const PathNode* currentNode = &_finalNode;
 			path.emplace_back(currentNode->state);
 			currentNode = currentNode->parent.get();
 			while (currentNode != nullptr && currentNode->parent.get() != currentNode) {
@@ -186,6 +192,7 @@ namespace model {
 
 		void model::pathPlanning::PathPlanner::_updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage)
 		{
+			//std::cout << "Start of _uNb" << std::endl;
 			for (int i = 0; i < _anglesSize;i++) {
 				// Set leaf partly
 				PathNode newNode = _createNewNode(node, _steeringInputs[i], stage);
@@ -201,10 +208,12 @@ namespace model {
 						_closedList.emplace(collidingKey);
 					}
 					else {
+						newNode.parent = std::make_shared<PathNode>(node);
 						_processValidNode(newNode, newNodeKey,stage);
 					}
 				}
 			}
+			//std::cout << "End of _uNb" << std::endl;
 		}
 
 		model::VehicleState PathPlanner::_stepByDistance(VehicleState const& state, double distance, double steeringAngle)
@@ -306,7 +315,6 @@ namespace model {
 		{
 			PathNode newNode;
 			newNode.state = _stepByDistance(node.state, _stepSize, steeringInput);
-			newNode.parent = std::make_shared<PathNode>(node);
 			newNode.stage = stage;
 			return newNode;
 		}
@@ -320,19 +328,19 @@ namespace model {
 				heuritics = _getHeuristics(node.state, _goals.front(), _goals.back());
 			} else
 				heuritics = _getHeuristics(node.state, _goals.back());
-
-			node.fCost = node.gCost + heuritics;
+			double fCost = node.gCost + heuritics;
+			node.fCost = fCost;
 			// if not in open list, add it
-			auto [it, isInserted] = _openList.emplace(key, node);
+			auto [it, isInserted] = _openList.emplace(key, std::move(node));
 
 			if (isInserted) {
 
-				_openQueue.emplace(PQNode{ node.fCost,key });
+				_openQueue.emplace(PQNode{ fCost,key });
 			}
 			else if (node.gCost < _openList[key].gCost) {
 				// if in open list, replace if cost is lower
-				_openList[key] = node;
-				_openQueue.emplace(PQNode{ node.fCost,key });
+				_openList[key] = std::move(node);
+				_openQueue.emplace(PQNode{ fCost,key });
 			}
 
 		}
@@ -349,7 +357,8 @@ namespace model {
 
 		double PathPlanner::_getHeuristics(model::VehicleState const& start, model::Point const& goalPoint)
 		{
-			return _dubins.simpleDistance(start.getPose(), goalPoint)+ (start.getSteeringAngle() / start.getMaxSteeringAngle()) * (start.getSteeringAngle() / start.getMaxSteeringAngle());
+			return _dubins.simpleDistance(start.getPose(), goalPoint)
+				+ (start.getSteeringAngle() / start.getMaxSteeringAngle()) * (start.getSteeringAngle() / start.getMaxSteeringAngle());
 		}
 
 		double PathPlanner::_getHeuristics(model::Point const& startPoint, model::Point const& goalPoint)
@@ -360,7 +369,7 @@ namespace model {
 
 		double PathPlanner::_getHeuristics(model::VehicleState const& start, model::Point const& wayPoint, model::Point const& goalPoint)
 		{
-			return _dubins.multipleDistance(start.getPose(), wayPoint, goalPoint) 
+			return _dubins.multipleDistance(start.getPose(), wayPoint, goalPoint)
 				+ (start.getSteeringAngle() / start.getMaxSteeringAngle()) * (start.getSteeringAngle() / start.getMaxSteeringAngle());
 		}
 
@@ -397,8 +406,8 @@ namespace model {
 
 		bool PathPlanner::_hasMoreNodes() const {
 			return !_openList.empty() &&
-				_openList.size() < MAX_CONTAINER_SIZE &&
-				_closedList.size() < MAX_CONTAINER_SIZE;
+				_openList.size() < _maxContainerSize &&
+				_closedList.size() < _maxContainerSize;
 		}
 
 
@@ -415,12 +424,14 @@ namespace model {
 			//_goals.clear();
 			//_goals.emplace_back(lastGoal);
 			_openList.clear();
+			std::vector<PQNode> PQTemp;
+			PQTemp.reserve(_maxContainerSize);
 			_openQueue = std::priority_queue<PQNode,
 				std::vector<PQNode>,
-				std::greater<PQNode>>();
+				std::greater<PQNode>>(std::greater<PQNode>(), std::move(PQTemp));
 			_closedList.clear();
-			_openList.reserve(MAX_CONTAINER_SIZE);
-			_closedList.reserve(MAX_CONTAINER_SIZE);
+			_openList.reserve(_maxContainerSize);
+			_closedList.reserve(_maxContainerSize);
 			//std::cout << "Cleared PathPlanner data" << std::endl;
 		}
 

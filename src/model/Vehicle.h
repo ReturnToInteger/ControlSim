@@ -45,7 +45,7 @@ namespace model {
 
 		// path planning methods
 
-		void planPath(std::unordered_set<const model::Cone*> const& cones, VehicleState const& state, int i);
+		bool planPath(std::unordered_set<const model::Cone*> const& cones, VehicleState const& state, int i);
 		void setPlannedPath(int i); 
 		FixSizedQueue<Path> getPlannedPaths() const;
 		std::vector<Point> getGoal();

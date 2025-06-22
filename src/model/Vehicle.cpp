@@ -40,10 +40,10 @@ namespace model {
 	}
 
 
-	void model::Vehicle::planPath(std::unordered_set<const model::Cone*> const& cones, VehicleState const& state, int i)
+	bool model::Vehicle::planPath(std::unordered_set<const model::Cone*> const& cones, VehicleState const& state, int i)
 	{
 		if (i >= _pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
-		_pathPlanners[i]->planPath(cones, state);
+		return _pathPlanners[i]->planPath(cones, state);
 	}
 
 	void model::Vehicle::setPlannedPath(int i)

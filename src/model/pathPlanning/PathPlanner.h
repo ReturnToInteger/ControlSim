@@ -12,9 +12,6 @@
 #include "model/items/Path.h"
 #include "model/utils/FixSizedQueue.h"
 
-#ifndef MAX_CONTAINER_SIZE
-#define MAX_CONTAINER_SIZE 1000
-#endif // !MAX_CONTAINER_SIZE
 namespace model {
 	class Cone;
 	namespace pathPlanning {
@@ -25,6 +22,12 @@ namespace model {
 			HIGH,
 			SQUARED
 		}; 
+
+		enum class Waypoints 
+		{
+			SINGLE,
+			DOUBLE
+		};
 
 		struct SteeringPresets {
 			static constexpr std::array<double, 5> steeringModeLOW = { 0, -0.5, 0.5, -1, 1 };
@@ -37,20 +40,25 @@ namespace model {
 		// stepSize
 		// angleBins
 		// SteeringMode: 
-		// // linear=LOW, MEDIUM, HIGH
-		// // higher density near smaller angles: SQUARED
+		// --- linear=LOW, MEDIUM, HIGH
+		// --- higher density near smaller angles: SQUARED
+		// Waypoints: SINGLE - single goal planning. DOUBLE - goal + waypoint planning
+		// maxContainerSize: limit the visited and unvisited nodes
 		struct PlannerConfig {
 			double cellSize;
 			double stepSize;
 			int angleBins;
 			SteeringMode steeringMode;
+			// Not tested in SINGLE mode currently
+			Waypoints waypoints;
+			int maxContainerSize = 1000;
 		};
 
 		class PathPlanner
 		{
 		public:
 			PathPlanner(PlannerConfig config);
-			void planPath(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& vehicleState);
+			bool planPath(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& vehicleState);
 			//Sets planned path based on current node
 			void setPlannedPath();
 			Path getPlannedPath() const;
@@ -74,6 +82,7 @@ namespace model {
 			const double _stepSize;
 			const double _cellSize;
 			const double* _steeringInputs;
+			const int _maxContainerSize;
 			size_t _anglesSize;
 
 			FixSizedQueue<Point> _goals;

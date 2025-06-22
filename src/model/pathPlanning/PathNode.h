@@ -13,7 +13,7 @@ namespace model {
 		// Estimated goal (Current cost + heuristics)
 		double fCost;
 		// Parent for reconstruction
-		std::shared_ptr<PathNode> parent;
+		std::shared_ptr<PathNode const> parent;
 		int stage;
 		PathNode(VehicleState const& state, double g, double f, PathNode* p,int stage)
 			: state(state), gCost(g), fCost(f), parent(p), stage(stage){
@@ -22,6 +22,20 @@ namespace model {
 		bool operator<(PathNode const& other) const {
 			return fCost< other.fCost;
 		}
+
+		void* operator new(std::size_t size) {
+			std::cout << "[PathNode new] " << size << " bytes\n";
+			return std::malloc(size);
+		}
+
+		void operator delete(void* ptr) {
+			std::cout << "[PathNode delete]\n";
+			std::free(ptr);
+		}
+		//~PathNode() {
+		//	std::cout << "[PathNode dtor] @" << this << "\n";
+		//}
+
 	};
 
 	// Used in the priority queue, to find the minimum fCost in O(1) time

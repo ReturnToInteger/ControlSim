@@ -36,7 +36,7 @@ namespace controller {
 		void operator()(events::Resized const&) {std::cout << "Resized." << std::endl; }
 		void operator()(events::LostFocus const&) {std::cout << "Lost Focus." << std::endl; }
 		void operator()(events::GainedFocus const&) { std::cout << "Gained Focus." << std::endl; }
-		void operator()(events::RightClickDown const& c) { std::cout << "Right Click Down: " <<c.lastX<<"; "<<c.lastX << std::endl; }
+		void operator()(events::RightClickDown const& c) { std::cout << "Right Click Down: " <<c.lastX<<"; "<<c.currentX << std::endl; }
 		void operator()(events::None const&) {}
 
 	};

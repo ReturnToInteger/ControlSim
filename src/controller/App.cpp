@@ -150,6 +150,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 
 		model::VehicleState stateCopy;
 		double filterParam = 0.25;
+		bool foundPath = false;
 		while (running.load(std::memory_order_relaxed)) {
 
 			// Read data from main
@@ -161,18 +162,14 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 				stateCopy = _vehicle->getStateCopy();
 			} // End of reading
 
-			// Dealing with the current pathPlanner
-			std::chrono::duration<double> dur;
 
-			//// Clear residual data before planning new one
-			_vehicle->clearPath(index);
 
 			// Bit of a hack to get the furthest 2 cones middle point
 			model::Point previous1(goal1);
-			_calcGoal(detectedCopy, stateCopy, goal1, 10, index);
-			goal1 = (1 - filterParam) * goal1 + filterParam * previous1;
 			model::Point previous2(goal2);
-			_calcGoal(detectedCopy, stateCopy, goal2, 150, index);
+			bool foundGoal1 = _calcGoal(detectedCopy, stateCopy, goal1, 10, index);
+			bool foundGoal2 = _calcGoal(detectedCopy, stateCopy, goal2, 150, index);
+			goal1 = (1 - filterParam) * goal1 + filterParam * previous1;
 			goal2 = (1 - filterParam) * goal2 + filterParam * previous2;
 			_vehicle->setGoal(goal1, index);
 			_vehicle->setGoal(goal2, index);
@@ -181,11 +178,17 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			view::DebugDraw::instance().circle(goal2, 0.5, sf::Color::Green);
 			#endif // ENABLE_DEBUG_DRAW
 
+			// Dealing with the current pathPlanner
+			std::chrono::duration<double> dur;
 			// Time path planning
-			dur = model::timeFunction("Path planning", [this, &detectedCopy, &stateCopy, &index]() {
-				_vehicle->planPath(detectedCopy, stateCopy, index);
-				});
-
+			if (foundGoal1 || foundGoal2/* || !foundPath*/) {
+				//// Clear residual data before planning new one
+				_vehicle->clearPath(index);
+				dur = model::timeFunction("Path planning", [this, &detectedCopy, &stateCopy, &index, &foundPath]() {
+					foundPath=_vehicle->planPath(detectedCopy, stateCopy, index);
+					});
+			}
+			else dur = std::chrono::duration<double>(0);
 			time += dur.count();
 			sortedTime.emplace_back(dur.count());
 			// Sending data back to main
