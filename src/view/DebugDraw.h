@@ -1,4 +1,5 @@
 #pragma once
+#ifdef ENABLE_DEBUG_DRAW
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include "model/utils/Point.h"
@@ -99,9 +100,6 @@ namespace view {
         }
 
     private:
-        void clear() {
-            _lines.clear();
-        }
         mutable std::mutex _mutex;
 
         std::vector<sf::VertexArray> _lines;
@@ -114,3 +112,6 @@ namespace view {
         
     };
 }
+
+
+#endif
