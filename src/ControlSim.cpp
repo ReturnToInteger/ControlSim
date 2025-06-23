@@ -1,6 +1,12 @@
 
 //#include "model/mapReaders/ManualMapReader.h"
 //#include "model/items/Cone.h"
+#define STRINGIZE_DETAIL(x) #x
+#define _STRINGIZE(x) STRINGIZE_DETAIL(x)
+
+
+#pragma message("_HAS_ITERATOR_DEBUGGING=" _STRINGIZE(_HAS_ITERATOR_DEBUGGING))
+
 
 #include "model/Vehicle.h"
 #include "controller/App.h"
@@ -10,42 +16,6 @@
 #include "controller/KeyboardControl.h"
 #include "model/controllerLogic/PurePursuitControl.h"
 #include "model/pathPlanning/PathPlanner.h"
-//#include <iostream>
-//#include <cstdlib>
-//#include <new> // for std::size_t
-//#include <atomic>
-//#include <thread>
-//#include "model/pathPlanning/PathNode.h"
-//
-//std::atomic<size_t> g_allocCount = 0;
-//constexpr size_t MAX_LOGGED_ALLOCS = 5000;
-//
-//
-//void* operator new(std::size_t size) {
-//	if (g_allocCount++ < MAX_LOGGED_ALLOCS) {
-//		std::cout << "[global new on thread " << std::this_thread::get_id() << "] " << size << " bytes\n";
-//	}
-//	return std::malloc(size);
-//}
-//void operator delete(void* ptr) noexcept {
-//	if (g_allocCount++ < MAX_LOGGED_ALLOCS) {
-//		std::cout << "[global delete on thread " << std::this_thread::get_id() << "]\n";
-//	}
-//	std::free(ptr);
-//}
-//void* operator new[](std::size_t size) {
-//	if (g_allocCount++ < MAX_LOGGED_ALLOCS) {
-//		std::cout << "[global new[] on thread " << std::this_thread::get_id() << "] " << size << " bytes\n";
-//	}
-//	return std::malloc(size);
-//}
-//void operator delete[](void* ptr) noexcept {
-//	if (g_allocCount++ < MAX_LOGGED_ALLOCS) {
-//		std::cout << "[global delete[] on thread " << std::this_thread::get_id() << "]\n";
-//	}
-//	std::free(ptr);
-//}
-
 double Mod(double a, double b) {
 	return std::fmod(std::fmod(a, b) + b, b);
 }
@@ -56,7 +26,7 @@ int main() {
 		0.2,
 		1.5,
 		20,
-		model::pathPlanning::SteeringMode::HIGH, 
+		model::pathPlanning::SteeringMode::MEDIUM, 
 		model::pathPlanning::Waypoints::DOUBLE
 	};
 	
@@ -64,7 +34,8 @@ int main() {
 		std::make_unique<model::Vehicle>(std::make_unique<model::PurePursuitControl>(), 
 			std::make_unique<model::pathPlanning::PathPlanner>(plannerConfig)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
-		std::make_unique<view::AppView>() /*nullptr*/
+		std::make_unique<view::AppView>() /*nullptr*/,
+		2
 	);
 	app.run();
 

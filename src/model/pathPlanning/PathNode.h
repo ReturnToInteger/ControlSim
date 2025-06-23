@@ -22,20 +22,6 @@ namespace model {
 		bool operator<(PathNode const& other) const {
 			return fCost< other.fCost;
 		}
-
-		void* operator new(std::size_t size) {
-			std::cout << "[PathNode new] " << size << " bytes\n";
-			return std::malloc(size);
-		}
-
-		void operator delete(void* ptr) {
-			std::cout << "[PathNode delete]\n";
-			std::free(ptr);
-		}
-		//~PathNode() {
-		//	std::cout << "[PathNode dtor] @" << this << "\n";
-		//}
-
 	};
 
 	// Used in the priority queue, to find the minimum fCost in O(1) time
