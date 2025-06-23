@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <array>
 #include <mutex>
 #include <functional>
 #include "model/items/Cone.h"
@@ -43,9 +44,14 @@ namespace controller {
     class App : public events::InputEventHandler
     {
 	public:
+		struct SharedGoals {
+			std::array<model::Point, 2> goals;
+			std::atomic_bool goalHasChanged;
+		};
 		App(std::unique_ptr<model::Vehicle> vehicle,
 			std::unique_ptr<model::IMapReader> mapReader,
-			std::unique_ptr<view::AppView> view);
+			std::unique_ptr<view::AppView> view, 
+			int threadCount = 1);
 
 		// Need a run method, which will run the game
 		void run();
@@ -55,7 +61,12 @@ namespace controller {
 		// Inherited via InputEventHandler
 		void handleInputEvent(std::string const& src, events::InputEvent const& e) override;
 
-    private:
+    private:		
+		void _pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index);
+		void _startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda);
+		// Should be moved to model
+		bool _calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, model::Point& currentGoal,double maxDist);
+
 		std::vector<model::Cone> _cones;
 		std::unique_ptr<view::AppView> _view;
 		std::unique_ptr<model::Vehicle> _vehicle;
@@ -64,14 +75,13 @@ namespace controller {
 		// Threading
 		std::mutex _simLock;
 		std::mutex _pathLock;
-		std::condition_variable resetEvent;
+		std::condition_variable _resetEvent;
+		const int _threadCount;
+		std::atomic_bool _running;
+		SharedGoals _sharedGoals;
 
 		// Need a reader, which will read the map 
 		std::unique_ptr<model::IMapReader> _mapReader;
 
-		void _pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, std::atomic_bool& running, int const threadCount, int const index);
-		void _startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda);
-		// Should be moved to model
-		bool _calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, model::Point& currentGoal,double maxDist, int i);
 	};
 }

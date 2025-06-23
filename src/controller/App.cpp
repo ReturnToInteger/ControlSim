@@ -23,17 +23,24 @@
 
 
 namespace controller {
-App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapReader> mapReader, std::unique_ptr<view::AppView> view)
-{
-	assert(mapReader != nullptr && "Provide valid arguments.");
-	assert(vehicle != nullptr && "Provide valid arguments.");
-	//assert(view != nullptr && "Provide valid arguments.");
+	App::App(std::unique_ptr<model::Vehicle> vehicle,
+		std::unique_ptr<model::IMapReader> mapReader,
+		std::unique_ptr<view::AppView> view,
+		int threadCount)
+		: _mapReader(std::move(mapReader)),
+		_vehicle(std::move(vehicle)),
+		_view(std::move(view)),
+		_threadCount(threadCount),
+		_running(false),
+		_sharedGoals{ { _vehicle->getPosition(), _vehicle->getPosition() },
+			false }
+	{
+		assert(_mapReader != nullptr && "Provide valid arguments.");
+		assert(_vehicle != nullptr && "Provide valid arguments.");
+		//assert(_view != nullptr && "Provide valid arguments.");
 
-	_mapReader = std::move(mapReader);
-	_vehicle = std::move(vehicle);
-	_view = std::move(view);
-	if (_view) _view->attach(this);
-}
+		if (_view) _view->attach(this);
+	}
 
 	void App::run()
 	{
@@ -56,14 +63,13 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 		}
 		else 
 			frameTime = 1.0 / 60.0;
-		std::atomic<bool> running = true;
+		_running = true;
 		std::unordered_set<const model::Cone*> detectedCones = _perception->detect(_vehicle->getPose());
-		const int threadCount = 1;
-		std::function<void(int)> pathPlanningLambda = [this, &detectedCones, &running, &threadCount](int index) {
-			_pathPlanningWorker(detectedCones, running, threadCount, index);
+		std::function<void(int)> pathPlanningLambda = [this, &detectedCones](int index) {
+			_pathPlanningWorker(detectedCones, index);
 			};
 		std::vector<std::thread> threads;
-		_startPlanningThreads(threadCount, threads, pathPlanningLambda);
+		_startPlanningThreads(_threadCount, threads, pathPlanningLambda);
 
 		// Run the game loop
 		double updateTime = 0;
@@ -99,6 +105,12 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 				for (auto const& cone: currentDetected) {
 					detectedCones.emplace(cone);
 				}
+				bool foundCurrent1 = _calcGoal(detectedCones, _vehicle->getStateCopy(), _sharedGoals.goals[0], 10);
+				bool foundCurrent2 = _calcGoal(detectedCones, _vehicle->getStateCopy(), _sharedGoals.goals[1], 150);
+				if (foundCurrent1 || foundCurrent2) {
+					_sharedGoals.goalHasChanged.store(true);
+				}
+
 			}
 			if (_view) {
 				_view->setPath(pathCopy);
@@ -110,7 +122,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 				std::this_thread::sleep_for(std::chrono::duration<double>(frameTime - deltaTime));
 			iter++;
 		}
-		running.store(false);
+		_running.store(false);
 		for (auto& t : threads) {
 			t.join();
 		}
@@ -124,7 +136,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 	// Reads Perception ✓ safe
 	// Reads VehicleState ✓ safe
 	// Modifies _vehicle ?
-	void App::_pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones,std::atomic_bool& running,int const threadCount, int const index)
+	void App::_pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index)
 	{
 		std::cout << "Planning index is: " << index << std::endl;
 
@@ -151,28 +163,36 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 		model::VehicleState stateCopy;
 		double filterParam = 0.25;
 		bool foundPath = false;
-		while (running.load(std::memory_order_relaxed)) {
+		while (_running.load(std::memory_order_relaxed)) {
 
 			// Read data from main
 			std::unordered_set<const model::Cone*> detectedCopy;
-			model::VehicleState stateCopy;
+			model::VehicleState stateCopy;				
+			model::Point previous1(goal1);
+			model::Point previous2(goal2);
+
 			{
 				std::lock_guard<std::mutex> lock(_simLock);
 				detectedCopy = detectedCones;
-				stateCopy = _vehicle->getStateCopy();
+				stateCopy = _vehicle->getStateCopy();			
+
+				goal1 = _sharedGoals.goals[0];
+				goal2 = _sharedGoals.goals[1];
 			} // End of reading
 
 
 
 			// Bit of a hack to get the furthest 2 cones middle point
-			model::Point previous1(goal1);
-			model::Point previous2(goal2);
-			bool foundGoal1 = _calcGoal(detectedCopy, stateCopy, goal1, 10, index);
-			bool foundGoal2 = _calcGoal(detectedCopy, stateCopy, goal2, 150, index);
 			goal1 = (1 - filterParam) * goal1 + filterParam * previous1;
 			goal2 = (1 - filterParam) * goal2 + filterParam * previous2;
-			_vehicle->setGoal(goal1, index);
-			_vehicle->setGoal(goal2, index);
+			if ((stateCopy.getPosition() - goal1).magnitude() <= (stateCopy.getPosition() - goal2).magnitude()) {
+				_vehicle->setGoal(goal1, index);
+				_vehicle->setGoal(goal2, index);
+			}
+			else {
+				_vehicle->setGoal(goal2, index);
+				_vehicle->setGoal(goal1, index);
+			}
 			#ifdef ENABLE_DEBUG_DRAW
 			view::DebugDraw::instance().circle(goal1, 0.5, sf::Color::Cyan);
 			view::DebugDraw::instance().circle(goal2, 0.5, sf::Color::Green);
@@ -181,12 +201,13 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			// Dealing with the current pathPlanner
 			std::chrono::duration<double> dur;
 			// Time path planning
-			if (foundGoal1 || foundGoal2/* || !foundPath*/) {
-				//// Clear residual data before planning new one
+			if (_sharedGoals.goalHasChanged.load()) {
+				// Clear residual data before planning new one
 				_vehicle->clearPath(index);
 				dur = model::timeFunction("Path planning", [this, &detectedCopy, &stateCopy, &index, &foundPath]() {
-					foundPath=_vehicle->planPath(detectedCopy, stateCopy, index);
+					foundPath = _vehicle->planPath(detectedCopy, stateCopy, index);
 					});
+				_sharedGoals.goalHasChanged.store(false);
 			}
 			else dur = std::chrono::duration<double>(0);
 			time += dur.count();
@@ -196,7 +217,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 				std::lock_guard<std::mutex> lock(_simLock);
 				_vehicle->setPlannedPath(index);
 				} // End of sending data
-			double sleepDur = std::max(0.005 * threadCount * (double)(index+1.0) / (double)threadCount-dur.count(),0.005); // Spread out thread execution over time
+			double sleepDur = std::max(0.005 * _threadCount * (double)(index+1.0) / (double)_threadCount-dur.count(),0.005); // Spread out thread execution over time
 			std::this_thread::sleep_for(std::chrono::duration<double>(sleepDur)); // Sleep to avoid pointless CPU overload.
 			// End of dealing with the current pathPlanner
 			iter++;
@@ -250,7 +271,7 @@ App::App(std::unique_ptr<model::Vehicle> vehicle, std::unique_ptr<model::IMapRea
 			[](auto&&) {}
 			}, e);
 	}
-	bool controller::App::_calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, model::Point& currentGoal, double maxDist, int i)
+	bool controller::App::_calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, model::Point& currentGoal, double maxDist)
 	{
 		double maxL = 0, maxR = 0;
 		const model::Cone* maxLCone = nullptr, * maxRCone = nullptr;
