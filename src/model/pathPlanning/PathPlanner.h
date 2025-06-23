@@ -33,7 +33,7 @@ namespace model {
 			static constexpr std::array<double, 5> steeringModeLOW = { 0, -0.5, 0.5, -1, 1 };
 			static constexpr std::array<double, 9> steeringModeMEDIUM = { 0, -0.25, 0.25, -0.5, 0.5, -0.75, 0.75, -1, 1 };
 			static constexpr std::array<double, 11> steeringModeHIGH = { 0.0, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6, 0.8, -0.8, 1.0, -1.0 };
-			static constexpr std::array<double, 13> steeringModeSQUARED = { 0.0, 0.05, -0.05, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6, 1.0, -1.0 };
+			static constexpr std::array<double, 9> steeringModeSQUARED = { 0.0, 0.06, -0.06, 0.25, -0.25, 0.56, -0.56, 1.0, -1.0 };
 		};
 
 		// cellSize
@@ -42,7 +42,7 @@ namespace model {
 		// SteeringMode: 
 		// --- linear=LOW, MEDIUM, HIGH
 		// --- higher density near smaller angles: SQUARED
-		// Waypoints: SINGLE - single goal planning. DOUBLE - goal + waypoint planning
+		// Waypoints: SINGLE - single goal planning. DOUBLE - goal + waypoint planning. WARNING: Not tested in SINGLE mode currently
 		// maxContainerSize: limit the visited and unvisited nodes
 		struct PlannerConfig {
 			double cellSize;
@@ -51,7 +51,7 @@ namespace model {
 			SteeringMode steeringMode;
 			// Not tested in SINGLE mode currently
 			Waypoints waypoints;
-			int maxContainerSize = 1000;
+			int maxContainerSize = 200;
 		};
 
 		class PathPlanner
