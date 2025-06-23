@@ -21,7 +21,13 @@ namespace model {
 		}
 		Pose currentPose=state.getRearPose();
 		const VehicleState* targetState = _getAtRange(currentPose, path);
-		if (!targetState) return ControlCommand(0.2, _previous.normSteering);
+		if (!targetState) {
+			#ifdef ENABLE_DEBUG_DRAW
+			view::DebugDraw::instance().circle2(model::Point(-1000.0,-1000.0), static_cast<float>(0.01));
+			#endif // ENABLE_DEBUG_DRAW
+
+			return ControlCommand(0.2, _previous.normSteering);
+		}
 		#ifdef ENABLE_DEBUG_DRAW
 		view::DebugDraw::instance().circle2(targetState->getPosition(), static_cast<float>(0.15));
 		#endif // ENABLE_DEBUG_DRAW
