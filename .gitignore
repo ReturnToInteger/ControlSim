@@ -416,5 +416,5 @@ FodyWeavers.xsd
 # Class diagrams
 *.cd
 
-/external/
+/out/
 imgui.ini

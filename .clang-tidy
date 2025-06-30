@@ -1,2 +1,2 @@
----
-HeaderFilterRegex: '^(?!.*imgui).*'
+Checks: 'clang-analyzer-*,cppcoreguidelines-*,modernize-*,performance-*,readability-*,bugprone-*'
+HeaderFilterRegex: '^src/'

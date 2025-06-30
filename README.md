@@ -18,7 +18,7 @@ This project started as a Formula Student Car simulation in MATLAB. I revisited 
 
 - Visual Studio
  > Tested on Visual Studio 2022; older versions should work if they support C++17.  
-- C++17
+- C++23
 - SFML 2.6.2 (needed if you want graphics)
 - ImGui 1.89.9
 - Imgui-SFML 2.6.x
@@ -39,19 +39,9 @@ Open the .sln file in Visual Studio and follow the setup instructions below.
 
 ## How to Run / Setup
 1. **MATLAB support (optional):**  
-   - Add MATLAB’s `extern\include` and `extern\lib\<YOUR_OP_SYSTEM>` header folders to your project include paths.  (Already set up for some common install paths)
-   - Add the MATLAB `bin` folder to your system `PATH`.  
-   - Matlab libraries needed are already set up.
-2. **SFML setup:**  
-   - Install SFML and add its `include` and `lib` folders to your project settings.  (Set up for `C:\Libraries\SFML\`)
-   - Copy SFML DLLs to your build output folder or add their location to `PATH`.
-3. **IMGUI with SFML**
-   - Follow the instructions here: https://github.com/SFML/imgui-sfml/tree/2.6.x
-3. **Build and Run:**  
-   - Open the `.sln` file in Visual Studio.  
-   - Build the project (Debug or Release).  
-   - Run the executable.
-
+   - Set your MATLAB install path in CMake
+2. **Setup:**
+   - CMake fetches the correct branch of SFML, ImGui, and ImGui-SFML upon loading
 
 ## MATLAB Support
 
@@ -59,10 +49,8 @@ By default, the project includes support for reading `.mat` files using `MatlabM
 
 If you don't have MATLAB installed or don't need this feature:
 
-1. Open the project in Visual Studio.
-2. Right-click `MatlabMapReader.cpp` → **Properties**.
-3. Set **Excluded From Build** to `Yes` (for both Debug and Release).
-4. In `ControlSim.cpp` switch to `ManualMapReader` or another map reader class.
+1. inside `src/model/CMakeLists.txt`, uncomment the `list(...)` command
+2. In `ControlSim.cpp` switch to `ManualMapReader` or another map reader class.
 
 ## Extending the App
 
