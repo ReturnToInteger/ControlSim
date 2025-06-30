@@ -55,7 +55,7 @@ namespace model {
 	// I need to move logic
 	VehicleState const* model::PurePursuitControl::_getAtRange(model::Pose const& vehiclePose, Path const& path) const
 	{
-		if (path.size()<2) throw std::out_of_range::out_of_range("Path range has to be at least 2");
+		if (path.size()<2) throw std::out_of_range("Path range has to be at least 2");
 		//double maxDelta = (path[0].getRearPose() - path[1].getRearPose()).magnitude() / 2.0;
 		double radius = (path[0].getRearPose() - path[1].getRearPose()).magnitude() * _lookAhead;
 		double maxDelta = (path[0].getRearPose() - path.back().getRearPose()).magnitude()*2;
