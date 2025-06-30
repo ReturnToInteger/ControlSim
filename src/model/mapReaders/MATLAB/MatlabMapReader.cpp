@@ -12,8 +12,7 @@ namespace model {
 
     std::vector<model::Cone> model::MatlabMapReader::Read()
     {
-        MATFile* pmat;
-        mxArray* ConePosXLft, * ConePosYLft, * ConePosXRgt, * ConePosYRgt, * radius;
+        mxArray* ConePosXLft, * ConePosYLft, * ConePosXRgt, * ConePosYRgt/*, * radius*/;
         //const char* file = "TestTrack.mat";
 
 
@@ -22,7 +21,7 @@ namespace model {
         /*
          * Open file
          */
-        pmat = matOpen(_filePath, "r");
+        MATFile* pmat = matOpen(_filePath, "r");
         if (pmat == nullptr) {
             throw std::ios_base::failure("Could not open file: " + std::string(_filePath));
         }
@@ -31,28 +30,28 @@ namespace model {
          * Read in each array
          */
         ConePosXLft = matGetVariable(pmat, "ConePosXLft");
-        if (ConePosXLft == NULL) {
+        if (ConePosXLft == nullptr) {
             throw std::runtime_error("Error reading variable\n");
         }
         if (!mxIsNumeric(ConePosXLft)) {
             throw std::invalid_argument("ConePos must be numeric");
         }
         ConePosYLft = matGetVariable(pmat, "ConePosYLft");
-        if (ConePosYLft == NULL) {
+        if (ConePosYLft == nullptr) {
             throw std::runtime_error("Error reading variable\n");
         }
         if (!mxIsNumeric(ConePosYLft)) {
             throw std::invalid_argument("ConePos must be numeric");
         }
         ConePosXRgt = matGetVariable(pmat, "ConePosXRgt");
-        if (ConePosXRgt == NULL) {
+        if (ConePosXRgt == nullptr) {
             throw std::runtime_error("Error reading variable\n");
         }
         if (!mxIsNumeric(ConePosXRgt)) {
             throw std::invalid_argument("ConePos must be numeric");
         }
         ConePosYRgt = matGetVariable(pmat, "ConePosYRgt");
-        if (ConePosYRgt == NULL) {
+        if (ConePosYRgt == nullptr) {
             throw std::runtime_error("Error reading variable\n");
         }
         if (!mxIsNumeric(ConePosYRgt)) {

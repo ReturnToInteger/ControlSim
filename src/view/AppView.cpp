@@ -1,8 +1,8 @@
 #include "AppView.h" 
 #include <cassert>
 #include "model/items/Item.h"
-#include "imgui.h"
-#include "imgui-sfml.h"
+//#include "imgui.h"
+//#include "imgui-sfml.h"
 #ifdef ENABLE_DEBUG_DRAW
 #include "DebugDraw.h"
 #endif // ENABLE_DEBUG_DRAW
@@ -13,7 +13,8 @@ namespace view {
 		: _videoWidth(1600),
 		_videoHeight(900),
 		_frameRate(144),
-		_zoom(1.0/8.0)
+		_zoom(1.0/8.0),
+		_lastX(-1)
 	{
 	}
 
@@ -22,6 +23,7 @@ namespace view {
 		_videoHeight(900),
 		_frameRate(144),
 		_zoom(1.0/8.0), 
+		_lastX(-1),
 		_vehicleView(vehicle)
 	{
 		_coneViews.reserve(map.size());

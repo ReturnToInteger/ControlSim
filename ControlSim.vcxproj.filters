@@ -37,12 +37,11 @@
     <ClCompile Include="src\model\utils\Point.cpp" />
     <ClCompile Include="src\model\mapReaders\MATLAB\MatlabMapReader.cpp" />
     <ClCompile Include="src\model\events\InputEventPublisher.cpp" />
-    <ClCompile Include="external\imgui\imgui.cpp" />
-    <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\imgui\imgui-SFML.cpp" />
+    <ClCompile Include="external\imgui\imgui.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\model\items\Cone.h">
@@ -97,15 +96,12 @@
     <ClInclude Include="src\model\events\InputEventPublisher.h" />
     <ClInclude Include="src\model\events\InputEventHandler.h" />
     <ClInclude Include="src\view\DebugDraw.h" />
-    <ClInclude Include="external\imgui\imconfig.h" />
     <ClInclude Include="external\imgui\imconfig-SFML.h" />
-    <ClInclude Include="external\imgui\imgui.h" />
     <ClInclude Include="external\imgui\imgui_internal.h" />
     <ClInclude Include="external\imgui\imgui-SFML.h" />
     <ClInclude Include="external\imgui\imgui-SFML_export.h" />
-    <ClInclude Include="external\imgui\imstb_rectpack.h" />
-    <ClInclude Include="external\imgui\imstb_textedit.h" />
-    <ClInclude Include="external\imgui\imstb_truetype.h" />
+    <ClInclude Include="external\imgui\imgui.h" />
+    <ClInclude Include="external\imgui\imconfig.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

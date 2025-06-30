@@ -5,9 +5,9 @@
 namespace view {
     class ItemView : public sf::Drawable {
     public:
-        ~ItemView() = default;
+        ~ItemView() override = default;
 		ItemView(sf::Color color = sf::Color::Black) : _color(color) {}
-        virtual sf::Vector2f getPosition() const = 0;
+        [[nodiscard]] virtual sf::Vector2f getPosition() const = 0;
         bool isDetected=false;
         //virtual const model::Item* getItem() const = 0;
 

@@ -15,7 +15,7 @@
 namespace model {
 	class Cone;
 	namespace pathPlanning {
-		enum class SteeringMode
+		enum class SteeringMode : std::uint8_t
 		{
 			LOW,
 			MEDIUM,
@@ -23,7 +23,7 @@ namespace model {
 			SQUARED
 		}; 
 
-		enum class Waypoints 
+		enum class Waypoints : std::uint8_t
 		{
 			SINGLE,
 			DOUBLE
@@ -44,6 +44,7 @@ namespace model {
 		// --- higher density near smaller angles: SQUARED
 		// Waypoints: SINGLE - single goal planning. DOUBLE - goal + waypoint planning. WARNING: Not tested in SINGLE mode currently
 		// maxContainerSize: limit the visited and unvisited nodes
+		static constexpr int defaultContainerSize = 200;
 		struct PlannerConfig {
 			double cellSize;
 			double stepSize;
@@ -51,7 +52,7 @@ namespace model {
 			SteeringMode steeringMode;
 			// Not tested in SINGLE mode currently
 			Waypoints waypoints;
-			int maxContainerSize = 200;
+			int maxContainerSize = defaultContainerSize;
 		};
 
 		class PathPlanner
@@ -61,10 +62,10 @@ namespace model {
 			bool planPath(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& vehicleState);
 			//Sets planned path based on current node
 			void setPlannedPath();
-			Path getPlannedPath() const;
+			[[nodiscard]] Path getPlannedPath() const;
 			void setGoal(Point const& goal);
 			void clear();
-			double getCellSize() const { return _cellSize; }
+			[[nodiscard]] double getCellSize() const { return _cellSize; }
 
 
 		private:
@@ -72,17 +73,17 @@ namespace model {
 			std::unordered_map<std::tuple<int, int, int,int>, PathNode> _openList;
 			std::priority_queue<PQNode,
 				std::vector<PQNode>,
-				std::greater<PQNode>> _openQueue;
+				std::greater<>> _openQueue;
 			std::unordered_set<std::tuple<int, int, int,int>> _closedList;
 			#ifdef ENABLE_DEBUG_DRAW
 			std::unordered_set<std::tuple<int, int, int,int>> _collidingList;
 			#endif // ENABLE_DEBUG_DRAW
 			Path _plannedPath;
-			const int _angleBins;
-			const double _stepSize;
-			const double _cellSize;
+			int _angleBins;
+			double _stepSize;
+			double _cellSize;
 			const double* _steeringInputs;
-			const int _maxContainerSize;
+			int _maxContainerSize;
 			size_t _anglesSize;
 
 			FixSizedQueue<Point> _goals;
@@ -92,14 +93,14 @@ namespace model {
 			void _selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
 			void _updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage);
 			VehicleState _stepByDistance(VehicleState const& state, double distance, double steeringInput);
-			std::tuple<int, int, int,int> _discretizePoint(model::Pose const& pose, int stage) const;
+			[[nodiscard]] std::tuple<int, int, int,int> _discretizePoint(model::Pose const& pose, int stage) const;
 			// Returns if it collides with 100% accuracy, and vehicle pose
 			// More computationally expensive
-			std::pair<bool, model::Pose> _detectCollision(VehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const;
+			[[nodiscard]] std::pair<bool, model::Pose> _detectCollision(VehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const;
 
 			// Simple collision detection that uses vehicle width
 			// Less computationally expensive
-			std::pair<bool, model::Pose> _lazyDetectCollision(VehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const;
+			[[nodiscard]] std::pair<bool, model::Pose> _lazyDetectCollision(VehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const;
 
 			//		Detect collision between a node and one step away by interpolating
 			// Returns the first collision if it happens, and the vehicle's pose
@@ -109,8 +110,8 @@ namespace model {
 			PathNode _createNewNode(PathNode const& node, double steeringInput, int stage);
 			void _processValidNode(PathNode & node, std::tuple<int, int, int,int> const& key, int stage);
 			
-			std::vector<model::Point> _getBoundary(VehicleState const& state) const;
-			Point _rotatePoint(model::Point const& point, Angle const& angle) const;
+			[[nodiscard]] std::vector<model::Point> _getBoundary(VehicleState const& state) const;
+			[[nodiscard]] Point _rotatePoint(model::Point const& point, Angle const& angle) const;
 			// Dubins
 			double _getHeuristics(model::VehicleState const& start, model::Point const& goal);
 			// Eucledian only
@@ -121,8 +122,8 @@ namespace model {
 			// gets position-orientation pairs until new position is reached
 			std::vector<model::VehicleState> _stepUntilNew(VehicleState const& state, double distanceStep);
 
-			bool _isAtGoal(const model::VehicleState& state, int index) const;
-			bool _hasMoreNodes() const; 
+			[[nodiscard]] bool _isAtGoal(const model::VehicleState& state, int index) const;
+			[[nodiscard]] bool _hasMoreNodes() const;
 			PQNode _popAndCloseNextNode();
 
 			

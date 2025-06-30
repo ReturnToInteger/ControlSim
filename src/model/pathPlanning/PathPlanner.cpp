@@ -70,7 +70,7 @@ namespace model {
 				PQNode top = _popAndCloseNextNode();
 
 				auto it = _openList.find(top.key);
-				if (it == _openList.end()|| top.fCost > it->second.fCost + 1e-8) 
+				if (it == _openList.end()|| top.fCost > it->second.fCost + 1e-8)
 					continue; // stale node
 
 				// Set the current node
@@ -433,7 +433,7 @@ namespace model {
 			PQTemp.reserve(_maxContainerSize);
 			_openQueue = std::priority_queue<PQNode,
 				std::vector<PQNode>,
-				std::greater<PQNode>>(std::greater<PQNode>(), std::move(PQTemp));
+				std::greater<>>(std::greater<>(), std::move(PQTemp));
 			_closedList.clear();
 			_openList.reserve(_maxContainerSize);
 			_closedList.reserve(_maxContainerSize);

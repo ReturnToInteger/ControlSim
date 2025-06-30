@@ -2,10 +2,10 @@
 //#include "model/mapReaders/ManualMapReader.h"
 //#include "model/items/Cone.h"
 #define STRINGIZE_DETAIL(x) #x
-#define _STRINGIZE(x) STRINGIZE_DETAIL(x)
+#define STRINGIZE(x) STRINGIZE_DETAIL(x)
 
 
-#pragma message("_HAS_ITERATOR_DEBUGGING=" _STRINGIZE(_HAS_ITERATOR_DEBUGGING))
+#pragma message("_HAS_ITERATOR_DEBUGGING=" STRINGIZE(_HAS_ITERATOR_DEBUGGING))
 
 
 #include "model/Vehicle.h"
@@ -16,16 +16,18 @@
 #include "controller/KeyboardControl.h"
 #include "model/controllerLogic/PurePursuitControl.h"
 #include "model/pathPlanning/PathPlanner.h"
-double Mod(double a, double b) {
+static double Mod(double a, double b) {
 	return std::fmod(std::fmod(a, b) + b, b);
 }
 
 int main() {
-	std::cout << "Size of PathNode: " << sizeof(model::PathNode) << std::endl;
-	model::pathPlanning::PlannerConfig plannerConfig={ 
-		0.2,
-		1.5,
-		20,
+	const double cellSize = 0.2;
+	const double stepSize = 1.5;
+	const int angleBins = 20;
+	model::pathPlanning::PlannerConfig plannerConfig{ 
+		cellSize,
+		stepSize,
+		angleBins,
 		model::pathPlanning::SteeringMode::MEDIUM, 
 		model::pathPlanning::Waypoints::DOUBLE
 	};

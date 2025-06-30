@@ -9,7 +9,7 @@ namespace view
         public ItemView
     {
 	public:
-		PathView() = default;
+		PathView() :_path(nullptr){};
 		PathView(model::Path const& path, sf::Color color = {150,150,150});
 		~PathView() = default;
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
