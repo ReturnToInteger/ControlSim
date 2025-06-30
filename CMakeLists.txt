@@ -45,12 +45,15 @@ target_link_libraries(${PROJECT_NAME}  PRIVATE
   "${MATLAB_LIB_DIRS}/libmat.lib"  
   "${MATLAB_LIB_DIRS}/libmx.lib"  
 )
-target_compile_options(${PROJECT_NAME} PRIVATE /EHsc)
 
-# Enable clang-tidy on myapp
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    CXX_CLANG_TIDY "clang-tidy;--extra-arg=/EHsc;-checks=clang-analyzer-*,modernize-*"
-)
+# Enable clang-tidy
+option(ENABLE_CLANG_TIDY "Enable clang-tidy checks" OFF)
+
+if(ENABLE_CLANG_TIDY)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        CXX_CLANG_TIDY "clang-tidy;--extra-arg=/EHsc;-checks=clang-analyzer-*,modernize-*"
+    )
+endif()
 
 
 # Copy media files to binary directory
