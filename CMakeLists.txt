@@ -47,11 +47,18 @@ target_link_libraries(${PROJECT_NAME}  PRIVATE
 )
 
 # Enable clang-tidy
-option(ENABLE_CLANG_TIDY "Enable clang-tidy checks" ON)
+option(ENABLE_CLANG_TIDY "Enable clang-tidy checks" OFF)
 
 if(ENABLE_CLANG_TIDY)
     set_target_properties(${PROJECT_NAME} PROPERTIES
-        CXX_CLANG_TIDY "clang-tidy;--extra-arg=/EHsc;-checks=clang-analyzer-*,modernize-*,-readability-math-missing-parentheses,-modernize-use-trailing-return-type"
+        CXX_CLANG_TIDY "clang-tidy;--extra-arg=/EHsc;-checks=clang-analyzer-*,
+            cppcoreguidelines-*,
+            modernize-*,
+            performance-*,
+            readability-*,
+            bugprone-*,
+            -readability-math-missing-parentheses,
+            -modernize-use-trailing-return-type"
     )
 endif()
 
