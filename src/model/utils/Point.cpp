@@ -37,11 +37,11 @@ namespace model
 
 	Point Point::operator+(Point const& other) const
 	{
-		return Point(X() + other.X(), Y() + other.Y());
+		return { X() + other.X(), Y() + other.Y() };
 	}
 	Point Point::operator-(Point const& other) const
 	{
-		return Point(X() - other.X(), Y() - other.Y());
+		return { X() - other.X(), Y() - other.Y() };
 	}
 	double Point::operator*(Point const& other) const
 	{
@@ -50,12 +50,12 @@ namespace model
 
 	Point Point::operator*(double const& scale) const
 	{
-		return Point(X() * scale, Y() * scale);
+		return { X() * scale, Y() * scale };
 	}
 
 	Point Point::operator/(double const& scale) const
 	{
-		return Point(X() / scale, Y() / scale);
+		return { X() / scale, Y() / scale };
 	}
 
 	Point& Point::operator+=(Point const& other)
@@ -77,7 +77,7 @@ namespace model
 
 	std::ostream& operator<<(std::ostream& os, Point const& point)
 	{
-		os <<std::endl<< "x: " << point._x<<std::endl<<"y: "<<point._y; 
+		os <<"\n"<< "x: " << point._x<<"\n"<<"y: "<<point._y; 
 		return os;
 	}
 

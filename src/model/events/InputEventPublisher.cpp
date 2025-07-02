@@ -9,7 +9,7 @@ void model::events::InputEventPublisher::_notify(std::string const& src, model::
 			++it;
 		}
 		else {
-			std::cout << "Event not found." << std::endl;
+			std::cout << "Event not found.\n";
 			it = _eventHandlers.erase(it);  // erase returns the next iterator
 		}
 	}

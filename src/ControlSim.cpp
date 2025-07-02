@@ -1,11 +1,6 @@
 
 //#include "model/mapReaders/ManualMapReader.h"
 //#include "model/items/Cone.h"
-#define STRINGIZE_DETAIL(x) #x
-#define STRINGIZE(x) STRINGIZE_DETAIL(x)
-
-
-#pragma message("_HAS_ITERATOR_DEBUGGING=" STRINGIZE(_HAS_ITERATOR_DEBUGGING))
 
 
 #include "model/Vehicle.h"
@@ -24,12 +19,12 @@ int main() {
 	const double cellSize = 0.2;
 	const double stepSize = 1.5;
 	const int angleBins = 20;
-	model::pathPlanning::PlannerConfig plannerConfig{ 
-		cellSize,
-		stepSize,
-		angleBins,
-		model::pathPlanning::SteeringMode::MEDIUM, 
-		model::pathPlanning::Waypoints::DOUBLE
+	model::pathPlanning::PlannerConfig plannerConfig{
+		.cellSize = cellSize,
+		.stepSize = stepSize,
+		.angleBins = angleBins,
+		.steeringMode = model::pathPlanning::SteeringMode::MEDIUM,
+		.waypoints = model::pathPlanning::Waypoints::DOUBLE
 	};
 	
 	controller::App app(

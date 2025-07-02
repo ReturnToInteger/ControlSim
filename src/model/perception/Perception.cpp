@@ -16,7 +16,7 @@ model::Perception::Perception(std::vector<model::Cone> const& cones, Angle _view
 std::unordered_set<model::Cone const*> model::Perception::detect(model::Pose const& pose)
 {
 	std::unordered_set<const model::Cone*> detectedCones;
-	for (auto& cone : _cones) {
+	for (const auto& cone : _cones) {
 		model::Point relativePos(cone.getPosition().X()- pose.x, cone.getPosition().Y()-pose.y);
 		if (relativePos.magnitude() <= _depth) {
 			Angle angle= std::atan2(relativePos.Y(), relativePos.X());
@@ -29,7 +29,7 @@ std::unordered_set<model::Cone const*> model::Perception::detect(model::Pose con
 	}
 #ifdef ENABLE_DEBUG_DRAW
 	std::vector<model::Point> debugDraw;
-	debugDraw.emplace_back(Point(pose));
+	debugDraw.emplace_back(pose);
 	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta + _viewAngle / 2) * _depth, sin(pose.theta + _viewAngle / 2) * _depth));
 	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta + _viewAngle * 5 / 12) * _depth, sin(pose.theta + _viewAngle * 5 / 12) * _depth));
 	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta + _viewAngle / 3) * _depth, sin(pose.theta + _viewAngle / 3) * _depth));
@@ -43,7 +43,7 @@ std::unordered_set<model::Cone const*> model::Perception::detect(model::Pose con
 	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta - _viewAngle / 3) * _depth, sin(pose.theta - _viewAngle / 3) * _depth));
 	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta - _viewAngle * 5 / 12) * _depth, sin(pose.theta - _viewAngle * 5 / 12) * _depth));
 	debugDraw.emplace_back(Point(pose) + Point(cos(pose.theta - _viewAngle / 2) * _depth, sin(pose.theta - _viewAngle / 2) * _depth));
-	debugDraw.emplace_back(Point(pose));
+	debugDraw.emplace_back(pose);
 	view::DebugDraw::instance().lineStrip(debugDraw);
 #endif // ENABLE_DEBUG_DRAW
 

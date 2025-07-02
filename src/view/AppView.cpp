@@ -10,25 +10,29 @@
 
 namespace view {
 	AppView::AppView()
-		: _videoWidth(1600),
-		_videoHeight(900),
-		_frameRate(144),
-		_zoom(1.0/8.0),
-		_lastX(-1)
+		: _videoWidth(DefaultAppViewConfig::width),
+		_videoHeight(DefaultAppViewConfig::height),
+		_frameRate(DefaultAppViewConfig::frameRate),
+		_zoom(DefaultAppViewConfig::zoom),
+		_lastX(-1),
+		_gridZoomLimit(defaultGridZoomLimit),
+		_cellSize(0)
 	{
 	}
 
 	AppView::AppView(model::Vehicle const& vehicle, std::vector<model::Cone> const& map)
-		: _videoWidth(1600),
-		_videoHeight(900),
-		_frameRate(144),
-		_zoom(1.0/8.0), 
+		: _videoWidth(DefaultAppViewConfig::width),
+		_videoHeight(DefaultAppViewConfig::height),
+		_frameRate(DefaultAppViewConfig::frameRate),
+		_zoom(DefaultAppViewConfig::zoom),
 		_lastX(-1),
-		_vehicleView(vehicle)
+		_vehicleView(vehicle),
+		_gridZoomLimit(defaultGridZoomLimit),
+		_cellSize(0)
 	{
 		_coneViews.reserve(map.size());
-		for (auto& cone : map) {
-			_coneViews.emplace_back(ConeView(cone));
+		for (const auto& cone : map) {
+			_coneViews.emplace_back(cone);
 			_itemViewTable.emplace(&cone, &_coneViews.back());
 		}
 
@@ -46,7 +50,7 @@ namespace view {
 
 	void AppView::render()
 	{
-		_setupGrid();
+		_setupGrid(_gridZoomLimit);
 		_window.clear(sf::Color::Black);
 		_view.setCenter(_vehicleView.getPosition());
 		_window.setView(_view);
@@ -76,8 +80,10 @@ namespace view {
 	{
 		sf::Event event;
 		while (_window.pollEvent(event)){
-			if (event.type == sf::Event::Closed)
-				_window.close(); 
+			if (event.type == sf::Event::Closed) 
+			{
+				_window.close();
+			}
 			else if (event.type == sf::Event::Resized)
 			{
 				// update the view to the new size of the window
@@ -94,23 +100,29 @@ namespace view {
 			{
 				model::events::InputEvent e = _translateEventToInput(event);
 				if (!std::holds_alternative<model::events::None>(e))
+				{
 					_notify("AppView", e);
+				}
 			}
 
 		}
 
 		// Poll keys not in event
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) 
+		{
 			sf::Vector2i pixelPos = sf::Mouse::getPosition(_window);
-			if (_lastX < 0) {
+			if (_lastX < 0) 
+			{
 				_lastX = pixelPos.x;
 			}
 
-			_notify("AppView", model::events::RightClickDown{ _lastX,(double)pixelPos.x });
+			_notify("AppView", model::events::RightClickDown{ .lastX= _lastX,.currentX= (double)pixelPos.x });
 			_lastX = pixelPos.x;
 		}
 		else 
+		{
 			_lastX = -1;
+		}
 	}
 
 	bool AppView::isOpen() const
@@ -155,7 +167,7 @@ namespace view {
 		// TODO: Delete from itemViewTable
 		_pathViews.clear();
 		if (pathVector.empty()) {
-			_pathViews.push_back(PathView());
+			_pathViews.emplace_back();
 			return;
 		}
 		for (auto const& path : pathVector) {
@@ -166,7 +178,7 @@ namespace view {
 
 	}
 
-	void AppView::setConeDetectedFlag(std::unordered_set<const model::Cone*> detectedCones)
+	void AppView::setConeDetectedFlag(const std::unordered_set<const model::Cone*>& detectedCones)
 	{
 		for (auto& coneView : _coneViews) {
 			coneView.isDetected = false;
@@ -179,7 +191,7 @@ namespace view {
 	void AppView::zoom(double factor)
 	{
 		_zoom = _zoom * factor;
-		//std::cout << delta << std::endl;
+		//std::cout << delta << "\n";
 		_view.zoom(static_cast<float>(factor));
 
 	}
@@ -189,11 +201,11 @@ namespace view {
 		_view.rotate(static_cast<float>(delta));
 	}
 
-	void AppView::_setupGrid()
+	void AppView::_setupGrid(double limit)
 	{
 		sf::Vector2f topLeft(_window.mapPixelToCoords({ 0,0 }));
-		sf::Vector2f bottomRight(_window.mapPixelToCoords({ _videoWidth,_videoHeight }));
-		if (_cellSize / _zoom < 10.0) {
+		sf::Vector2f bottomRight(_window.mapPixelToCoords(sf::Vector2i( (int)_videoWidth,(int)_videoHeight )));
+		if (_cellSize / _zoom < limit) {
 			_gridLines.clear();
 			return;
 		}
@@ -206,19 +218,19 @@ namespace view {
 
 		sf::VertexArray lines(sf::Lines);
 
-		sf::Color lineColor(80, 80, 80); // subtle gray
+		sf::Color lineColor(80, 80, 80); // subtle gray, TO DO: gridView class
 
 
 		// vertical lines
 		for (int x = startX; x <= endX; ++x) {
-			float px = static_cast<float>(x * cellSize);
+			auto px = static_cast<float>(x * cellSize);
 			lines.append(sf::Vertex(sf::Vector2f(px, static_cast<float>(startY * cellSize)), lineColor));
 			lines.append(sf::Vertex(sf::Vector2f(px, static_cast<float>(endY * cellSize)), lineColor));
 		}
 
 		// horizontal lines
 		for (int y = startY; y <= endY; ++y) {
-			float py = static_cast<float>(y * cellSize);
+			auto py = static_cast<float>(y * cellSize);
 			lines.append(sf::Vertex(sf::Vector2f(static_cast<float>(startX * cellSize), py), lineColor));
 			lines.append(sf::Vertex(sf::Vector2f(static_cast<float>(endX * cellSize), py), lineColor));
 		}
@@ -233,9 +245,12 @@ namespace view {
 	model::events::InputEvent view::AppView::_translateEventToInput(sf::Event event)
 	{
 
-		if (event.type == sf::Event::KeyPressed) {
+		if (event.type == sf::Event::KeyPressed) 
+		{
 			if (event.key.code == sf::Keyboard::Escape)
+			{
 				return model::events::PressedEsc();
+			}
 				//_window.close();
 			if (event.key.code == sf::Keyboard::LShift) {
 				//// Wait until released
@@ -252,11 +267,11 @@ namespace view {
 
 				sf::Vector2f worldPos = _window.mapPixelToCoords(pixelPos);
 
-				//std::cout << "Map coords (on button press):" << std::endl;
-				//std::cout << "map x: " << worldPos.x << std::endl;
-				//std::cout << "map y: " << worldPos.y << std::endl;
+				//std::cout << "Map coords (on button press):\n";
+				//std::cout << "map x: " << worldPos.x << "\n";
+				//std::cout << "map y: " << worldPos.y << "\n";
 				//_clickGlobalPos = model::Point(worldPos.x, worldPos.y);
-				return model::events::ClickedAt{ (double)worldPos.x, (double)worldPos.y };
+				return model::events::ClickedAt{ .x = (double)worldPos.x, .y = (double)worldPos.y };
 			}
 		}
 		if (event.type == sf::Event::MouseWheelMoved)

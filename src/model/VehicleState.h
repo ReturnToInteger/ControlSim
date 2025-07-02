@@ -7,23 +7,24 @@
 #include "model/utils/Angle.h"
 #include "model/utils/ModelUtils.h"
 #include "controllerLogic/ControlCommand.h"
+#include <numbers>
 
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846 
-#endif
 
 namespace model
 {
 	class VehicleState
 	{
 	public:
+        struct DefaultStartingPosition {
+            static constexpr double x = -35;
+            static constexpr double y = 30;
+        };
         struct DefaultConstraints {
             static constexpr double length = 3.0;  
             static constexpr double wheelBase = 2.5;  
             static constexpr double width = 1.3;  
-            static constexpr double maxSteeringAngle = M_PI / 6.0;  
-            static constexpr double maxSteeringRate = M_PI / 3.0;  
+            static constexpr double maxSteeringAngle = std::numbers::pi / 6.0;  
+            static constexpr double maxSteeringRate = std::numbers::pi / 3.0;  
             static constexpr double maxSpeed = 10.0;  
             static constexpr double maxAcceleration = 3.0;  
             static constexpr double maxBrake = 10.0;  

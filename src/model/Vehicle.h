@@ -10,10 +10,7 @@
 #include "model/pathPlanning/PathPlanner.h"
 #include "model/perception/Perception.h"
 #include "model/controllerLogic/IControllerLogic.h"
-
-#ifndef M_PI  
-#define M_PI 3.14159265358979323846 // Define M_PI if not already defined  
-#endif
+#include <numbers>
 
 namespace model { 
 	
@@ -54,7 +51,7 @@ namespace model {
 		void clearPath(int i);
 		double getCellSize(int i=0) const;
 		void addPlanner();
-
+		static constexpr std::size_t maxHistorySize = 5;
 
 		~Vehicle();  
 

@@ -1,10 +1,7 @@
 #pragma once
 #include <cmath>
 #include <ostream>
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
+#include <numbers>
 namespace model {
     double normAngle(double const& orientation);
 
@@ -26,7 +23,7 @@ namespace model {
         }
         double asDegrees() const 
         {
-            return _a / M_PI * 180;;
+            return _a / std::numbers::pi * 180;;
         }
 
         // Arithmetic operators
@@ -113,7 +110,7 @@ namespace model {
     inline double tan(Angle const& a) { return std::tan(a.asRadians()); }
     inline double radian(Angle const& a) { return a.asRadians(); }
     inline double degree(Angle const& a) { return a.asDegrees(); }
-    inline Angle radian(double const& d) { return d/180.0*M_PI; }
+    inline Angle radian(double const& d) { return d/180.0*std::numbers::pi; }
     inline Angle clampRelativeToZero(Angle const& angle, Angle const& maxAbs) 
     {
         double val = angle.asRadians();

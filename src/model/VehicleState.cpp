@@ -1,14 +1,13 @@
-#pragma once
 #include "VehicleState.h"
 #include <cmath>
 #include <iostream>
 
 namespace model
 {
-	VehicleState::VehicleState() : _constraints(),
-		_frontPose(-35+ DefaultConstraints::wheelBase / 2, 30,0),
-		_centerPose( -35,30,0),
-		_rearPose(-35 - DefaultConstraints::wheelBase / 2, 30,0),
+	VehicleState::VehicleState() : 
+		_frontPose(DefaultStartingPosition::x+ DefaultConstraints::wheelBase / 2, DefaultStartingPosition::y,0),
+		_centerPose(DefaultStartingPosition::x, DefaultStartingPosition::y,0),
+		_rearPose(DefaultStartingPosition::x - DefaultConstraints::wheelBase / 2, DefaultStartingPosition::y,0),
 		_centerTwist(0,0,0),
 		_speed(0),
 		_steeringAngle(0),
@@ -71,7 +70,7 @@ namespace model
 
 	void VehicleState::_updateCoords(double speed, double dt)
 	{
-		//Angle beta(M_PI/2);
+		//Angle beta(std::numbers::pi/2);
 		Angle slip = atan(tan(_steeringAngle) / 2);
 		_updateCenter(speed, dt, slip);
 		_updateFront(dt, slip);
@@ -107,19 +106,19 @@ namespace model
 	void VehicleState::_setSteeringAngle(Angle angle)
 	{
 		_steeringAngle = clampRelativeToZero(angle, _constraints.maxSteeringAngle);
-		//std::cout << "steering angle: " << _steeringAngle << std::endl;
+		//std::cout << "steering angle: " << _steeringAngle << "\n";
 	}
 
 	void VehicleState::_setSteeringRate(double rate)
 	{
 		_steeringRate = clamp(rate, -_constraints.maxSteeringRate, _constraints.maxSteeringRate);
-		//std::cout << "steering rate: " << _steeringRate << std::endl;
+		//std::cout << "steering rate: " << _steeringRate << "\n";
 	}
 
 	void VehicleState::_setSpeed(double speed)
 	{
 		_speed = clamp(speed, -_constraints.maxSpeed, _constraints.maxSpeed);
-		//std::cout << "speed: " << _speed << std::endl;
+		//std::cout << "speed: " << _speed << "\n";
 	}
 
 	void VehicleState::_setAcceleration(double acceleration, double brake)
@@ -133,7 +132,7 @@ namespace model
 		else if (_speed < 0) {
 			_acceleration += brake;
 		}
-		//std::cout << "acceleration: " << _acceleration << std::endl;
+		//std::cout << "acceleration: " << _acceleration << "\n";
 		/* if (_speed == 0)
 		{
 			_acceleration = ;

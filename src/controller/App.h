@@ -30,14 +30,14 @@ namespace controller {
 	using model::events::InputEvent;
 	using namespace model;
 	struct InputTranslate {
-		void operator()(events::PressedEsc const&) { std::cout << "Pressed ESC." << std::endl; }
-		void operator()(events::PressedLShift const&) {std::cout << "Pressed LShift." << std::endl; }
-		void operator()(events::Scrolled const& i) {std::cout << "zoom: " << i.delta << std::endl; }
-		void operator()(events::ClickedAt const& i) {std::cout << "Clicked at :" << i.x << "; " << i.y << std::endl; }
-		void operator()(events::Resized const&) {std::cout << "Resized." << std::endl; }
-		void operator()(events::LostFocus const&) {std::cout << "Lost Focus." << std::endl; }
-		void operator()(events::GainedFocus const&) { std::cout << "Gained Focus." << std::endl; }
-		void operator()(events::RightClickDown const& c) { std::cout << "Right Click Down: " <<c.lastX<<"; "<<c.currentX << std::endl; }
+		void operator()(events::PressedEsc const&) { std::cout << "Pressed ESC.\n"; }
+		void operator()(events::PressedLShift const&) {std::cout << "Pressed LShift.\n"; }
+		void operator()(events::Scrolled const& i) {std::cout << "zoom: " << i.delta << "\n"; }
+		void operator()(events::ClickedAt const& i) {std::cout << "Clicked at :" << i.x << "; " << i.y << "\n"; }
+		void operator()(events::Resized const&) {std::cout << "Resized.\n"; }
+		void operator()(events::LostFocus const&) {std::cout << "Lost Focus.\n"; }
+		void operator()(events::GainedFocus const&) { std::cout << "Gained Focus.\n"; }
+		void operator()(events::RightClickDown const& c) { std::cout << "Right Click Down: " <<c.lastX<<"; "<<c.currentX << "\n"; }
 		void operator()(events::None const&) {}
 
 	};

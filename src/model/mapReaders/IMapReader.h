@@ -10,6 +10,7 @@ namespace model
 		virtual ~IMapReader() = default;
 		// Read the map
 		virtual std::vector<Cone> Read() = 0;
+		static constexpr double defaultRadius = 0.15;
 	protected:
 	};
 }

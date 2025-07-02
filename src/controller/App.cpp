@@ -14,6 +14,10 @@
 #include "model/utils/FixSizedQueue.h"
 #include <windows.h>
 #include <string>
+#include <numbers>
+#include <algorithm>
+#include <ranges>
+
 
 #ifdef ENABLE_DEBUG_DRAW
 #include <view/DebugDraw.h>
@@ -32,14 +36,18 @@ namespace controller {
 		_view(std::move(view)),
 		_threadCount(threadCount),
 		_running(false),
-		_sharedGoals{ { _vehicle->getPosition(), _vehicle->getPosition() },
-			false }
+		_sharedGoals{ 
+			.goals= { _vehicle->getPosition(), _vehicle->getPosition() },
+			.goalHasChanged= false }
 	{
 		assert(_mapReader != nullptr && "Provide valid arguments.");
 		assert(_vehicle != nullptr && "Provide valid arguments.");
 		//assert(_view != nullptr && "Provide valid arguments.");
 
-		if (_view) _view->attach(this);
+		if (_view)
+		{
+			_view->attach(this);
+		}
 	}
 
 	void App::run()
@@ -49,8 +57,9 @@ namespace controller {
 		for (model::Cone const& data : obstacleData) {
 			_cones.emplace_back(data.getPosition(), data.getRadius(), data.getType());
 		}
-
-		_perception = std::make_unique<model::Perception>(_cones, radian(75), 15);
+		Angle perceptionAngle = radian(75);
+		double perceptionDistance = 15;
+		_perception = std::make_unique<model::Perception>(_cones, perceptionAngle, perceptionDistance);
 
 		double cellSize = _vehicle->getCellSize();
 		double frameTime;
@@ -61,8 +70,9 @@ namespace controller {
 			_view->setGridSize(cellSize);
 			frameTime = _view->getFrameTime();
 		}
-		else 
-			frameTime = 1.0 / 60.0;
+		else {
+			frameTime = 1.0 / 60.0; // TO DO: Make NullView
+		}
 		_running = true;
 		std::unordered_set<const model::Cone*> detectedCones = _perception->detect(_vehicle->getPose());
 		std::function<void(int)> pathPlanningLambda = [this, &detectedCones](int index) {
@@ -75,6 +85,7 @@ namespace controller {
 		double updateTime = 0;
 		SimpleTimer frameTimer;
 		int iter = 0;
+		int coneFlushIter = 60;
 		while (_view->isOpen()) {
 			double deltaTime = frameTimer.elapsedSeconds();
 			// Update the vehicle
@@ -99,14 +110,16 @@ namespace controller {
 					pathCopy=_vehicle->getPlannedPaths().get();
 				}				
 				auto currentDetected = _perception->detect(_vehicle->getPose());
-				if (iter % (60) == 0)
+				if (iter % (coneFlushIter) == 0) {
 					detectedCones.clear();
-
+				}
 				for (auto const& cone: currentDetected) {
 					detectedCones.emplace(cone);
 				}
-				bool foundCurrent1 = _calcGoal(detectedCones, _vehicle->getStateCopy(), _sharedGoals.goals[0], 10);
-				bool foundCurrent2 = _calcGoal(detectedCones, _vehicle->getStateCopy(), _sharedGoals.goals[1], 150);
+				double wayPoint1Distance = 10;
+				double wayPoint2Distance = 150;
+				bool foundCurrent1 = _calcGoal(detectedCones, _vehicle->getStateCopy(), _sharedGoals.goals[0], wayPoint1Distance);
+				bool foundCurrent2 = _calcGoal(detectedCones, _vehicle->getStateCopy(), _sharedGoals.goals[1], wayPoint2Distance);
 				if (foundCurrent1 || foundCurrent2) {
 					_sharedGoals.goalHasChanged.store(true);
 				}
@@ -119,15 +132,17 @@ namespace controller {
 				_view->render();
 			}
 			if (!_view)
+			{
 				std::this_thread::sleep_for(std::chrono::duration<double>(frameTime - deltaTime));
+			}
 			iter++;
 		}
 		_running.store(false);
 		for (auto& t : threads) {
 			t.join();
 		}
-		std::cout << "________________" << std::endl <<
-			"Main thread iterations: " << iter << std::endl;
+		std::cout << "________________\n" <<
+			"Main thread iterations: " << iter << "\n";
 	}
 
 
@@ -138,7 +153,7 @@ namespace controller {
 	// Modifies _vehicle ?
 	void App::_pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index)
 	{
-		std::cout << "Planning index is: " << index << std::endl;
+		std::cout << "Planning index is: " << index << "\n";
 
         // Convert the integer index to a wide string (PCWSTR) for SetThreadDescription
         std::wstring threadDescription = L"Thread " + std::to_wstring(index);
@@ -199,7 +214,7 @@ namespace controller {
 			#endif // ENABLE_DEBUG_DRAW
 
 			// Dealing with the current pathPlanner
-			std::chrono::duration<double> dur;
+			std::chrono::duration<double> dur{};
 			// Time path planning
 			if (_sharedGoals.goalHasChanged.load()) {
 				// Clear residual data before planning new one
@@ -209,28 +224,32 @@ namespace controller {
 					});
 				_sharedGoals.goalHasChanged.store(false);
 			}
-			else dur = std::chrono::duration<double>(0);
+			else
+			{
+				dur = std::chrono::duration<double>(0);
+			}
 			time += dur.count();
 			sortedTime.emplace_back(dur.count());
 			// Sending data back to main
 			{
 				std::lock_guard<std::mutex> lock(_simLock);
 				_vehicle->setPlannedPath(index);
-				} // End of sending data
-			double sleepDur = std::max(0.005 * _threadCount * (double)(index+1.0) / (double)_threadCount-dur.count(),0.005); // Spread out thread execution over time
+			} // End of sending data
+			double delayScnd = 0.005;
+			double sleepDur = std::max(delayScnd * _threadCount * (double)(index+1.0) / (double)_threadCount-dur.count(), delayScnd); // Spread out thread execution over time
 			std::this_thread::sleep_for(std::chrono::duration<double>(sleepDur)); // Sleep to avoid pointless CPU overload.
 			// End of dealing with the current pathPlanner
 			iter++;
 		}
-		std::sort(sortedTime.begin(), sortedTime.end());
+		std::ranges::sort(sortedTime);
 		std::lock_guard<std::mutex> lock(_pathLock);
-		std::cout << "________________" << std::endl <<
-			"THREAD ID: " << std::this_thread::get_id() << std::endl <<
-			"Avg. path planning time: " << time / iter << std::endl <<
-			"Path planning iterations: " << iter << std::endl <<
-			"Slowest: " << sortedTime.back() << std::endl <<
-			"Slowest (99th percentile): " << sortedTime[static_cast<size_t>(sortedTime.size() * 0.99)] << std::endl <<
-			"Slowest (9th percentile): " << sortedTime[static_cast<size_t>(sortedTime.size() * 0.9)] << std::endl;
+		std::cout << "________________\n" <<
+			"THREAD ID: " << std::this_thread::get_id() << "\n" <<
+			"Avg. path planning time: " << time / iter << "\n" <<
+			"Path planning iterations: " << iter << "\n" <<
+			"Slowest: " << sortedTime.back() << "\n" <<
+			"Slowest (99th percentile): " << sortedTime[static_cast<size_t>(sortedTime.size() * 99/100)] << "\n" <<
+			"Slowest (9th percentile): " << sortedTime[static_cast<size_t>(sortedTime.size() * 9/10)] << "\n";
 
 	}
 
@@ -273,26 +292,33 @@ namespace controller {
 	}
 	bool controller::App::_calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, model::Point& currentGoal, double maxDist)
 	{
-		double maxL = 0, maxR = 0;
-		const model::Cone* maxLCone = nullptr, * maxRCone = nullptr;
+		double maxL = 0;
+		double maxR = 0;
+		const model::Cone* maxLCone = nullptr;
+		const model::Cone* maxRCone = nullptr;
 		Point pos = state.getPosition();
 		Angle theta = state.getOrientation();
-		for (auto const& cone : cones) {
+		for (auto const& cone : cones) 
+		{
 			Point relPos = cone->getPosition() - pos;
 			double magnitude = relPos.magnitude();
 			double xDist = relPos.X() * cos(theta) + relPos.Y() * sin(theta);
-			if (magnitude <= maxDist && xDist > 0) {
-				if (cone->getType() == model::ConeType::LEFT&& magnitude > maxL) {
+			if (magnitude <= maxDist && xDist > 0) 
+			{
+				if (cone->getType() == model::ConeType::LEFT&& magnitude > maxL) 
+				{
 					maxLCone = cone;
 					maxL = magnitude;
 				}
-				if (cone->getType() == model::ConeType::RIGHT&& magnitude > maxR) {
+				if (cone->getType() == model::ConeType::RIGHT&& magnitude > maxR) 
+				{
 					maxRCone = cone;
 					maxR = magnitude;
 				}
 			}
 		}
-		if (maxRCone && maxLCone) {
+		if (maxRCone && maxLCone) 
+		{
 			currentGoal=(maxRCone->getPosition() + maxLCone->getPosition()) / 2.0;
 
 			//#ifdef ENABLE_DEBUG_DRAW
@@ -300,8 +326,9 @@ namespace controller {
 			//#endif // ENABLE_DEBUG_DRAW
 			return true;
 		}
-		else if (maxRCone) {
-			model::Angle direction = state.getOrientation() + M_PI / 2.0;
+		if (maxRCone) 
+		{
+			model::Angle direction = state.getOrientation() + std::numbers::pi / 2.0;
 			model::Point offset(_vehicle->getLength()/2* cos(direction), _vehicle->getLength()/2 * sin(direction));
 			currentGoal=maxRCone->getPosition() + offset;
 
@@ -310,8 +337,9 @@ namespace controller {
 			//#endif // ENABLE_DEBUG_DRAW
 			return true;
 		}
-		else if (maxLCone) {
-			model::Angle direction = state.getOrientation() - M_PI / 2.0;
+		if (maxLCone) 
+		{
+			model::Angle direction = state.getOrientation() - std::numbers::pi / 2.0;
 			model::Point offset(_vehicle->getLength()/2 * cos(direction), _vehicle->getLength()/2 * sin(direction));
 			currentGoal=maxLCone->getPosition()+offset;
 
@@ -320,8 +348,7 @@ namespace controller {
 			//#endif // ENABLE_DEBUG_DRAW
 			return true;
 		}
-		else 
-			return false;
+		return false;
 	}
 
 }

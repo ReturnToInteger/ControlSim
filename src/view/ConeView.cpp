@@ -23,17 +23,17 @@ view::ConeView::ConeView(model::Cone const& cone) :
 {
 }
 
-view::ConeView::ConeView() : _cone(nullptr), _shape((float)0.15)
+view::ConeView::ConeView() : _cone(nullptr), _shape(defRadius)
 {
 }
 
 sf::Vector2f view::ConeView::getPosition() const
 {
 	if (_cone == nullptr) {
-		return sf::Vector2f(0, 0);
+		return { 0, 0 };
 	}
 	auto position = _cone->getPosition();
-	return sf::Vector2f(static_cast<float>(position.X()),static_cast<float>(position.Y()));
+	return { static_cast<float>(position.X()),static_cast<float>(position.Y()) };
 }
 
 sf::Color view::ConeView::_typeToColor(const model::Cone* cone) const

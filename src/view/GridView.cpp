@@ -6,6 +6,6 @@ namespace view {
 
     sf::Vector2f view::GridView::getPosition() const
     {
-        return sf::Vector2f();
+        return {};
     }
 }

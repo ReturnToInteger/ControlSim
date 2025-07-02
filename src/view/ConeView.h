@@ -14,6 +14,7 @@ namespace view {
         ConeView();
         ~ConeView() = default;
         [[nodiscard]] sf::Vector2f getPosition() const override;
+        static constexpr float defRadius = 0.15;
     private:
         sf::Color _typeToColor(const model::Cone * cone) const;
         const model::Cone* _cone;

@@ -3,12 +3,8 @@
 #include <chrono>
 #include <iostream>
 #include <functional> 
+#include <numbers>
 //#include "Point.h"
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846 
-#endif
-
 namespace model {
 	struct ControlInput {
 		double targetSpeed;
@@ -51,13 +47,13 @@ namespace model {
 
     inline double normAngle(double const& orientation)
     {
-        double a = std::fmod(orientation + M_PI, 2 * M_PI);
-        if (a < 0) a += 2 * M_PI;
-        return a - M_PI;
+        double a = std::fmod(orientation + std::numbers::pi, 2 * std::numbers::pi);
+        if (a < 0) a += 2 * std::numbers::pi;
+        return a - std::numbers::pi;
     }
 
     //inline bool angleIsGreater(double alpha, double beta) {
-    //    if (abs(alpha - beta) > M_PI) {
+    //    if (abs(alpha - beta) > std::numbers::pi) {
 
     //    }
     //}

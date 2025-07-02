@@ -66,6 +66,7 @@ namespace model {
 			void setGoal(Point const& goal);
 			void clear();
 			[[nodiscard]] double getCellSize() const { return _cellSize; }
+            static Point rotatePoint(model::Point const& point, Angle const& angle);
 
 
 		private:
@@ -90,9 +91,9 @@ namespace model {
 			PathNode _finalNode;
 			DubinsStateSpace _dubins;
 
-			void _selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
+			static void _selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
 			void _updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage);
-			VehicleState _stepByDistance(VehicleState const& state, double distance, double steeringInput);
+			static VehicleState _stepByDistance(VehicleState const& state, double distance, double steeringInput);
 			[[nodiscard]] std::tuple<int, int, int,int> _discretizePoint(model::Pose const& pose, int stage) const;
 			// Returns if it collides with 100% accuracy, and vehicle pose
 			// More computationally expensive
@@ -111,7 +112,6 @@ namespace model {
 			void _processValidNode(PathNode & node, std::tuple<int, int, int,int> const& key, int stage);
 			
 			[[nodiscard]] std::vector<model::Point> _getBoundary(VehicleState const& state) const;
-			[[nodiscard]] Point _rotatePoint(model::Point const& point, Angle const& angle) const;
 			// Dubins
 			double _getHeuristics(model::VehicleState const& start, model::Point const& goal);
 			// Eucledian only

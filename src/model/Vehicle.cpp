@@ -1,4 +1,3 @@
-#pragma once
 #include "Vehicle.h"
 #include "model/controllerLogic/IControllerLogic.h"
 #include "model/perception/Perception.h"
@@ -16,7 +15,7 @@
 
 namespace model {
 	Vehicle::Vehicle(std::unique_ptr<model::IControllerLogic> carControl, std::unique_ptr<model::pathPlanning::PathPlanner> pathPlanner) :
-		_state(std::make_unique<model::VehicleState>()), _paths(5)
+		_state(std::make_unique<model::VehicleState>()), _paths(maxHistorySize)
 	{
 		if (carControl == nullptr) {
 			throw std::invalid_argument("IControllerLogic must not be null");
@@ -64,7 +63,7 @@ namespace model {
 
 	std::vector<Point>Vehicle::getGoal()
 	{
-		return std::vector<Point>();
+		return {};
 	}
 
 	void Vehicle::setGoal(Point goal, int i)

@@ -16,9 +16,9 @@ namespace controller
 		// Inherited via IControllerLogic  
 		model::ControlCommand drive(model::VehicleState const& state, model::Path const& path) override;
 		~KeyboardControl() = default;
-		double detectSpeed();
+		static double detectSpeed();
 
-		double detectAngle();
+		static double detectAngle();
 
 
 	};  

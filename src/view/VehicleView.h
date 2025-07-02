@@ -5,9 +5,6 @@
 
 // VehicleView holds a non-owning pointer to Vehicle.
 // Vehicle lifetime is managed by App via std::unique_ptr.
-#ifndef M_PI
-#define M_PI 3.14159265358979323846 // Define M_PI if not already defined
-#endif
 
 namespace model { class Vehicle; }
 namespace view {

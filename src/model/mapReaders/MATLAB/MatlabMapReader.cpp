@@ -16,7 +16,7 @@ namespace model {
         //const char* file = "TestTrack.mat";
 
 
-        std::cout << "Reading..." << std::endl;
+        std::cout << "Reading...\n";
 
         /*
          * Open file
@@ -66,7 +66,7 @@ namespace model {
 
         //printf("Length: %zu\n", vSize);
         for (size_t i = 0; i < vSize; i++) {
-            map.emplace_back(*x, *y, 0.15, ConeType::LEFT);
+            map.emplace_back(*x, *y, defaultRadius, ConeType::LEFT);
             x++;
             y++;
         }
@@ -77,7 +77,7 @@ namespace model {
 
         //printf("Length: %zu\n", vSize);
         for (size_t i = 0; i < vSize; i++) {
-            map.emplace_back(*x, *y, 0.15, ConeType::RIGHT);
+            map.emplace_back(*x, *y, defaultRadius, ConeType::RIGHT);
             x++;
             y++;
         }
@@ -90,7 +90,7 @@ namespace model {
         if (matClose(pmat) != 0) {
             throw std::ios_base::failure("Error closing the file");
         }
-        printf("Done\n");
+        std::cout <<  "Done\n";
         return map;
         //return std::vector<model::Cone>();
     }

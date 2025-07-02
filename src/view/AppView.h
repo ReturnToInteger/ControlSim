@@ -20,6 +20,12 @@ namespace model {
 }
 
 namespace view {
+	struct DefaultAppViewConfig {
+		static constexpr unsigned int width = 1600;
+		static constexpr unsigned int height = 900;
+		static constexpr int frameRate = 144;
+		static constexpr double zoom = 1.0 / 8.0;
+	};
 	class AppView : public model::events::InputEventPublisher {
 	public:
 		AppView();
@@ -36,24 +42,27 @@ namespace view {
 		void setCones(std::vector<model::Cone> const& cones);
 		void setPath(model::Path const& path);
 		void setPath(std::deque<model::Path> const& pathVector);
-		void setConeDetectedFlag(std::unordered_set<const model::Cone*> detectedCones);
+		void setConeDetectedFlag(const std::unordered_set<const model::Cone*>& detectedCones);
 		void setGridSize(double const& cellSize) { _cellSize = cellSize; }
 		double getWidth() const { return _videoWidth; }
 		double getHeight() const { return _videoHeight; }
 		model::Point getClickGlobalPos() const { return _clickGlobalPos; }
 		void zoom(double factor);
-		void rotate(double val);
+		void rotate(double delta);
+
+		static constexpr double defaultGridZoomLimit = 10.0;
 
 	private:
-		void _setupGrid();
+		void _setupGrid(double limit);
 		void _drawGrid();
 		model::events::InputEvent _translateEventToInput(sf::Event event);
 		sf::RenderWindow _window;
-		int _videoWidth;
-		int _videoHeight;
+		unsigned int _videoWidth;
+		unsigned int _videoHeight;
 		int _frameRate;
 		double _zoom;
 		double _lastX;
+		double _gridZoomLimit;
 
 		model::Point _startPos;
 		model::Point _clickGlobalPos;

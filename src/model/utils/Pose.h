@@ -47,7 +47,7 @@ namespace model {
         }
 
         friend std::ostream& operator<<(std::ostream& os, Pose const& pose) {
-            os << std::endl << "x: " << pose.x << std::endl << "y: " << pose.y << std::endl << "theta: " << pose.theta;
+            os << "\n" << "x: " << pose.x << "\n" << "y: " << pose.y << "\n" << "theta: " << pose.theta;
             return os;
         }
 

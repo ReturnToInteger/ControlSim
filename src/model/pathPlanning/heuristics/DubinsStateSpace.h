@@ -18,7 +18,8 @@ namespace model {
 			// Multiple waypoints, rough optimization by brute-force
 			double multipleDistance(model::Pose const& start, model::Point const& wayPoint, model::Point const& endPoint);
 
-			Point rotatePoint(Point const& p, Angle const& a);
+			static Point rotatePoint(Point const& p, Angle const& a);
+			static constexpr double angleDivision = 8;
 
 		private:
 			double _turningRadius;
@@ -34,8 +35,8 @@ namespace model {
 			double _leftStraight(model::Pose const& start, model::Point const& endPoint);
 			double _rightStraight(model::Pose const& start, model::Point const& endPoint);
 			// Origins
-			model::Point _leftOrigin(model::Pose const& p);
-			model::Point _rightOrigin(model::Pose const& p);
+			model::Point _leftOrigin(model::Pose const& p) const;
+			model::Point _rightOrigin(model::Pose const& p) const;
 			model::Point _startLeftOrig;
 			model::Point _startRightOrig;
 			model::Point _endLeftOrig;

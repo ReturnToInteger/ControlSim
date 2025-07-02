@@ -29,7 +29,7 @@ void view::VehicleView::draw(sf::RenderTarget& target, sf::RenderStates states =
 }
 
 view::VehicleView::VehicleView()
-	: ItemView(), _vehicle(nullptr)
+	: _vehicle(nullptr)
 {
 }
 
@@ -37,7 +37,9 @@ view::VehicleView::VehicleView(model::Vehicle const& vehicle, sf::Color color)
 	: ItemView(color), _vehicle(&vehicle)
 {
 	if (!_texture.loadFromFile("car.png"))
+	{
 		throw std::ios_base::failure("Image not found");
+	}
 ;
 	isDetected = true;
 }
@@ -45,10 +47,10 @@ view::VehicleView::VehicleView(model::Vehicle const& vehicle, sf::Color color)
 sf::Vector2f view::VehicleView::getPosition() const
 {
 	if (_vehicle == nullptr) {
-		return sf::Vector2f(0, 0);
+		return { 0, 0 };
 	}
 	auto position = _vehicle->getPosition();
-	return sf::Vector2f(static_cast<float>(position.X()), static_cast<float>(position.Y()));
+	return { static_cast<float>(position.X()), static_cast<float>(position.Y()) };
 }
 
 model::Angle view::VehicleView::getOrientation() const
