@@ -65,7 +65,6 @@ namespace model {
 		Angle maxSteering = path[0].getMaxSteeringAngle();
 		//std::vector<VehicleState*> candidatePoses;
 		const VehicleState* withinRange = nullptr;
-		double minDistance = std::numeric_limits<double>::infinity();			
 		Point normal(cos(vehiclePose.theta), sin(vehiclePose.theta));
 
 		for (model::VehicleState const& state : path) {
@@ -81,11 +80,8 @@ namespace model {
 			bool isInFront = distAlongHeading > 0;
 
 			if (isSteeringValid && isDistanceValid && isInFront) {
-				if (magnitude < minDistance) {
-					minDistance = magnitude;
-					withinRange = &state; 
-					//return withinRange;
-				}
+				withinRange = &state; 
+				break;
 			}
 		}
 		return withinRange;
