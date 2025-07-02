@@ -1,2 +1,2 @@
-Checks: 'clang-analyzer-*,cppcoreguidelines-*,modernize-*,performance-*,readability-*,bugprone-*'
+Checks: 'clang-analyzer-*,cppcoreguidelines-*,modernize-*,performance-*,readability-*,bugprone-*,-readability-math-missing-parentheses,-modernize-use-trailing-return-type'
 HeaderFilterRegex: '^src/'
