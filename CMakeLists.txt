@@ -60,6 +60,11 @@ if(ENABLE_CLANG_TIDY)
             -readability-math-missing-parentheses,
             -modernize-use-trailing-return-type"
     )
+else()
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        CXX_CLANG_TIDY ""
+    )
+
 endif()
 
 
