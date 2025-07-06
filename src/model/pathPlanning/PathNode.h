@@ -9,16 +9,18 @@ namespace model {
 		// State at the node
 		VehicleState state;
 		// Current cost from start
-		double gCost;
+		double gCost=0;
 		// Estimated goal (Current cost + heuristics)
-		double fCost;
+		double fCost= INFINITY;
 		// Parent for reconstruction
-		std::shared_ptr<PathNode const> parent;
-		int stage;
+		std::shared_ptr<PathNode const> parent=nullptr;
+		// For multistage support
+		int stage=0;
 		//PathNode(VehicleState const& state, double g, double f, PathNode* p,int stage)
 		//	: state(state), gCost(g), fCost(f), parent(p), stage(stage){
 		//}
 		//PathNode() : gCost(INFINITY), fCost(INFINITY), parent(nullptr), stage(0) {}
+
 		bool operator<(PathNode const& other) const {
 			return fCost< other.fCost;
 		}

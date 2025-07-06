@@ -347,7 +347,7 @@ namespace model::pathPlanning {
 		return { isColliding,contactPose };
 	}
 
-	PathNode model::pathPlanning::PathPlanner::_createNewNode(PathNode const& node, double steeringInput, int stage)
+	PathNode model::pathPlanning::PathPlanner::_createNewNode(PathNode const& node, double steeringInput, int stage) const
 	{
 		PathNode newNode;
 		newNode.state = _stepByDistance(node.state, _stepSize, steeringInput);
@@ -411,7 +411,7 @@ namespace model::pathPlanning {
 			+ (start.getSteeringAngle() / start.getMaxSteeringAngle()) * (start.getSteeringAngle() / start.getMaxSteeringAngle());
 	}
 
-	std::vector<model::VehicleState> PathPlanner::_stepUntilNew(VehicleState const& state, double distanceStep)
+	std::vector<model::VehicleState> PathPlanner::_stepUntilNew(VehicleState const& state, double distanceStep) const
 	{
 		double diagonalStepSize = _cellSize * 1.5;
 		distanceStep = std::min(std::max(distanceStep, diagonalStepSize), _stepSize);

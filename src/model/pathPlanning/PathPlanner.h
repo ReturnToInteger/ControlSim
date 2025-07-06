@@ -35,6 +35,7 @@ namespace model {
 			static constexpr std::array<double, 11> steeringModeHIGH = { 0.0, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6, 0.8, -0.8, 1.0, -1.0 };
 			static constexpr std::array<double, 9> steeringModeSQUARED = { 0.0, 0.06, -0.06, 0.25, -0.25, 0.56, -0.56, 1.0, -1.0 };
 		};
+		static constexpr int defaultContainerSize = 200;
 
 		// cellSize
 		// stepSize
@@ -44,7 +45,6 @@ namespace model {
 		// --- higher density near smaller angles: SQUARED
 		// Waypoints: SINGLE - single goal planning. DOUBLE - goal + waypoint planning. WARNING: Not tested in SINGLE mode currently
 		// maxContainerSize: limit the visited and unvisited nodes
-		static constexpr int defaultContainerSize = 200;
 		struct PlannerConfig {
 			double cellSize;
 			double stepSize;
@@ -108,7 +108,7 @@ namespace model {
 			// If there is no collision, the return is the vehicle's new pose
 			std::pair<bool, model::Pose> _checkCollisionWithinStep(int stepCount,VehicleState const& state, std::unordered_set<const model::Cone*> const& cones);
 
-			PathNode _createNewNode(PathNode const& node, double steeringInput, int stage);
+			PathNode _createNewNode(PathNode const& node, double steeringInput, int stage) const;
 			void _processValidNode(PathNode & node, std::tuple<int, int, int,int> const& key, int stage);
 			
 			[[nodiscard]] std::vector<model::Point> _getBoundary(VehicleState const& state) const;
@@ -120,7 +120,7 @@ namespace model {
 			double _getHeuristics(model::VehicleState const& start, model::Point const& wayPoint, model::Point const& goalPoint);
 
 			// gets position-orientation pairs until new position is reached
-			std::vector<model::VehicleState> _stepUntilNew(VehicleState const& state, double distanceStep);
+			std::vector<model::VehicleState> _stepUntilNew(VehicleState const& state, double distanceStep) const;
 
 			[[nodiscard]] bool _isAtGoal(const model::VehicleState& state, int index) const;
 			[[nodiscard]] bool _hasMoreNodes() const;
