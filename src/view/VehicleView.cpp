@@ -1,6 +1,6 @@
 #include "VehicleView.h"
 #include <cassert>
-#include "model/Vehicle.h"
+#include "model/utils/IDrawableVehicle.h"
 
 
 void view::VehicleView::draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const
@@ -33,7 +33,7 @@ view::VehicleView::VehicleView()
 {
 }
 
-view::VehicleView::VehicleView(model::Vehicle const& vehicle, sf::Color color)
+view::VehicleView::VehicleView(model::IDrawableVehicle const& vehicle, sf::Color color)
 	: ItemView(color), _vehicle(&vehicle)
 {
 	if (!_texture.loadFromFile("car.png"))

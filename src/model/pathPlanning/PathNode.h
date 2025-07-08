@@ -1,13 +1,13 @@
 #pragma once
 #include <memory>
-#include "model/VehicleState.h"
+#include "model/IVehicleState.h"
 
 namespace model {
 	
 	struct PathNode
 	{
 		// State at the node
-		VehicleState state;
+		std::unique_ptr<IVehicleState> state;
 		// Current cost from start
 		double gCost=0;
 		// Estimated goal (Current cost + heuristics)
@@ -16,14 +16,43 @@ namespace model {
 		std::shared_ptr<PathNode const> parent=nullptr;
 		// For multistage support
 		int stage=0;
-		//PathNode(VehicleState const& state, double g, double f, PathNode* p,int stage)
-		//	: state(state), gCost(g), fCost(f), parent(p), stage(stage){
-		//}
-		//PathNode() : gCost(INFINITY), fCost(INFINITY), parent(nullptr), stage(0) {}
 
 		bool operator<(PathNode const& other) const {
 			return fCost< other.fCost;
 		}
+		// Default constructor
+		PathNode() = default;
+
+		// Copy constructor
+		PathNode(const PathNode& other)
+			: state(other.state ? other.state->clone() : nullptr),
+			gCost(other.gCost),
+			fCost(other.fCost),
+			parent(other.parent),
+			stage(other.stage)
+		{
+		}
+
+		// Copy assignment
+		PathNode& operator=(const PathNode& other) {
+			if (this != &other) {
+				state = other.state ? other.state->clone() : nullptr;
+				gCost = other.gCost;
+				fCost = other.fCost;
+				parent = other.parent;
+				stage = other.stage;
+			}
+			return *this;
+		}
+
+		// Move constructor (defaulted)
+		PathNode(PathNode&&) noexcept = default;
+
+		// Move assignment (defaulted)
+		PathNode& operator=(PathNode&&) noexcept = default;
+
+		// Destructor (defaulted)
+		~PathNode() = default;
 	};
 
 	// Used in the priority queue, to find the minimum fCost in O(1) time

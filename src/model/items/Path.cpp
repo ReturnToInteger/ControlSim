@@ -7,11 +7,4 @@ namespace model {
 	{
 		return {};
 	}
-	Path::Path(std::vector<VehicleState> const& path) : _path(path) 
-	{ 
-		if (_path.empty()) 
-		{
-			std::cout << "No path created\n";
-		}
-	}
 }

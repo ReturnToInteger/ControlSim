@@ -10,7 +10,7 @@ namespace model {
 		Item(Item&& other) = default;
 		Item& operator=(Item&& other) = default;
 		virtual ~Item() = default;
-		virtual Point getPosition() const = 0;
+		virtual model::Point getPosition() const = 0;
 	protected:
 
 	};

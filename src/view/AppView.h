@@ -13,9 +13,10 @@
 #include "ConeView.h"
 #include "PathView.h"
 #include "model/events/InputEventPublisher.h"
+#include "model/utils/IDrawableVehicle.h"
+
 
 namespace model {
-	class Vehicle;
 	class Item;
 }
 
@@ -29,7 +30,7 @@ namespace view {
 	class AppView : public model::events::InputEventPublisher {
 	public:
 		AppView();
-		AppView(model::Vehicle const& vehicle, std::vector<model::Cone> const& map);
+		AppView(model::IDrawableVehicle const& vehicle, std::vector<model::Cone> const& map);
 		~AppView() = default;
 		AppView(AppView const&) = delete;
 		void init();
@@ -38,7 +39,7 @@ namespace view {
 		bool isOpen() const;
 		double getFrameTime() const;
 		void close();
-		void setVehicle(model::Vehicle const& vehicle);
+		void setVehicle(model::IDrawableVehicle const& vehicle);
 		void setCones(std::vector<model::Cone> const& cones);
 		void setPath(model::Path const& path);
 		void setPath(std::deque<model::Path> const& pathVector);

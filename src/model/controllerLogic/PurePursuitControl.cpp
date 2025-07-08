@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "model/VehicleState.h"
+#include "model/IVehicleState.h"
 #include "model/pathPlanning/PathPlanner.h"
 #include "model/utils/ModelUtils.h"
 #include "model/utils/Pose.h"
@@ -17,22 +18,24 @@ namespace model {
 	ControlCommand model::PurePursuitControl::drive(VehicleState const& state, model::Path const& path)
 	{
 		if (path.size() < 2) {
-			return { defaultSpeedInput, _previous.normSteering };
+			return { defaultSpeedInput, _previous.normSteeringAngle };
 		}
+		_wheelbase = state.getWheelBase();
+		_maxSteeringAngle = state.getMaxSteeringRate();
 		Pose currentPose=state.getRearPose();
-		const VehicleState* targetState = _getAtRange(currentPose, path);
+		const model::IVehicleState* targetState = _getAtRange(currentPose, path);
 		if (!targetState) {
 			#ifdef ENABLE_DEBUG_DRAW
 			view::DebugDraw::instance().circle2(model::Point(-1000.0,-1000.0), static_cast<float>(0.01));
 			#endif // ENABLE_DEBUG_DRAW
 
-			return { 0.2, _previous.normSteering };
+			return { 0.2, _previous.normSteeringAngle };
 		}
 		#ifdef ENABLE_DEBUG_DRAW
 		view::DebugDraw::instance().circle2(targetState->getPosition(), static_cast<float>(0.15));
 		#endif // ENABLE_DEBUG_DRAW
 
-		Pose targetPose = targetState->getRearPose();
+		Pose targetPose = _rearFromCenter(*targetState,_wheelbase);
 		//const Pose targetPose = path[_lookAhead].getRearPose();
 		Angle targetAngle;
 		targetAngle = atan2(targetPose.y - currentPose.y, targetPose.x - currentPose.x);
@@ -53,26 +56,26 @@ namespace model {
 	// Select the point that is the closest to the intersection of the lookahead radius and the path
 	// ... was doing that
 	// I need to move logic
-	VehicleState const* model::PurePursuitControl::_getAtRange(model::Pose const& vehiclePose, Path const& path) const
+	IVehicleState const* model::PurePursuitControl::_getAtRange(model::Pose const& vehiclePose, Path const& path) const
 	{
 		if (path.size()<2) 
 		{
 			throw std::out_of_range("Path range has to be at least 2");
 		}
 		//double maxDelta = (path[0].getRearPose() - path[1].getRearPose()).magnitude() / 2.0;
-		double radius = (path[0].getRearPose() - path[1].getRearPose()).magnitude() * _lookAhead;
-		double maxDelta = (path[0].getRearPose() - path.back().getRearPose()).magnitude()*2;
-		Angle maxSteering = path[0].getMaxSteeringAngle();
+		double radius = (_rearFromCenter(path[0],_wheelbase) - _rearFromCenter(path[1], _wheelbase)).magnitude() * _lookAhead;
+		double maxDelta = (_rearFromCenter(path[0], _wheelbase) - _rearFromCenter(path.back(), _wheelbase)).magnitude() * 2;
+		Angle maxSteering = _maxSteeringAngle;
 		//std::vector<VehicleState*> candidatePoses;
-		const VehicleState* withinRange = nullptr;
+		const IVehicleState* withinRange = nullptr;
 		Point normal(cos(vehiclePose.theta), sin(vehiclePose.theta));
 
-		for (model::VehicleState const& state : path) {
-			Pose pose = state.getRearPose();
+		for (auto& state : path) {
+			Pose pose = _rearFromCenter(*state, _wheelbase);
 			double magnitude = (vehiclePose - pose).magnitude();
 			Angle targetAngle = atan2(pose.y - vehiclePose.y, pose.x - vehiclePose.x);
 			Angle angleDiff = targetAngle - vehiclePose.theta;
-			Angle angleControl = atan(sin(angleDiff) * state.getWheelBase() * 2.0 / (Point(vehiclePose) - Point(pose)).magnitude());
+			Angle angleControl = atan(sin(angleDiff) * _wheelbase * 2.0 / (Point(vehiclePose) - Point(pose)).magnitude());
 			double distAlongHeading = normal.X() * (pose.x - vehiclePose.x) + normal.Y() * (pose.y - vehiclePose.y);
 
 			bool isSteeringValid = std::abs(radian(angleControl)) <= radian(maxSteering);
@@ -80,11 +83,28 @@ namespace model {
 			bool isInFront = distAlongHeading > 0;
 
 			if (isSteeringValid && isDistanceValid && isInFront) {
-				withinRange = &state; 
+				withinRange = state.get(); 
 				break;
 			}
 		}
 		return withinRange;
-
 	}
+	Pose model::PurePursuitControl::_rearFromCenter(model::IVehicleState const& center, double wheelbase)
+	{
+		double offset = wheelbase / 2;
+
+		Pose deltaPose{
+			offset * cos(center.getOrientation()),
+			offset * sin(center.getOrientation()),
+			0
+		};
+
+		return center.getPose() - deltaPose;
+	}
+
+	ControlCommand PurePursuitControl::drive(model::diffDrive::State const& state, model::Path const& path)
+	{
+		return ControlCommand();
+	}
+
 }

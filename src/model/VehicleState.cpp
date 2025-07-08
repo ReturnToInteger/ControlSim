@@ -4,7 +4,7 @@
 
 namespace model
 {
-	VehicleState::VehicleState() : 
+	model::VehicleState::VehicleState() : 
 		_frontPose(DefaultStartingPosition::x+ DefaultConstraints::wheelBase / 2, DefaultStartingPosition::y,0),
 		_centerPose(DefaultStartingPosition::x, DefaultStartingPosition::y,0),
 		_rearPose(DefaultStartingPosition::x - DefaultConstraints::wheelBase / 2, DefaultStartingPosition::y,0),
@@ -31,18 +31,18 @@ namespace model
 		_rearPose.theta = _centerPose.theta;
 	}
 
-	void VehicleState::setPose(Pose pose)
+	void model::VehicleState::setPose(Pose pose)
 	{
 		setPose(pose.x, pose.y, pose.theta);
 	}
 
-	void VehicleState::updateState(double dt) {
+	void model::VehicleState::updateState(double dt) {
 		_updateControl(dt);
 		_updateCoords(_speed, dt);
 	}
 
 
-	void VehicleState::_updateControl(double dt)
+	void model::VehicleState::_updateControl(double dt)
 	{
 		_updateSteering(dt);
 		_updateDriving(dt);
@@ -51,7 +51,7 @@ namespace model
 	void model::VehicleState::_updateSteering(double dt)
 	{
 		// Idealistic, set by interpolating (instead of control)
-		Angle delta = _target.normSteering*getMaxSteeringAngle() - _steeringAngle;
+		Angle delta = _target.angular*getMaxSteeringAngle() - _steeringAngle;
 		double maxStep = _constraints.maxSteeringRate * dt;
 		delta = clampRelativeToZero(delta, maxStep);
 		_setSteeringRate(radian(delta) / dt); 
@@ -62,13 +62,13 @@ namespace model
 		//_setSteeringAngle(_steeringAngle + _steeringRate * dt);
 	}
 
-	void VehicleState::_updateDriving(double dt)
+	void model::VehicleState::_updateDriving(double dt)
 	{
-		_setAcceleration((_target.normSpeed*getMaxSpeed() - _speed) / dt, 0);
+		_setAcceleration((_target.linear*getMaxSpeed() - _speed) / dt, 0);
 		_setSpeed(_speed + _acceleration * dt);
 	}
 
-	void VehicleState::_updateCoords(double speed, double dt)
+	void model::VehicleState::_updateCoords(double speed, double dt)
 	{
 		//Angle beta(std::numbers::pi/2);
 		Angle slip = atan(tan(_steeringAngle) / 2);
@@ -89,39 +89,38 @@ namespace model
 
 	void model::VehicleState::_updateFront(double dt, Angle slip)
 	{
-		_frontPose.x = _centerPose.x + _constraints.wheelBase / 2 * cos(_centerPose.theta+slip);
-		_frontPose.y = _centerPose.y + _constraints.wheelBase / 2 * sin(_centerPose.theta+slip);
+		_frontPose.x = _centerPose.x + _constraints.wheelBase / 2 * cos(_centerPose.theta);
+		_frontPose.y = _centerPose.y + _constraints.wheelBase / 2 * sin(_centerPose.theta);
 		_frontPose.theta = _centerPose.theta + _steeringAngle;
 	}
 
 	void model::VehicleState::_updateRear(double dt, Angle slip)
 	{
-		_rearPose.x = _centerPose.x - _constraints.wheelBase / 2 * cos(_centerPose.theta-slip);
-		_rearPose.y = _centerPose.y - _constraints.wheelBase / 2 * sin(_centerPose.theta-slip);
+		_rearPose.x = _centerPose.x - _constraints.wheelBase / 2 * cos(_centerPose.theta);
+		_rearPose.y = _centerPose.y - _constraints.wheelBase / 2 * sin(_centerPose.theta);
 		_rearPose.theta = _centerPose.theta;
 	}
 
 
-
-	void VehicleState::_setSteeringAngle(Angle angle)
+	void model::VehicleState::_setSteeringAngle(Angle angle)
 	{
 		_steeringAngle = clampRelativeToZero(angle, _constraints.maxSteeringAngle);
 		//std::cout << "steering angle: " << _steeringAngle << "\n";
 	}
 
-	void VehicleState::_setSteeringRate(double rate)
+	void model::VehicleState::_setSteeringRate(double rate)
 	{
 		_steeringRate = clamp(rate, -_constraints.maxSteeringRate, _constraints.maxSteeringRate);
 		//std::cout << "steering rate: " << _steeringRate << "\n";
 	}
 
-	void VehicleState::_setSpeed(double speed)
+	void model::VehicleState::_setSpeed(double speed)
 	{
 		_speed = clamp(speed, -_constraints.maxSpeed, _constraints.maxSpeed);
 		//std::cout << "speed: " << _speed << "\n";
 	}
 
-	void VehicleState::_setAcceleration(double acceleration, double brake)
+	void model::VehicleState::_setAcceleration(double acceleration, double brake)
 	{
 
 
@@ -137,6 +136,21 @@ namespace model
 		{
 			_acceleration = ;
 		}*/
+	}
+
+	Twist VehicleState::getVelocity() const
+	{
+		return _centerTwist;
+	}
+
+	double VehicleState::minimumTurningRadius() const
+	{
+		return 0.0;
+	}
+
+	std::unique_ptr<IVehicleState> VehicleState::clone() const
+	{
+		 return std::make_unique<VehicleState>(*this);
 	}
 
 }

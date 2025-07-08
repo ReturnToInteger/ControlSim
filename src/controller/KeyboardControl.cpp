@@ -39,4 +39,8 @@ namespace controller {
 
 		return angle;
 	}
+	model::ControlCommand KeyboardControl::drive(model::diffDrive::State const& state, model::Path const& path)
+	{
+		return { detectSpeed(), detectAngle() };
+	}
 }

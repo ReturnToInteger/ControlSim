@@ -11,6 +11,8 @@
 #include "controller/KeyboardControl.h"
 #include "model/controllerLogic/PurePursuitControl.h"
 #include "model/pathPlanning/PathPlanner.h"
+#include "model/items/diffDrive/State.h"
+#include "model/VehicleState.h"
 static double Mod(double a, double b) {
 	return std::fmod(std::fmod(a, b) + b, b);
 }
@@ -28,11 +30,11 @@ int main() {
 	};
 	
 	controller::App app(
-		std::make_unique<model::Vehicle>(std::make_unique<model::PurePursuitControl>(), 
+		std::make_unique<model::Vehicle<model::diffDrive::State>>(std::make_unique<model::PurePursuitControl>(), 
 			std::make_unique<model::pathPlanning::PathPlanner>(plannerConfig)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>() /*nullptr*/,
-		2
+		1
 	);
 	app.run();
 

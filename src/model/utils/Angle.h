@@ -2,6 +2,7 @@
 #include <cmath>
 #include <ostream>
 #include <numbers>
+#include "Point.h"
 namespace model {
     double normAngle(double const& orientation);
 
@@ -132,6 +133,11 @@ namespace model {
         return lhs.asRadians() / rhs.asRadians();
     }
 
+    inline model::Point rotatePoint(model::Point const& p, model::Angle const& a) {
+        double c = cos(a);
+        double s = sin(a);
+        return Point(p.X() * c - p.Y() * s, p.X() * s + p.Y() * c);
+    }
 
 
 

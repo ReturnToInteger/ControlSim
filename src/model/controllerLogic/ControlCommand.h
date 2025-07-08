@@ -3,8 +3,7 @@ namespace model {
 	struct ControlCommand
 	{
 		double normSpeed;
-		double normSteering;
+		double normSteeringAngle;
 
-		ControlCommand(double s, double a) : normSpeed(s), normSteering(a) {}
 	};
 }

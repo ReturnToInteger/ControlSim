@@ -6,24 +6,27 @@
 #include <numbers>
 //#include "Point.h"
 namespace model {
-	struct ControlInput {
-		double targetSpeed;
-		double steeringAngle;
-		ControlInput(double targetSpeed, double steeringAngle) : targetSpeed(targetSpeed), steeringAngle(steeringAngle) {}
-	};
+	//struct ControlInput {
+	//	double targetSpeed;
+	//	double steeringAngle;
+	//	ControlInput(double targetSpeed, double steeringAngle) : targetSpeed(targetSpeed), steeringAngle(steeringAngle) {}
+	//};
 
-    //inline Point rotatePoint(model::Point const& p, model::Angle const& a) {
-    //    double c = model::cos(a);
-    //    double s = model::sin(a);
-    //    return Point(p.X() * c - p.Y() * s, p.X() * s + p.Y() * c);
-    //}
-
+    struct VelocityCommand {
+        double linear;
+        double angular;
+    };
     struct Twist {
         double vx;
         double vy;
         double omega;
         Twist(double vx, double vy, double omega) : vx(vx), vy(vy), omega(omega) {}
         Twist() : vx(0), vy(0), omega(0) {}
+    };
+    struct Accel {
+        double ax;
+        double ay;
+        double epsilon;
     };
     struct ObstacleData
     {

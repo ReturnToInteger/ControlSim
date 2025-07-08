@@ -6,13 +6,13 @@
 #include "model/utils/Pose.h"
 #include "model/utils/Angle.h"
 #include "model/utils/ModelUtils.h"
-#include "controllerLogic/ControlCommand.h"
+#include "model/controllerLogic/ControlCommand.h"
 #include <numbers>
-
+#include "IVehicleState.h"
 
 namespace model
 {
-	class VehicleState
+	class VehicleState : public model::IVehicleState
 	{
 	public:
         struct DefaultStartingPosition {
@@ -53,31 +53,30 @@ namespace model
 
 
 		VehicleState();
-        std::array<Point, 3> getAllPositions() const;
-        std::array<Angle, 3> getAllOrientations() const;
-        Point getPosition() const;
-        Angle getOrientation() const;
-		void setPose(double x, double y, Angle orientation);
-        void setPose(Pose pose);
-        Pose getPose() const;
-        Pose getRearPose() const;
-        Pose getFrontPose() const;
-        double getSpeed() const;
+        Point getPosition() const override;
+        Angle getOrientation() const override;
+        Pose getPose() const override;
+        double getSpeed() const override;
         Angle getSteeringAngle() const;
         double getSteeringRate() const;
-        double getLength() const;
-        double getWidth() const;
+        double getLength() const override;
+        double getWidth() const override;
+        double getMaxSpeed() const override;       
+        VelocityCommand getTarget() const override;
+		void setPose(double x, double y, Angle orientation) override;
+        void setPose(Pose pose) override;
+        void setTarget(VelocityCommand targetCommand) override;
+
         double getWheelBase() const;
         Angle getMaxSteeringAngle() const;
         double getMaxSteeringRate() const;
-        double getMaxSpeed() const;
-        void setTargetSpeed(double input);
-        void setTargetSteeringAngle(double input);
-        void setTarget(ControlCommand targetCommand);
-        ControlCommand getTarget() const;
+        std::array<Point, 3> getAllPositions() const;
+        std::array<Angle, 3> getAllOrientations() const;
+        Pose getRearPose() const;
+        Pose getFrontPose() const;
 
         // Update based on state
-        void updateState(double dt);
+        void updateState(double dt) override;
 
     private:
 
@@ -96,7 +95,7 @@ namespace model
        //targets
         double _targetSpeed = 0.0;
         double _targetSteeringAngle = 0.0;
-        ControlCommand _target;
+        VelocityCommand _target;
 
 		void _updateControl(double dt);
         void _updateSteering(double dt);
@@ -114,7 +113,17 @@ namespace model
     public:
 
 
-	};
+
+        // Inherited via IVehicleState
+        Twist getVelocity() const override;
+
+        double minimumTurningRadius() const override;
+
+
+        // Inherited via IVehicleState
+        std::unique_ptr<IVehicleState> clone() const override;
+
+};
 
     inline Pose VehicleState::getPose() const { return _centerPose; }
     inline Pose VehicleState::getRearPose() const { return _rearPose; }
@@ -141,18 +150,9 @@ namespace model
     inline Angle VehicleState::getMaxSteeringAngle() const { return _constraints.maxSteeringAngle; }
     inline double VehicleState::getMaxSteeringRate() const { return _constraints.maxSteeringRate; }
     inline double VehicleState::getMaxSpeed() const { return _constraints.maxSpeed; }
-    inline void VehicleState::setTargetSpeed(double input)
+    inline void VehicleState::setTarget(VelocityCommand targetCommand)
     {
-        _target.normSpeed = clamp(input, -1, 1);
+        _target = targetCommand;
     }
-    inline void VehicleState::setTargetSteeringAngle(double input)
-    {
-        _target.normSteering = clamp(input, -1, 1);
-    }
-    inline void VehicleState::setTarget(ControlCommand targetCommand)
-    {
-        _target.normSpeed = targetCommand.normSpeed;
-        _target.normSteering = targetCommand.normSteering;
-    }
-    inline ControlCommand VehicleState::getTarget() const { return _target; }
+    inline VelocityCommand VehicleState::getTarget() const { return _target; }
 }

@@ -17,10 +17,11 @@ struct Overload : Ts ... {
 template<class... Ts> Overload(Ts...) -> Overload<Ts...>;
 
 namespace model {
-	class Vehicle;
+	class IVehicle;
 	class Perception;
 	class IMapReader;
 	class VehicleState;
+	class IVehicleState;
 }
 namespace view {
 	class AppView;
@@ -48,7 +49,7 @@ namespace controller {
 			std::array<model::Point, 2> goals;
 			std::atomic_bool goalHasChanged;
 		};
-		App(std::unique_ptr<model::Vehicle> vehicle,
+		App(std::unique_ptr<model::IVehicle> vehicle,
 			std::unique_ptr<model::IMapReader> mapReader,
 			std::unique_ptr<view::AppView> view, 
 			int threadCount = 1);
@@ -65,11 +66,11 @@ namespace controller {
 		void _pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index);
 		void _startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda);
 		// Should be moved to model
-		bool _calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, model::Point& currentGoal,double maxDist);
+		bool _calcGoal(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& state, model::Point& currentGoal,double maxDist);
 
 		std::vector<model::Cone> _cones;
 		std::unique_ptr<view::AppView> _view;
-		std::unique_ptr<model::Vehicle> _vehicle;
+		std::unique_ptr<model::IVehicle> _vehicle;
 		std::unique_ptr<model::Perception> _perception;
 
 		// Threading

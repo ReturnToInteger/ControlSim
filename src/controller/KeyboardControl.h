@@ -4,7 +4,7 @@
 
 
 namespace model {
-	class VehicleState;
+	class IVehicleState;
 	class Path;
 }
 namespace controller  
@@ -21,5 +21,9 @@ namespace controller
 		static double detectAngle();
 
 
-	};  
+
+		// Inherited via IControllerLogic
+		model::ControlCommand drive(model::diffDrive::State const& state, model::Path const& path) override;
+
+	};
 }

@@ -1,6 +1,9 @@
 #include "AppView.h" 
 #include <cassert>
 #include "model/items/Item.h"
+#include "model/utils/IDrawableVehicle.h"
+#include "VehicleView.h"
+
 //#include "imgui.h"
 //#include "imgui-sfml.h"
 #ifdef ENABLE_DEBUG_DRAW
@@ -20,13 +23,13 @@ namespace view {
 	{
 	}
 
-	AppView::AppView(model::Vehicle const& vehicle, std::vector<model::Cone> const& map)
+	AppView::AppView(model::IDrawableVehicle const& vehicle, std::vector<model::Cone> const& map)
 		: _videoWidth(DefaultAppViewConfig::width),
 		_videoHeight(DefaultAppViewConfig::height),
 		_frameRate(DefaultAppViewConfig::frameRate),
 		_zoom(DefaultAppViewConfig::zoom),
 		_lastX(-1),
-		_vehicleView(vehicle),
+		_vehicleView(vehicle, sf::Color::Red),
 		_gridZoomLimit(defaultGridZoomLimit),
 		_cellSize(0)
 	{
@@ -35,7 +38,6 @@ namespace view {
 			_coneViews.emplace_back(cone);
 			_itemViewTable.emplace(&cone, &_coneViews.back());
 		}
-
 	}
 
 	void AppView::init()
@@ -140,9 +142,9 @@ namespace view {
 		_window.close();
 	}
 
-	void AppView::setVehicle(model::Vehicle const& vehicle)
+	void AppView::setVehicle(model::IDrawableVehicle const& vehicle)
 	{
-		_vehicleView = VehicleView(vehicle);
+		_vehicleView = view::VehicleView(vehicle, sf::Color::Red);
 		_view.setCenter(_vehicleView.getPosition());
 	}
 

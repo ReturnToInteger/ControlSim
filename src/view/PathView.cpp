@@ -17,7 +17,7 @@ void view::PathView::draw(sf::RenderTarget& target, sf::RenderStates states) con
     sf::VertexArray path;
     path.setPrimitiveType(sf::LinesStrip);
     for (auto const& state: *_path) {
-        model::Pose point = state.getPose();
+        model::Pose point = state->getPose();
         path.append(sf::Vertex(sf::Vector2f(static_cast<float>(point.x), static_cast<float>(point.y)), _color));
     }
     

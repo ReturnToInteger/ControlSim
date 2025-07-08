@@ -27,7 +27,7 @@
 
 
 namespace controller {
-	App::App(std::unique_ptr<model::Vehicle> vehicle,
+	App::App(std::unique_ptr<model::IVehicle> vehicle,
 		std::unique_ptr<model::IMapReader> mapReader,
 		std::unique_ptr<view::AppView> view,
 		int threadCount)
@@ -52,28 +52,31 @@ namespace controller {
 
 	void App::run()
 	{
+		//Setup
 		// Read the map from the file
-		std::vector<model::Cone> obstacleData = _mapReader->Read();
-		for (model::Cone const& data : obstacleData) {
-			_cones.emplace_back(data.getPosition(), data.getRadius(), data.getType());
-		}
+		std::vector<model::Cone> _cones = _mapReader->Read();
+
+		//Create perception
 		Angle perceptionAngle = radian(75);
 		double perceptionDistance = 15;
 		_perception = std::make_unique<model::Perception>(_cones, perceptionAngle, perceptionDistance);
 
+		// Set up view
 		double cellSize = _vehicle->getCellSize();
 		double frameTime;
 		if (_view) {
 			_view->setVehicle(*_vehicle);
 			_view->setCones(_cones);
-			_view->init();
 			_view->setGridSize(cellSize);
+			_view->init();
 			frameTime = _view->getFrameTime();
 		}
 		else {
 			frameTime = 1.0 / 60.0; // TO DO: Make NullView
 		}
-		_running = true;
+
+		// Run pathplanning threads
+		_running.store(true);
 		std::unordered_set<const model::Cone*> detectedCones = _perception->detect(_vehicle->getPose());
 		std::function<void(int)> pathPlanningLambda = [this, &detectedCones](int index) {
 			_pathPlanningWorker(detectedCones, index);
@@ -85,7 +88,6 @@ namespace controller {
 		double updateTime = 0;
 		SimpleTimer frameTimer;
 		int iter = 0;
-		int coneFlushIter = 60;
 		while (_view->isOpen()) {
 			double deltaTime = frameTimer.elapsedSeconds();
 			// Update the vehicle
@@ -105,21 +107,21 @@ namespace controller {
 				std::lock_guard<std::mutex> lock(_simLock);
 				frameTimer.reset();
 				// Update the state
-				_vehicle->update(clamp(deltaTime,frameTime,frameTime*5));
+				_vehicle->update(model::clamp(deltaTime,frameTime,frameTime*5));
+				// Safely copy for viewing
 				if (_view) {
 					pathCopy=_vehicle->getPlannedPaths().get();
-				}				
-				auto currentDetected = _perception->detect(_vehicle->getPose());
-				if (iter % (coneFlushIter) == 0) {
-					detectedCones.clear();
 				}
-				for (auto const& cone: currentDetected) {
-					detectedCones.emplace(cone);
-				}
+
+				// Detect for mapping
+				detectedCones= _perception->detect(_vehicle->getPose());
+
+				// Calc goal for path planning
 				double wayPoint1Distance = 10;
 				double wayPoint2Distance = 150;
-				bool foundCurrent1 = _calcGoal(detectedCones, _vehicle->getStateCopy(), _sharedGoals.goals[0], wayPoint1Distance);
-				bool foundCurrent2 = _calcGoal(detectedCones, _vehicle->getStateCopy(), _sharedGoals.goals[1], wayPoint2Distance);
+				std::unique_ptr<model::IVehicleState> stateCopy=_vehicle->getStateCopy();
+				bool foundCurrent1 = _calcGoal(detectedCones, *stateCopy, _sharedGoals.goals[0], wayPoint1Distance);
+				bool foundCurrent2 = _calcGoal(detectedCones, *stateCopy, _sharedGoals.goals[1], wayPoint2Distance);
 				if (foundCurrent1 || foundCurrent2) {
 					_sharedGoals.goalHasChanged.store(true);
 				}
@@ -182,7 +184,7 @@ namespace controller {
 
 			// Read data from main
 			std::unordered_set<const model::Cone*> detectedCopy;
-			model::VehicleState stateCopy;				
+			std::unique_ptr<model::IVehicleState> stateCopy;				
 			model::Point previous1(goal1);
 			model::Point previous2(goal2);
 
@@ -200,7 +202,7 @@ namespace controller {
 			// Bit of a hack to get the furthest 2 cones middle point
 			goal1 = (1 - filterParam) * goal1 + filterParam * previous1;
 			goal2 = (1 - filterParam) * goal2 + filterParam * previous2;
-			if ((stateCopy.getPosition() - goal1).magnitude() <= (stateCopy.getPosition() - goal2).magnitude()) {
+			if ((stateCopy->getPosition() - goal1).magnitude() <= (stateCopy->getPosition() - goal2).magnitude()) {
 				_vehicle->setGoal(goal1, index);
 				_vehicle->setGoal(goal2, index);
 			}
@@ -214,31 +216,28 @@ namespace controller {
 			#endif // ENABLE_DEBUG_DRAW
 
 			// Dealing with the current pathPlanner
-			std::chrono::duration<double> dur{};
-			// Time path planning
+			std::chrono::duration<double> dur(0);
+			// Only plan if goal was changed
 			if (_sharedGoals.goalHasChanged.load()) {
 				// Clear residual data before planning new one
 				_vehicle->clearPath(index);
+				// Plan inside timer
 				dur = model::timeFunction("Path planning", [this, &detectedCopy, &stateCopy, &index, &foundPath]() {
-					foundPath = _vehicle->planPath(detectedCopy, stateCopy, index);
+						foundPath = _vehicle->planPath(detectedCopy, *stateCopy, index);				
+						// Sending data back to main
+						{
+							std::lock_guard<std::mutex> lock(_simLock);
+							_vehicle->setPlannedPath(index);
+						} // End of sending data
 					});
-				_sharedGoals.goalHasChanged.store(false);
-			}
-			else
-			{
-				dur = std::chrono::duration<double>(0);
-			}
+				_sharedGoals.goalHasChanged.store(false);			
+			}// End of dealing with the current pathPlanner
+
 			time += dur.count();
 			sortedTime.emplace_back(dur.count());
-			// Sending data back to main
-			{
-				std::lock_guard<std::mutex> lock(_simLock);
-				_vehicle->setPlannedPath(index);
-			} // End of sending data
 			double delayScnd = 0.005;
 			double sleepDur = std::max(delayScnd * _threadCount * (double)(index+1.0) / (double)_threadCount-dur.count(), delayScnd); // Spread out thread execution over time
 			std::this_thread::sleep_for(std::chrono::duration<double>(sleepDur)); // Sleep to avoid pointless CPU overload.
-			// End of dealing with the current pathPlanner
 			iter++;
 		}
 		std::ranges::sort(sortedTime);
@@ -290,7 +289,7 @@ namespace controller {
 			[](auto&&) {}
 			}, e);
 	}
-	bool controller::App::_calcGoal(std::unordered_set<const model::Cone*> const& cones, model::VehicleState const& state, model::Point& currentGoal, double maxDist)
+	bool controller::App::_calcGoal(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& state, model::Point& currentGoal, double maxDist)
 	{
 		double maxL = 0;
 		double maxR = 0;
