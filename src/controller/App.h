@@ -54,7 +54,6 @@ namespace controller {
 			std::unique_ptr<view::AppView> view, 
 			int threadCount = 1);
 
-		// Need a run method, which will run the game
 		void run();
 
 		~App();
@@ -73,6 +72,7 @@ namespace controller {
 		std::unique_ptr<model::IVehicle> m_vehicle;
 		std::unique_ptr<model::Perception> m_perception;
 
+		double m_frameTime;
 		// Threading
 		std::mutex m_simLock;
 		std::mutex m_pathLock;
@@ -80,6 +80,7 @@ namespace controller {
 		const int m_threadCount;
 		std::atomic_bool m_running;
 		SharedGoals m_sharedGoals;
+
 
 		// Need a reader, which will read the map 
 		std::unique_ptr<model::IMapReader> m_mapReader;

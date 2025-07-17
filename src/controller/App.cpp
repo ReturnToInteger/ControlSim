@@ -48,13 +48,9 @@ namespace controller {
 		{
 			m_view->attach(this);
 		}
-	}
-
-	void App::run()
-	{
 		//Setup
 		// Read the map from the file
-		std::vector<model::Cone> m_cones = m_mapReader->Read();
+		m_cones = m_mapReader->Read();
 
 		//Create perception
 		Angle perceptionAngle = radian(75);
@@ -63,26 +59,28 @@ namespace controller {
 
 		// Set up view
 		double cellSize = m_vehicle->getCellSize();
-		double frameTime;
 		if (m_view) {
 			m_view->setVehicle(*m_vehicle);
 			m_view->setCones(m_cones);
 			m_view->setGridSize(cellSize);
 			m_view->init();
-			frameTime = m_view->getFrameTime();
+			m_frameTime = m_view->getFrameTime();
 		}
 		else {
-			frameTime = 1.0 / 60.0; // TO DO: Make NullView
+			m_frameTime = 1.0 / 60.0; // TO DO: Make NullView
 		}
+	}
 
+	void App::run()
+	{
 		// Run pathplanning threads
 		m_running.store(true);
 		std::unordered_set<const model::Cone*> detectedCones = m_perception->detect(m_vehicle->getPose());
-		std::function<void(int)> pathPlanningLambda = [this, &detectedCones](int index) {
-			pathPlanningWorker(detectedCones, index);
-			};
+		//std::function<void(int)> pathPlanningLambda = ;
 		std::vector<std::thread> threads;
-		startPlanningThreads(m_threadCount, threads, pathPlanningLambda);
+		startPlanningThreads(m_threadCount, threads, [this, &detectedCones](int index) {
+			pathPlanningWorker(detectedCones, index);
+			});
 
 		// Run the game loop
 		double updateTime = 0;
@@ -107,7 +105,7 @@ namespace controller {
 				std::lock_guard<std::mutex> lock(m_simLock);
 				frameTimer.reset();
 				// Update the state
-				m_vehicle->update(model::clamp(deltaTime,frameTime,frameTime*5));
+				m_vehicle->update(model::clamp(deltaTime,m_frameTime,m_frameTime*5));
 				// Safely copy for viewing
 				if (m_view) {
 					pathCopy=m_vehicle->getPlannedPaths().get();
@@ -135,7 +133,7 @@ namespace controller {
 			}
 			if (!m_view)
 			{
-				std::this_thread::sleep_for(std::chrono::duration<double>(frameTime - deltaTime));
+				std::this_thread::sleep_for(std::chrono::duration<double>(m_frameTime - deltaTime));
 			}
 			iter++;
 		}
