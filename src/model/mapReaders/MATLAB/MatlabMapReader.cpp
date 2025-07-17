@@ -6,7 +6,7 @@
 
 
 namespace model {
-    model::MatlabMapReader::MatlabMapReader(const char * filePath) : _filePath(filePath)
+    model::MatlabMapReader::MatlabMapReader(const char * filePath) : m_filePath(filePath)
     {
     }
 
@@ -21,9 +21,9 @@ namespace model {
         /*
          * Open file
          */
-        MATFile* pmat = matOpen(_filePath, "r");
+        MATFile* pmat = matOpen(m_filePath, "r");
         if (pmat == nullptr) {
-            throw std::ios_base::failure("Could not open file: " + std::string(_filePath));
+            throw std::ios_base::failure("Could not open file: " + std::string(m_filePath));
         }
 
         /*

@@ -6,7 +6,7 @@ namespace model {
 	class Point
 	{
 	private:
-		double _x, _y;
+		double m_x, m_y;
 	public:
 		Point();
 		Point(double const& x, double const& y);

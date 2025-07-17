@@ -11,25 +11,25 @@ namespace model::pathPlanning {
         //std::cout << "Start: " << start << "\n";
         //std::cout << "End: " << end << "\n";
 
-        _startLeftOrig = _leftOrigin(start);
-        _startRightOrig = _rightOrigin(start);
-        _endLeftOrig = _leftOrigin(end);
-        _endRightOrig = _rightOrigin(end);
+        m_startLeftOrig = leftOrigin(start);
+        m_startRightOrig = rightOrigin(start);
+        m_endLeftOrig = leftOrigin(end);
+        m_endRightOrig = rightOrigin(end);
 
-        double cost = _RSR(start, end);
+        double cost = RSR(start, end);
         double minDistance = cost;
-        cost = _LSL(start, end);
+        cost = LSL(start, end);
         minDistance = std::min(minDistance, cost);
-        cost = _RSL(start, end);
+        cost = RSL(start, end);
         minDistance = std::min(minDistance, cost);
-        cost= _LSR(start, end);
+        cost= LSR(start, end);
         minDistance = std::min(minDistance, cost);
         //// CCC only valid if distance is less 4r_min
         //double relX = start.x - end.x; 
         //double relY = start.y - end.y;
-        //if (relX * relX + relY * relY < 16 * _turningRadius * _turningRadius) {
-        //    costs.emplace_back(_LRL(start, end));
-        //    costs.emplace_back(_RLR(start, end));
+        //if (relX * relX + relY * relY < 16 * m_turningRadius * m_turningRadius) {
+        //    costs.emplace_back(LRL(start, end));
+        //    costs.emplace_back(RLR(start, end));
         //}
 
         return minDistance;
@@ -39,25 +39,25 @@ namespace model::pathPlanning {
     {
         //std::pair<double, double> costs(1.7e308, 1.7e308);
         // Calc rightside and leftside turning min turning radius origin
-        _startLeftOrig = _leftOrigin(start);
-        _startRightOrig = _rightOrigin(start);
+        m_startLeftOrig = leftOrigin(start);
+        m_startRightOrig = rightOrigin(start);
 
         // If goal is inside the turning radius, return some default value
         // Right side
-        model::Point originToGoal = _startRightOrig - endPoint;
-        if (originToGoal * originToGoal < _turningRadius * _turningRadius)
+        model::Point originToGoal = m_startRightOrig - endPoint;
+        if (originToGoal * originToGoal < m_turningRadius * m_turningRadius)
         {
-            return std::max(_arcLength(Point(start), _startRightOrig, endPoint, Direction::RIGHT), _turningRadius * std::numbers::pi);
+            return std::max(arcLength(Point(start), m_startRightOrig, endPoint, Direction::RIGHT), m_turningRadius * std::numbers::pi);
         }
         // Left side
-        originToGoal = _startLeftOrig - endPoint;
-        if (originToGoal * originToGoal < _turningRadius * _turningRadius) 
+        originToGoal = m_startLeftOrig - endPoint;
+        if (originToGoal * originToGoal < m_turningRadius * m_turningRadius) 
         {
-            return std::max(_arcLength(Point(start), _startLeftOrig, endPoint, Direction::LEFT), _turningRadius * std::numbers::pi);
+            return std::max(arcLength(Point(start), m_startLeftOrig, endPoint, Direction::LEFT), m_turningRadius * std::numbers::pi);
         }
         // Get distances on both left and right directions, and return the minimum
-        double costLeft = _leftStraight(start, endPoint);
-        double costRight = _rightStraight(start, endPoint);
+        double costLeft = leftStraight(start, endPoint);
+        double costRight = rightStraight(start, endPoint);
         return std::min(costLeft, costRight);
     }
 
@@ -92,152 +92,152 @@ namespace model::pathPlanning {
         return { p.X() * c - p.Y() * s, p.X() * s + p.Y() * c };
     }
 
-    double DubinsStateSpace::_RSR(model::Pose const& start, model::Pose const& end)
+    double DubinsStateSpace::RSR(model::Pose const& start, model::Pose const& end)
     {
         // Start: right origin, end: right origin
-        model::Point originVect(_endRightOrig - _startRightOrig);
+        model::Point originVect(m_endRightOrig - m_startRightOrig);
         double straightLength = (originVect).magnitude();
         model::Point normalVect(rotatePoint(originVect / straightLength, Angle(std::numbers::pi / 2.0)));
-        model::Point firstTang = normalVect * _turningRadius + _startRightOrig;
-        model::Point secondTang = normalVect * _turningRadius + _endRightOrig;
+        model::Point firstTang = normalVect * m_turningRadius + m_startRightOrig;
+        model::Point secondTang = normalVect * m_turningRadius + m_endRightOrig;
 
-        double startArcLength = _arcLength(Point(start.x, start.y), _startRightOrig, firstTang, Direction::RIGHT);
-        double endArcLength = _arcLength(secondTang, _endRightOrig, model::Point(end.x, end.y), Direction::RIGHT);
+        double startArcLength = arcLength(Point(start.x, start.y), m_startRightOrig, firstTang, Direction::RIGHT);
+        double endArcLength = arcLength(secondTang, m_endRightOrig, model::Point(end.x, end.y), Direction::RIGHT);
         return startArcLength + straightLength + endArcLength;
     }
 
-    double DubinsStateSpace::_LSL(model::Pose const& start, model::Pose const& end)
+    double DubinsStateSpace::LSL(model::Pose const& start, model::Pose const& end)
     {
         // Start: left origin, end: left origin
-        model::Point originVect(_endLeftOrig - _startLeftOrig);
+        model::Point originVect(m_endLeftOrig - m_startLeftOrig);
         double straightLength = (originVect).magnitude();
         model::Point normalVect(rotatePoint(originVect / straightLength, Angle(-std::numbers::pi / 2.0)));
-        model::Point firstTang = normalVect * _turningRadius + _startLeftOrig;
-        model::Point secondTang = normalVect * _turningRadius + _endLeftOrig;
+        model::Point firstTang = normalVect * m_turningRadius + m_startLeftOrig;
+        model::Point secondTang = normalVect * m_turningRadius + m_endLeftOrig;
 
-        double startArcLength = _arcLength(Point(start.x, start.y), _startLeftOrig, firstTang, Direction::LEFT);
-        double endArcLength = _arcLength(secondTang, _endLeftOrig, model::Point(end.x, end.y), Direction::LEFT);
+        double startArcLength = arcLength(Point(start.x, start.y), m_startLeftOrig, firstTang, Direction::LEFT);
+        double endArcLength = arcLength(secondTang, m_endLeftOrig, model::Point(end.x, end.y), Direction::LEFT);
         return startArcLength + straightLength + endArcLength;
     }
 
-    double DubinsStateSpace::_LSR(model::Pose const& start, model::Pose const& end)
+    double DubinsStateSpace::LSR(model::Pose const& start, model::Pose const& end)
     {
         // Start left, end right
-        model::Point originVect(_endRightOrig - _startLeftOrig);
+        model::Point originVect(m_endRightOrig - m_startLeftOrig);
         double originDistance = originVect.magnitude();
         model::Point originVectNorm = originVect / originDistance;
         // V/D*n = 2r/D
-        // nx*originVectNorm.X() + ny*originVectNorm.Y() =2*_turningRadius/originDistance;
+        // nx*originVectNorm.X() + ny*originVectNorm.Y() =2*m_turningRadius/originDistance;
         // nx*nx +ny*ny =1;
-        double cosPhi = 2 * _turningRadius / originDistance; //from dot product rule
+        double cosPhi = 2 * m_turningRadius / originDistance; //from dot product rule
         cosPhi = std::clamp(cosPhi, -1.0, 1.0);
         double sinPhi = std::sqrt(1.0 - cosPhi * cosPhi);
         double nx = originVectNorm.X() * cosPhi - originVectNorm.Y() * sinPhi;
         double ny = originVectNorm.X() * sinPhi + originVectNorm.Y() * cosPhi;
         model::Point normalVect(nx, ny);
-        model::Point firstTang = normalVect * _turningRadius + _startLeftOrig;
-        model::Point secondTang = normalVect * (-1) * _turningRadius + _endRightOrig;
+        model::Point firstTang = normalVect * m_turningRadius + m_startLeftOrig;
+        model::Point secondTang = normalVect * (-1) * m_turningRadius + m_endRightOrig;
 
-        double startArcLength = _arcLength(Point(start), _startLeftOrig, firstTang, Direction::LEFT);
+        double startArcLength = arcLength(Point(start), m_startLeftOrig, firstTang, Direction::LEFT);
         double straightLength = (secondTang - firstTang).magnitude();
-        double endArcLength = _arcLength(secondTang, _endRightOrig, Point(end), Direction::RIGHT);
+        double endArcLength = arcLength(secondTang, m_endRightOrig, Point(end), Direction::RIGHT);
 
         return startArcLength + straightLength + endArcLength;
     }
 
-    double DubinsStateSpace::_RSL(model::Pose const& start, model::Pose const& end)
+    double DubinsStateSpace::RSL(model::Pose const& start, model::Pose const& end)
     {
         // Start right, end left
-        model::Point originVect(_endLeftOrig - _startRightOrig);
+        model::Point originVect(m_endLeftOrig - m_startRightOrig);
         double originDistance = originVect.magnitude();
         model::Point originVectNorm = originVect / originDistance;
         // V/D*n = 2r/D
-        // nx*originVectNorm.X() + ny*originVectNorm.Y() =2*_turningRadius/originDistance;
+        // nx*originVectNorm.X() + ny*originVectNorm.Y() =2*m_turningRadius/originDistance;
         // nx*nx +ny*ny =1;
-        double cosPhi = 2 * _turningRadius / originDistance; //from dot product rule
+        double cosPhi = 2 * m_turningRadius / originDistance; //from dot product rule
         cosPhi = std::clamp(cosPhi, -1.0, 1.0);
         double sinPhi = std::sqrt(1.0 - cosPhi * cosPhi);
         double nx = originVectNorm.X() * cosPhi - originVectNorm.Y() * sinPhi;
         double ny = originVectNorm.X() * sinPhi + originVectNorm.Y() * cosPhi;
         model::Point normalVect(nx, ny);
-        model::Point firstTang = normalVect * _turningRadius + _startRightOrig;
-        model::Point secondTang = normalVect * (-1) * _turningRadius + _endLeftOrig;
+        model::Point firstTang = normalVect * m_turningRadius + m_startRightOrig;
+        model::Point secondTang = normalVect * (-1) * m_turningRadius + m_endLeftOrig;
 
-        double startArcLength = _arcLength(Point(start), _startRightOrig, firstTang, Direction::RIGHT);
+        double startArcLength = arcLength(Point(start), m_startRightOrig, firstTang, Direction::RIGHT);
         double straightLength = (secondTang - firstTang).magnitude();
-        double endArcLength = _arcLength(secondTang, _endLeftOrig, Point(end), Direction::LEFT);
+        double endArcLength = arcLength(secondTang, m_endLeftOrig, Point(end), Direction::LEFT);
 
         return startArcLength + straightLength + endArcLength;
     }
 
-    double DubinsStateSpace::_RLR(model::Pose const& start, model::Pose const& end)
+    double DubinsStateSpace::RLR(model::Pose const& start, model::Pose const& end)
     {
         return 1.7e308;
     }
 
-    double DubinsStateSpace::_LRL(model::Pose const& start, model::Pose const& end)
+    double DubinsStateSpace::LRL(model::Pose const& start, model::Pose const& end)
     {
         return 1.7e308;
     }
 
-    double DubinsStateSpace::_leftStraight(model::Pose const& start, model::Point const& endPoint)
+    double DubinsStateSpace::leftStraight(model::Pose const& start, model::Point const& endPoint)
     {
         // Start left, end: endPoint
-        model::Point originVect(endPoint - _startLeftOrig);
+        model::Point originVect(endPoint - m_startLeftOrig);
         double originDistance = originVect.magnitude();
         model::Point originVectNorm = originVect / originDistance;
         // V/D*n = 2r/D
-        // nx*originVectNorm.X() + ny*originVectNorm.Y() =_turningRadius/originDistance;
+        // nx*originVectNorm.X() + ny*originVectNorm.Y() =m_turningRadius/originDistance;
         // nx*nx +ny*ny =1;
-        double cosPhi = _turningRadius / originDistance; //r1=_turninRadius, r2=0
+        double cosPhi = m_turningRadius / originDistance; //r1=m_turninRadius, r2=0
         cosPhi = std::clamp(cosPhi, -1.0, 1.0);
         double sinPhi = std::sqrt(1.0 - cosPhi * cosPhi);
         double nx = originVectNorm.X() * cosPhi - originVectNorm.Y() * sinPhi;
         double ny = originVectNorm.X() * sinPhi + originVectNorm.Y() * cosPhi;
         model::Point normalVect(nx, ny);
-        model::Point firstTang = normalVect * _turningRadius + _startLeftOrig;
+        model::Point firstTang = normalVect * m_turningRadius + m_startLeftOrig;
 
         double sinPhi2 = -sinPhi;
 
         double nx2 = originVectNorm.X() * cosPhi - originVectNorm.Y() * sinPhi2;
         double ny2 = originVectNorm.X() * sinPhi2 + originVectNorm.Y() * cosPhi;
         model::Point normalVect2(nx2, ny2);
-        model::Point secondTang = normalVect2 * _turningRadius + _startLeftOrig;
+        model::Point secondTang = normalVect2 * m_turningRadius + m_startLeftOrig;
 
-        double startArcLength = _arcLength(Point(start), _startLeftOrig, firstTang, Direction::LEFT);
-        double startArcLength2 = _arcLength(Point(start), _startLeftOrig, secondTang, Direction::LEFT);
+        double startArcLength = arcLength(Point(start), m_startLeftOrig, firstTang, Direction::LEFT);
+        double startArcLength2 = arcLength(Point(start), m_startLeftOrig, secondTang, Direction::LEFT);
         double straightLength = (endPoint - firstTang).magnitude();
 
         return std::min(startArcLength, startArcLength2) + straightLength;
 
     }
 
-    double DubinsStateSpace::_rightStraight(model::Pose const& start, model::Point const& endPoint)
+    double DubinsStateSpace::rightStraight(model::Pose const& start, model::Point const& endPoint)
     {
         // Start left, end: endPoint
-        model::Point originVect(endPoint - _startRightOrig);
+        model::Point originVect(endPoint - m_startRightOrig);
         double originDistance = originVect.magnitude();
         model::Point originVectNorm = originVect / originDistance;
         // V/D*n = 2r/D
-        // nx*originVectNorm.X() + ny*originVectNorm.Y() =_turningRadius/originDistance;
+        // nx*originVectNorm.X() + ny*originVectNorm.Y() =m_turningRadius/originDistance;
         // nx*nx +ny*ny =1;
-        double cosPhi = _turningRadius / originDistance; //r1=_turninRadius, r2=0
+        double cosPhi = m_turningRadius / originDistance; //r1=m_turninRadius, r2=0
         cosPhi = std::clamp(cosPhi, -1.0, 1.0);
         double sinPhi = std::sqrt(1.0 - cosPhi * cosPhi);
         double nx = originVectNorm.X() * cosPhi - originVectNorm.Y() * sinPhi;
         double ny = originVectNorm.X() * sinPhi + originVectNorm.Y() * cosPhi;
         model::Point normalVect(nx, ny);
-        model::Point firstTang = normalVect * _turningRadius + _startRightOrig;
+        model::Point firstTang = normalVect * m_turningRadius + m_startRightOrig;
 
         double sinPhi2 = -sinPhi;
 
         double nx2 = originVectNorm.X() * cosPhi - originVectNorm.Y() * sinPhi2;
         double ny2 = originVectNorm.X() * sinPhi2 + originVectNorm.Y() * cosPhi;
         model::Point normalVect2(nx2, ny2);
-        model::Point secondTang = normalVect2 * _turningRadius + _startRightOrig;
+        model::Point secondTang = normalVect2 * m_turningRadius + m_startRightOrig;
 
-        double startArcLength = _arcLength(Point(start), _startRightOrig, firstTang, Direction::RIGHT);
-        double startArcLength2 = _arcLength(Point(start), _startRightOrig, secondTang, Direction::RIGHT);
+        double startArcLength = arcLength(Point(start), m_startRightOrig, firstTang, Direction::RIGHT);
+        double startArcLength2 = arcLength(Point(start), m_startRightOrig, secondTang, Direction::RIGHT);
         double straightLength = (endPoint - firstTang).magnitude();
 
         return std::min(startArcLength, startArcLength2) + straightLength;
@@ -245,21 +245,21 @@ namespace model::pathPlanning {
     }
 
 
-    model::Point DubinsStateSpace::_leftOrigin(model::Pose const& p) const
+    model::Point DubinsStateSpace::leftOrigin(model::Pose const& p) const
     {
         Angle rightAng = p.theta + std::numbers::pi / 2.0;
         Point norm = rotatePoint(Point(1, 0), rightAng);
-        return Point(p) + norm * _turningRadius;
+        return Point(p) + norm * m_turningRadius;
     }
 
-    model::Point DubinsStateSpace::_rightOrigin(model::Pose const& p) const
+    model::Point DubinsStateSpace::rightOrigin(model::Pose const& p) const
     {
         Angle rightAng = p.theta - std::numbers::pi / 2.0;
         Point norm = rotatePoint(Point(1, 0), rightAng);
-        return Point(p) + norm * _turningRadius;
+        return Point(p) + norm * m_turningRadius;
     }
 
-    double DubinsStateSpace::_arcLength(model::Point const& first, model::Point const& origin, model::Point const& second, Direction dir) const
+    double DubinsStateSpace::arcLength(model::Point const& first, model::Point const& origin, model::Point const& second, Direction dir) const
     {
         Point pVec = first - origin;
         Point tVec = second - origin;
@@ -274,8 +274,8 @@ namespace model::pathPlanning {
         {
             theta -= 2.0 * std::numbers::pi;
         }
-        //double length = abs(theta * _turningRadius);
-        return abs(theta * _turningRadius);
+        //double length = abs(theta * m_turningRadius);
+        return abs(theta * m_turningRadius);
     }
 
 }

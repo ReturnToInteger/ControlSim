@@ -12,12 +12,12 @@ template <typename Iterable>
         ManualMapReader(Iterable const& obstacles);
         std::vector<model::Cone> Read() override;
     private:
-		const Iterable _obstacles;
+		const Iterable m_obstacles;
     };
 
     template<typename Iterable>
     model::ManualMapReader<Iterable>::ManualMapReader(Iterable const& obstacles)
-        : _obstacles(obstacles)
+        : obstacles(obstacles)
     {
     }
 
@@ -25,7 +25,7 @@ template <typename Iterable>
     std::vector<model::Cone> model::ManualMapReader<Iterable>::Read()
     {
         std::vector<model::Cone> cones;
-        for (auto const& obstacle : _obstacles) {
+        for (auto const& obstacle : m_obstacles) {
             cones.emplace_back(obstacle);
         }
         return cones;

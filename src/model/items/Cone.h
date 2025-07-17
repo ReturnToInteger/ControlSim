@@ -15,16 +15,16 @@ namespace model {
 	{
 	public:
 		Cone(model::Point position, double radius, ConeType type =ConeType::UNKNOWN) : 
-			ObstacleBase(position), _radius(radius), _type(type) {}
+			ObstacleBase(position), m_radius(radius), m_type(type) {}
 		Cone(double positionX, double positionY, double radius, ConeType type = ConeType::UNKNOWN) : 
-			ObstacleBase(positionX, positionY), _radius(radius), _type(type) {}
-		double getRadius() const { return _radius; }
-		ConeType getType() const { return _type; }
-		void setType(ConeType type) { _type = type; }
+			ObstacleBase(positionX, positionY), m_radius(radius), m_type(type) {}
+		double getRadius() const { return m_radius; }
+		ConeType getType() const { return m_type; }
+		void setType(ConeType type) { m_type = type; }
 
 	private:
-		const double _radius;
-		ConeType _type;
+		const double m_radius;
+		ConeType m_type;
 
 	};
 

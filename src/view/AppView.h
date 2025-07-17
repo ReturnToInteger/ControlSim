@@ -44,39 +44,39 @@ namespace view {
 		void setPath(model::Path const& path);
 		void setPath(std::deque<model::Path> const& pathVector);
 		void setConeDetectedFlag(const std::unordered_set<const model::Cone*>& detectedCones);
-		void setGridSize(double const& cellSize) { _cellSize = cellSize; }
-		double getWidth() const { return _videoWidth; }
-		double getHeight() const { return _videoHeight; }
-		model::Point getClickGlobalPos() const { return _clickGlobalPos; }
+		void setGridSize(double const& cellSize) { m_cellSize = cellSize; }
+		double getWidth() const { return m_videoWidth; }
+		double getHeight() const { return m_videoHeight; }
+		model::Point getClickGlobalPos() const { return m_clickGlobalPos; }
 		void zoom(double factor);
 		void rotate(double delta);
 
 		static constexpr double defaultGridZoomLimit = 10.0;
 
 	private:
-		void _setupGrid(double limit);
-		void _drawGrid();
-		model::events::InputEvent _translateEventToInput(sf::Event event);
-		sf::RenderWindow _window;
-		unsigned int _videoWidth;
-		unsigned int _videoHeight;
-		int _frameRate;
-		double _zoom;
-		double _lastX;
-		double _gridZoomLimit;
+		void setupGrid(double limit);
+		void drawGrid();
+		model::events::InputEvent translateEventToInput(sf::Event event);
+		sf::RenderWindow m_window;
+		unsigned int m_videoWidth;
+		unsigned int m_videoHeight;
+		int m_frameRate;
+		double m_zoom;
+		double m_lastX;
+		double m_gridZoomLimit;
 
-		model::Point _startPos;
-		model::Point _clickGlobalPos;
-		double _cellSize;
+		model::Point m_startPos;
+		model::Point m_clickGlobalPos;
+		double m_cellSize;
 
-		VehicleView _vehicleView;
-		std::unordered_map<const model::Item*, ItemView*> _itemViewTable;
-		std::vector<ConeView> _coneViews;
+		VehicleView m_vehicleView;
+		std::unordered_map<const model::Item*, ItemView*> m_itemViewTable;
+		std::vector<ConeView> m_coneViews;
 
-		std::vector<PathView> _pathViews;
-		sf::View _view;
-		sf::VertexArray _gridLines;
-		//std::vector<sf::Drawable> _drawables;
+		std::vector<PathView> m_pathViews;
+		sf::View m_view;
+		sf::VertexArray m_gridLines;
+		//std::vector<sf::Drawable> m_drawables;
 
 	};
 } // namespace view 

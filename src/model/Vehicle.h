@@ -41,7 +41,7 @@ namespace model {
 	class Vehicle : public IVehicle {
 	public:
 		Vehicle(std::unique_ptr<model::IControllerLogic> carControl, std::unique_ptr<model::pathPlanning::PathPlanner> pathPlanner) :
-			_state(std::make_unique<T>()), _paths(maxHistorySize)
+			m_state(std::make_unique<T>()), m_paths(maxHistorySize)
 		{
 			if (carControl == nullptr) {
 				throw std::invalid_argument("IControllerLogic must not be null");
@@ -49,21 +49,21 @@ namespace model {
 			if (pathPlanner == nullptr) {
 				throw std::invalid_argument("Path planner must not be null");
 			}
-			_pathPlanners.emplace_back(std::move(pathPlanner));
-			_control = std::move(carControl);
+			m_pathPlanners.emplace_back(std::move(pathPlanner));
+			m_control = std::move(carControl);
 		}
 
 		// state and control methods
 
-		Pose getPose() const override { return _state->getPose(); }
-		Point getPosition() const override { return _state->getPosition(); }
-		Angle getOrientation() const override { return _state->getOrientation(); }
-		double getLength() const override { return _state->getLength(); }
-		double getWidth() const override { return _state->getWidth(); }
-		double getSpeed() const override { return _state->getSpeed(); }
-		std::unique_ptr<IVehicleState> getStateCopy() const override { return _state->clone(); }
+		Pose getPose() const override { return m_state->getPose(); }
+		Point getPosition() const override { return m_state->getPosition(); }
+		Angle getOrientation() const override { return m_state->getOrientation(); }
+		double getLength() const override { return m_state->getLength(); }
+		double getWidth() const override { return m_state->getWidth(); }
+		double getSpeed() const override { return m_state->getSpeed(); }
+		std::unique_ptr<IVehicleState> getStateCopy() const override { return m_state->clone(); }
 		
-		double getWheelBase() const { _state->getWheelBase(); }
+		double getWheelBase() const { m_state->getWheelBase(); }
 		
 		// Update method
 		void update(double dt) override {
@@ -71,21 +71,21 @@ namespace model {
 				dt = 0;
 			}
 			//  Needs to be fixed
-			model::ControlCommand ctrl = _control->drive(*_state, _paths.back());
+			model::ControlCommand ctrl = m_control->drive(*m_state, m_paths.back());
 			model::VelocityCommand command{
 				.linear = ctrl.normSpeed,
 				.angular = ctrl.normSteeringAngle
 			};
-			_state->setTarget(command);
-			_state->updateState(dt);
+			m_state->setTarget(command);
+			m_state->updateState(dt);
 		}
 		void setPose(double x, double y, std::optional<double> orientation) override
 		{
 			if (orientation.has_value()) {
-				_state->setPose(x, y, orientation.value());
+				m_state->setPose(x, y, orientation.value());
 			}
 			else {
-				_state->setPose(x, y, _state->getOrientation());
+				m_state->setPose(x, y, m_state->getOrientation());
 			}
 		}
 
@@ -93,12 +93,12 @@ namespace model {
 
 		FixSizedQueue<Path> getPlannedPaths() const override
 		{
-			return _paths;
+			return m_paths;
 		}
 		double getCellSize(int i = 0) const override
 		{
-			if (i >= _pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
-			return _pathPlanners[i]->getCellSize();
+			if (i >= m_pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
+			return m_pathPlanners[i]->getCellSize();
 		}
 		std::vector<Point> getGoal() const override
 		{
@@ -107,28 +107,28 @@ namespace model {
 
 		void clearPath(int i) override
 		{
-			if (i >= _pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
-			_pathPlanners[i]->clear();
+			if (i >= m_pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
+			m_pathPlanners[i]->clear();
 		}
 		bool planPath(std::unordered_set<const model::Cone*> const& cones, IVehicleState const& state, int i) override
 		{
-			if (i >= _pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
-			return _pathPlanners[i]->planPath(cones, state);
+			if (i >= m_pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
+			return m_pathPlanners[i]->planPath(cones, state);
 		}
 		void setPlannedPath(int i) override
 		{
-			if (i >= _pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
+			if (i >= m_pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
 
-			_pathPlanners[i]->setPlannedPath();
-			model::Path path = _pathPlanners[i]->getPlannedPath();
+			m_pathPlanners[i]->setPlannedPath();
+			model::Path path = m_pathPlanners[i]->getPlannedPath();
 			if (path.size() > 2) {
-				_paths.push(path);
+				m_paths.push(path);
 			}
 		}
 		void setGoal(Point goal, int i) override
 		{
-			if (i >= _pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
-			_pathPlanners[i]->setGoal(goal);
+			if (i >= m_pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
+			m_pathPlanners[i]->setGoal(goal);
 		}
 		void setAllGoals(Point goal) override
 		{
@@ -136,28 +136,28 @@ namespace model {
 			//view::DebugDraw::instance().circle(goal, 0.5, sf::Color::Cyan);
 			//#endif // ENABLE_DEBUG_DRAW
 
-			for (int i = 0; i < _pathPlanners.size(); i++) {
+			for (int i = 0; i < m_pathPlanners.size(); i++) {
 				setGoal(goal, i);
 			}
 		}
 		void addPlanner() override
 		{
-			if (_pathPlanners.empty()) {
+			if (m_pathPlanners.empty()) {
 				throw std::runtime_error("No base planner to copy from");
 			}
-			_pathPlanners.emplace_back(std::make_unique<model::pathPlanning::PathPlanner>(*_pathPlanners.back()));
+			m_pathPlanners.emplace_back(std::make_unique<model::pathPlanning::PathPlanner>(*m_pathPlanners.back()));
 		}
 
 		~Vehicle() = default;
 
 	private:  
 		Vehicle() = default;
-		std::unique_ptr<model::IControllerLogic> _control; 
-		std::unique_ptr<T> _state;
-		//std::unique_ptr<model::Perception> _perception;
-		std::vector<std::unique_ptr<model::pathPlanning::PathPlanner>> _pathPlanners;
+		std::unique_ptr<model::IControllerLogic> m_control; 
+		std::unique_ptr<T> m_state;
+		//std::unique_ptr<model::Perception> m_perception;
+		std::vector<std::unique_ptr<model::pathPlanning::PathPlanner>> m_pathPlanners;
 
-		FixSizedQueue<Path> _paths;
+		FixSizedQueue<Path> m_paths;
 
 	};  
 }

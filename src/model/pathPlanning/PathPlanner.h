@@ -66,69 +66,69 @@ namespace model {
 			const Path& getPlannedPath() const;
 			void setGoal(Point const& goal);
 			void clear();
-			[[nodiscard]] double getCellSize() const { return _cellSize; }
+			[[nodiscard]] double getCellSize() const { return m_cellSize; }
             static Point rotatePoint(model::Point const& point, Angle const& angle);
 
 
 		private:
 			// Storing nodes based on discrete pair of coordinates (x,y)
-			std::unordered_map<std::tuple<int, int, int,int>, PathNode> _openList;
+			std::unordered_map<std::tuple<int, int, int,int>, PathNode> m_openList;
 			std::priority_queue<PQNode,
 				std::vector<PQNode>,
-				std::greater<>> _openQueue;
-			std::unordered_set<std::tuple<int, int, int,int>> _closedList;
+				std::greater<>> m_openQueue;
+			std::unordered_set<std::tuple<int, int, int,int>> m_closedList;
 			#ifdef ENABLE_DEBUG_DRAW
-			std::unordered_set<std::tuple<int, int, int,int>> _collidingList;
+			std::unordered_set<std::tuple<int, int, int,int>> m_collidingList;
 			#endif // ENABLE_DEBUG_DRAW
-			Path _plannedPath;
-			int _angleBins;
-			double _stepSize;
-			double _cellSize;
-			const double* _steeringInputs;
-			int _maxContainerSize;
-			size_t _anglesSize;
+			Path m_plannedPath;
+			int m_angleBins;
+			double m_stepSize;
+			double m_cellSize;
+			const double* m_steeringInputs = nullptr;
+			int m_maxContainerSize;
+			size_t m_anglesSize;
 
-			FixSizedQueue<Point> _goals;
-			PathNode _finalNode;
-			DubinsStateSpace _dubins;
+			FixSizedQueue<Point> m_goals;
+			PathNode m_finalNode;
+			DubinsStateSpace m_dubins;
 
-			static void _selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
-			void _updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage);
-			static std::unique_ptr<IVehicleState> _stepByDistance(IVehicleState const& state, double distance, double steeringInput);
-			[[nodiscard]] std::tuple<int, int, int,int> _discretizePoint(model::Pose const& pose, int stage) const;
+			static void selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
+			void updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage);
+			static std::unique_ptr<IVehicleState> stepByDistance(IVehicleState const& state, double distance, double steeringInput);
+			[[nodiscard]] std::tuple<int, int, int,int> discretizePoint(model::Pose const& pose, int stage) const;
 			// Returns if it collides with 100% accuracy, and vehicle pose
 			// More computationally expensive
-			[[nodiscard]] std::pair<bool, model::Pose> _detectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const;
+			[[nodiscard]] std::pair<bool, model::Pose> detectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const;
 
 			// Simple collision detection that uses vehicle width
 			// Less computationally expensive
-			[[nodiscard]] std::pair<bool, model::Pose> _lazyDetectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const;
+			[[nodiscard]] std::pair<bool, model::Pose> lazyDetectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const;
 
 			//		Detect collision between a node and one step away by interpolating
 			// Returns the first collision if it happens, and the vehicle's pose
 			// If there is no collision, the return is the vehicle's new pose
-			std::pair<bool, model::Pose> _checkCollisionWithinStep(int stepCount, IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones);
+			std::pair<bool, model::Pose> checkCollisionWithinStep(int stepCount, IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones);
 
-			PathNode _createNewNode(PathNode const& node, double steeringInput, int stage) const;
-			void _processValidNode(PathNode & node, std::tuple<int, int, int,int> const& key, int stage);
+			PathNode createNewNode(PathNode const& node, double steeringInput, int stage) const;
+			void processValidNode(PathNode & node, std::tuple<int, int, int,int> const& key, int stage);
 			
-			[[nodiscard]] std::vector<model::Point> _getBoundary(IVehicleState const& state) const;
+			[[nodiscard]] std::vector<model::Point> getBoundary(IVehicleState const& state) const;
 			// Dubins
-			double _getHeuristics(model::IVehicleState const& start, model::Point const& goal);
+			double getHeuristics(model::IVehicleState const& start, model::Point const& goal);
 			// Eucledian only
-			double _getHeuristics(model::Point const& startPoint, model::Point const& goalPoint);
+			double getHeuristics(model::Point const& startPoint, model::Point const& goalPoint);
 			// Multiple waypoints
-			double _getHeuristics(model::IVehicleState const& start, model::Point const& wayPoint, model::Point const& goalPoint);
+			double getHeuristics(model::IVehicleState const& start, model::Point const& wayPoint, model::Point const& goalPoint);
 
 			// gets position-orientation pairs until new position is reached
-			std::vector<std::unique_ptr<model::IVehicleState>>  _stepUntilNew(IVehicleState const& state, double distanceStep) const;
+			std::vector<std::unique_ptr<model::IVehicleState>>  stepUntilNew(IVehicleState const& state, double distanceStep) const;
 
-			[[nodiscard]] bool _isAtGoal(const model::IVehicleState& state, int index) const;
-			[[nodiscard]] bool _hasMoreNodes() const;
-			PQNode _popAndCloseNextNode();
+			[[nodiscard]] bool isAtGoal(const model::IVehicleState& state, int index) const;
+			[[nodiscard]] bool hasMoreNodes() const;
+			PQNode popAndCloseNextNode();
 
 			
-			void _setDubins(double minTurningRadius);
+			void setDubins(double minTurningRadius);
 
 		};
 	}

@@ -4,11 +4,11 @@
 namespace view {
 	class GridView : public ItemView {
 	public:
-		GridView(double const& cellSize) : _cellSizePtr(&cellSize) {}
+		GridView(double const& cellSize) : m_cellSizePtr(&cellSize) {}
 		// Inherited via ItemView
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 		sf::Vector2f getPosition() const override;
 	private: 
-		const double* _cellSizePtr;
+		const double* m_cellSizePtr;
 	};
 }

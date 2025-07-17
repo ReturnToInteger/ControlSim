@@ -14,9 +14,9 @@ namespace model {
 
         // Construct from vector of unique_ptr<IVehicleState>
         Path(std::vector<std::unique_ptr<IVehicleState>>&& path)
-            : _path(std::move(path)) 
+            : m_path(std::move(path)) 
         {
-            if (_path.empty())
+            if (m_path.empty())
             {
                 std::cout << "No path created\n";
             }
@@ -25,9 +25,9 @@ namespace model {
         Path() = default;
         // Copy constructor
         Path(const Path& other) {
-            _path.reserve(other._path.size());
-            for (const auto& ptr : other._path) {
-                _path.push_back(ptr ? ptr->clone() : nullptr);
+            m_path.reserve(other.m_path.size());
+            for (const auto& ptr : other.m_path) {
+                m_path.push_back(ptr ? ptr->clone() : nullptr);
             }
         }
 
@@ -35,11 +35,11 @@ namespace model {
         Path& operator=(const Path& other) {
             if (this != &other) {
                 std::vector<std::unique_ptr<IVehicleState>> newPath;
-                newPath.reserve(other._path.size());
-                for (const auto& ptr : other._path) {
+                newPath.reserve(other.m_path.size());
+                for (const auto& ptr : other.m_path) {
                     newPath.push_back(ptr ? ptr->clone() : nullptr);
                 }
-                _path = std::move(newPath);
+                m_path = std::move(newPath);
             }
             return *this;
         }
@@ -50,17 +50,17 @@ namespace model {
 
         ~Path() = default;
         // Access elements as const IVehicleState references
-        const IVehicleState& operator[](size_t index) const { return *_path[index]; }
+        const IVehicleState& operator[](size_t index) const { return *m_path[index]; }
 
         // Iterators returning const pointers or references
-        std::vector<std::unique_ptr<IVehicleState>>::const_iterator begin() const { return _path.begin(); }
-        std::vector<std::unique_ptr<IVehicleState>>::const_iterator end() const { return _path.end(); }
+        std::vector<std::unique_ptr<IVehicleState>>::const_iterator begin() const { return m_path.begin(); }
+        std::vector<std::unique_ptr<IVehicleState>>::const_iterator end() const { return m_path.end(); }
 
-        size_t size() const { return _path.size(); }
+        size_t size() const { return m_path.size(); }
 
-        const IVehicleState& back() const { return *_path.back(); }
+        const IVehicleState& back() const { return *m_path.back(); }
 
     private:
-        std::vector<std::unique_ptr<IVehicleState>> _path;
+        std::vector<std::unique_ptr<IVehicleState>> m_path;
     };
 }

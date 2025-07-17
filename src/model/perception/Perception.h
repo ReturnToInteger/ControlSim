@@ -13,9 +13,9 @@ namespace model {
 	class Perception
 	{
 	private:
-		std::vector<model::Cone> const& _cones;
-		const double _viewAngle;
-		const double _depth;
+		std::vector<model::Cone> const& m_cones;
+		const double m_viewAngle;
+		const double m_depth;
 	public:
 		Perception(std::vector<model::Cone> const& cones, Angle viewAngle=std::numbers::pi*2.0/3.0, double depth=40);
 		~Perception() = default;

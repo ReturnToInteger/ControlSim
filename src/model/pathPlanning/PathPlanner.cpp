@@ -15,25 +15,25 @@
 
 namespace model::pathPlanning {
 	PathPlanner::PathPlanner(PlannerConfig config) :
-		_stepSize(config.stepSize), 
-		_cellSize(config.cellSize), 
-		_angleBins(config.angleBins), 
-		_goals(static_cast<int>(config.waypoints)+1), 
-		_maxContainerSize(config.maxContainerSize),
-		_dubins(0.0),
-		_steeringInputs{},
-		_anglesSize(0)
+		m_stepSize(config.stepSize), 
+		m_cellSize(config.cellSize), 
+		m_angleBins(config.angleBins), 
+		m_goals(static_cast<int>(config.waypoints)+1), 
+		m_maxContainerSize(config.maxContainerSize),
+		m_dubins(0.0),
+		m_steeringInputs{},
+		m_anglesSize(0)
 	{
-		_goals.push(Point(0.0, 0.0));
-		_selectSteeringMode(config.steeringMode, _steeringInputs, _anglesSize);
+		m_goals.push(Point(0.0, 0.0));
+		selectSteeringMode(config.steeringMode, m_steeringInputs, m_anglesSize);
 	}
 
 	bool PathPlanner::planPath(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& vehicleState)
 	{
-		_setDubins(vehicleState.minimumTurningRadius());
+		setDubins(vehicleState.minimumTurningRadius());
 
 		// If start is within goal, return
-		if (_isAtGoal(vehicleState, 1)) {
+		if (isAtGoal(vehicleState, 1)) {
 			std::cout << "Reached Goal\n";
 			return true;
 		}
@@ -41,8 +41,8 @@ namespace model::pathPlanning {
 
 		// Process first node
 		PQNode startPQ {
-			.fCost = _getHeuristics(vehicleState, _goals.front()),
-			.key = _discretizePoint(vehicleState.getPose(),0) 
+			.fCost = getHeuristics(vehicleState, m_goals.front()),
+			.key = discretizePoint(vehicleState.getPose(),0) 
 		};
 		PathNode startNode;
 		startNode.state = vehicleState.clone();
@@ -52,16 +52,16 @@ namespace model::pathPlanning {
 		startNode.stage = 0;
 
 		// Check collision for start node
-		auto [isColliding, collisionPoint] = _detectCollision(vehicleState, cones);
+		auto [isColliding, collisionPoint] = detectCollision(vehicleState, cones);
 		if (!isColliding) {
 			// Add startNode to open list
-			_openList.emplace(startPQ.key, startNode);
-			_openQueue.emplace(startPQ);
+			m_openList.emplace(startPQ.key, startNode);
+			m_openQueue.emplace(startPQ);
 
 		}
 		else {
 			#ifdef ENABLE_DEBUG_DRAW
-			_collidingList.emplace(startPQ.key);
+			m_collidingList.emplace(startPQ.key);
 			#endif // ENABLE_DEBUG_DRAW
 			std::cout << "Inside a cone.\n";
 			return false;
@@ -69,42 +69,42 @@ namespace model::pathPlanning {
 
 		int iter = 0;
 		bool reachedFirst = false;
-		while (_hasMoreNodes()) {
+		while (hasMoreNodes()) {
 			// Find the node with the lowest cost in the open list, mark it visited, and explore it
 
 			// Get smallest cost and pop
-			PQNode top = _popAndCloseNextNode();
+			PQNode top = popAndCloseNextNode();
 
-			auto it = _openList.find(top.key);
-			if (it == _openList.end()|| top.fCost > it->second.fCost + 1e-8)
+			auto it = m_openList.find(top.key);
+			if (it == m_openList.end()|| top.fCost > it->second.fCost + 1e-8)
 			{
 				continue; // stale node
 			}
 
 			// Set the current node
 			PathNode currentNode = std::move(it->second);
-			_openList.erase(it);
+			m_openList.erase(it);
 			//if (reachedFirst && currentNode.stage == 0) continue;
 			if (currentNode.stage == 0) {
 				// Goal Reached
-				if (_isAtGoal(*currentNode.state, 0)) {
-					_finalNode = currentNode;
+				if (isAtGoal(*currentNode.state, 0)) {
+					m_finalNode = currentNode;
 					//return;
 					reachedFirst = true;
-					_updateNeightbours(cones, currentNode, 1);
+					updateNeightbours(cones, currentNode, 1);
 				}
 				else {
-					_updateNeightbours(cones, currentNode, 0);
+					updateNeightbours(cones, currentNode, 0);
 				}
 
 			}
 			else {
 				// Goal Reached
-				if (_isAtGoal(*currentNode.state, 1)) {
-					_finalNode = currentNode;
+				if (isAtGoal(*currentNode.state, 1)) {
+					m_finalNode = currentNode;
 					return true;
 				}
-				_updateNeightbours(cones, currentNode, 1);
+				updateNeightbours(cones, currentNode, 1);
 			}
 			iter++;
 		}
@@ -112,30 +112,30 @@ namespace model::pathPlanning {
 		// if it reaches the first goal, we still return a valid path
 		if (!reachedFirst)
 		{
-			_finalNode = startNode;
+			m_finalNode = startNode;
 		}
 		return false;
 	}
 
-	PQNode model::pathPlanning::PathPlanner::_popAndCloseNextNode() {
-		PQNode top = _openQueue.top();
-		_openQueue.pop();
-		_closedList.emplace(top.key);
+	PQNode model::pathPlanning::PathPlanner::popAndCloseNextNode() {
+		PQNode top = m_openQueue.top();
+		m_openQueue.pop();
+		m_closedList.emplace(top.key);
 		return top;
 	}
 
 
 	const Path& PathPlanner::getPlannedPath() const
 	{
-		return _plannedPath;
+		return m_plannedPath;
 	}
 
 	void PathPlanner::setGoal(Point const& goal)
 	{
-		_goals.push(goal);
+		m_goals.push(goal);
 		//std::cout << "Goals: ";
-		//std::cout << _goals.front() << "\n";
-		//std::cout << _goals.back()<<"\n";
+		//std::cout << m_goals.front() << "\n";
+		//std::cout << m_goals.back()<<"\n";
 
 	}
 
@@ -145,27 +145,27 @@ namespace model::pathPlanning {
 	{
 #ifdef ENABLE_DEBUG_DRAW
 		std::vector<Point> drawVect;
-		drawVect.reserve(_openList.size());
-		for (auto& node : _openList) {
+		drawVect.reserve(m_openList.size());
+		for (auto& node : m_openList) {
 			drawVect.emplace_back(node.second.state->getPosition());
 		}
 		view::DebugDraw::instance().points(drawVect);
 		drawVect.clear();
-		drawVect.reserve(_closedList.size());
-		for (const auto& node : _closedList) {
-			drawVect.emplace_back(std::get<0>(node) * _cellSize, std::get<1>(node) * _cellSize);
+		drawVect.reserve(m_closedList.size());
+		for (const auto& node : m_closedList) {
+			drawVect.emplace_back(std::get<0>(node) * m_cellSize, std::get<1>(node) * m_cellSize);
 		}
 		view::DebugDraw::instance().points2(drawVect, sf::Color::Red);
 		drawVect.clear();
-		drawVect.reserve(_collidingList.size());
-		for (const auto& node : _collidingList) {
-			drawVect.emplace_back(std::get<0>(node) * _cellSize, std::get<1>(node) * _cellSize);
+		drawVect.reserve(m_collidingList.size());
+		for (const auto& node : m_collidingList) {
+			drawVect.emplace_back(std::get<0>(node) * m_cellSize, std::get<1>(node) * m_cellSize);
 		}
 		view::DebugDraw::instance().points3(drawVect, sf::Color::White);
 #endif // ENABLE_DEBUG_DRAW
 
 		std::vector<std::unique_ptr<IVehicleState>> path;
-		const PathNode* currentNode = &_finalNode;
+		const PathNode* currentNode = &m_finalNode;
 		path.emplace_back(currentNode->state->clone());
 		currentNode = currentNode->parent.get();
 		while (currentNode != nullptr && currentNode->parent.get() != currentNode) {
@@ -173,10 +173,10 @@ namespace model::pathPlanning {
 			currentNode = currentNode->parent.get();
 		}
 		std::ranges::reverse(path);
-		_plannedPath=Path(std::move(path));
+		m_plannedPath=Path(std::move(path));
 	}
 
-	void PathPlanner::_selectSteeringMode(SteeringMode const& mode, double const*& inputs, size_t & size)
+	void PathPlanner::selectSteeringMode(SteeringMode const& mode, double const*& inputs, size_t & size)
 	{
 		switch (mode) {
 		case SteeringMode::LOW:
@@ -200,40 +200,40 @@ namespace model::pathPlanning {
 		}
 	}
 
-	void model::pathPlanning::PathPlanner::_updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage)
+	void model::pathPlanning::PathPlanner::updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage)
 	{
-		//std::cout << "Start of _uNb\n";
+		//std::cout << "Start of m_uNb\n";
 		auto sharedParent = std::make_shared<PathNode>(node);
 
-		for (int i = 0; i < _anglesSize;i++) {
+		for (int i = 0; i < m_anglesSize;i++) {
 			// Set leaf partly
 			PathNode newNode;
-			newNode.state = _stepByDistance(*node.state, _stepSize, _steeringInputs[i]);
+			newNode.state = stepByDistance(*node.state, m_stepSize, m_steeringInputs[i]);
 			newNode.stage = stage;
 
-			std::tuple<int, int, int,int> newNodeKey = _discretizePoint(newNode.state->getPose(),stage);
+			std::tuple<int, int, int,int> newNodeKey = discretizePoint(newNode.state->getPose(),stage);
 
 			// Check if the new node is in the closed list
-			if (_closedList.find(newNodeKey) == _closedList.end()) {
+			if (m_closedList.find(newNodeKey) == m_closedList.end()) {
 				//	Interpolate the path between the current node and the new node and check each collision
-				auto [isColliding, contactPose] = _checkCollisionWithinStep(3, *node.state, cones);
+				auto [isColliding, contactPose] = checkCollisionWithinStep(3, *node.state, cones);
 				// if collision add to closed list
 				if (isColliding) {
-					std::tuple<int, int, int,int> collidingKey = _discretizePoint(contactPose,stage);
-					_closedList.emplace(collidingKey);
+					std::tuple<int, int, int,int> collidingKey = discretizePoint(contactPose,stage);
+					m_closedList.emplace(collidingKey);
 				}
 				else {
 					newNode.parent = sharedParent;
-					newNode.gCost = node.gCost + _stepSize;
+					newNode.gCost = node.gCost + m_stepSize;
 
-					_processValidNode(newNode, newNodeKey,stage);
+					processValidNode(newNode, newNodeKey,stage);
 				}
 			}
 		}
-		//std::cout << "End of _uNb\n";
+		//std::cout << "End of m_uNb\n";
 	}
 
-	std::unique_ptr<IVehicleState> PathPlanner::_stepByDistance(IVehicleState const& state, double distance, double steeringInput)
+	std::unique_ptr<IVehicleState> PathPlanner::stepByDistance(IVehicleState const& state, double distance, double steeringInput)
 	{
 		auto copy = state.clone();
 		double traveled = 0;
@@ -248,18 +248,18 @@ namespace model::pathPlanning {
 		return copy;
 	}
 
-	std::tuple<int, int, int,int> PathPlanner::_discretizePoint(model::Pose const& pose,int stage) const
+	std::tuple<int, int, int,int> PathPlanner::discretizePoint(model::Pose const& pose,int stage) const
 	{
-		int x = static_cast<int>(pose.x / _cellSize);
-		int y = static_cast<int>(pose.y / _cellSize);
+		int x = static_cast<int>(pose.x / m_cellSize);
+		int y = static_cast<int>(pose.y / m_cellSize);
 		double shiftedTheta = radian(pose.theta) + std::numbers::pi;  // now in [0, 2π)
-		double binWidth = 2 * std::numbers::pi / _angleBins;
+		double binWidth = 2 * std::numbers::pi / m_angleBins;
 		int angle = static_cast<int>(std::floor(shiftedTheta / binWidth));
 		return std::make_tuple(x, y, angle,stage);
 	}
 
 
-	std::pair<bool, model::Pose> PathPlanner::_detectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const
+	std::pair<bool, model::Pose> PathPlanner::detectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const
 	{
 		if (cones.empty()) 
 		{
@@ -283,14 +283,14 @@ namespace model::pathPlanning {
 			// within radius and margin for error
 			if (distance < radius) 
 			{
-				//Point contactPoint = _rotatePoint(clampedPoint, vehicleOrientation) + vehiclePosition;
+				//Point contactPoint = rotatePoint(clampedPoint, vehicleOrientation) + vehiclePosition;
 				return { true, state.getPose() };
 			}
 		}
 		return { false,state.getPose() }; // No collision
 	}
 
-	std::pair<bool, model::Pose> PathPlanner::_lazyDetectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const
+	std::pair<bool, model::Pose> PathPlanner::lazyDetectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const
 	{
 		if (cones.empty()) 
 		{
@@ -315,19 +315,19 @@ namespace model::pathPlanning {
 		return { false,state.getPose() }; // No collision
 	}
 
-	std::pair<bool, model::Pose> PathPlanner::_checkCollisionWithinStep(int stepCount, IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones)
+	std::pair<bool, model::Pose> PathPlanner::checkCollisionWithinStep(int stepCount, IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones)
 	{
 		if (cones.empty()) 
 		{
 			return { false, Pose() };
 		}
-		double minAllowedStep = _cellSize * 1.5; // diagonal step size
-		double smallStepSize = clamp(_stepSize / stepCount, minAllowedStep, _stepSize);
+		double minAllowedStep = m_cellSize * 1.5; // diagonal step size
+		double smallStepSize = clamp(m_stepSize / stepCount, minAllowedStep, m_stepSize);
 		bool isColliding=false;
 		Pose contactPose;
 		double currentStep = smallStepSize;
-		while (currentStep < _stepSize - 1e-8) {
-			auto collisionResult = _detectCollision(*_stepByDistance(state, currentStep, state.getTarget().angular), cones);
+		while (currentStep < m_stepSize - 1e-8) {
+			auto collisionResult = detectCollision(*stepByDistance(state, currentStep, state.getTarget().angular), cones);
 			if (collisionResult.first) 
 			{
 				isColliding = true;
@@ -338,7 +338,7 @@ namespace model::pathPlanning {
 		}
 		if (!isColliding) 
 		{
-			auto collisionResult = _detectCollision(*_stepByDistance(state, _stepSize, state.getTarget().angular), cones);
+			auto collisionResult = detectCollision(*stepByDistance(state, m_stepSize, state.getTarget().angular), cones);
 			isColliding = collisionResult.first;
 			contactPose = collisionResult.second;
 		}
@@ -346,43 +346,43 @@ namespace model::pathPlanning {
 		return { isColliding,contactPose };
 	}
 
-	PathNode model::pathPlanning::PathPlanner::_createNewNode(PathNode const& node, double steeringInput, int stage) const
+	PathNode model::pathPlanning::PathPlanner::createNewNode(PathNode const& node, double steeringInput, int stage) const
 	{
 		PathNode newNode;
-		newNode.state = _stepByDistance(*node.state, _stepSize, steeringInput);
+		newNode.state = stepByDistance(*node.state, m_stepSize, steeringInput);
 		newNode.stage = stage;
 		return newNode;
 	}
 
-	void PathPlanner::_processValidNode(PathNode & node, std::tuple<int, int, int,int> const& key,int stage)
+	void PathPlanner::processValidNode(PathNode & node, std::tuple<int, int, int,int> const& key,int stage)
 	{
 		double heuristics;
 		if (stage == 0) 
 		{
-			heuristics = _getHeuristics(*node.state, _goals.front(), _goals.back());
+			heuristics = getHeuristics(*node.state, m_goals.front(), m_goals.back());
 		} else
 		{
-			heuristics = _getHeuristics(*node.state, _goals.back());
+			heuristics = getHeuristics(*node.state, m_goals.back());
 		}
 		double fCost = node.gCost + heuristics;
 		node.fCost = fCost;
 		// if not in open list, add it
-		auto [it, isInserted] = _openList.emplace(key, std::move(node));
+		auto [it, isInserted] = m_openList.emplace(key, std::move(node));
 
 		if (isInserted) 
 		{
-			_openQueue.emplace(fCost, key);
+			m_openQueue.emplace(fCost, key);
 		}
-		else if (node.gCost < _openList[key].gCost) 
+		else if (node.gCost < m_openList[key].gCost) 
 		{
 			// if in open list, replace if cost is lower
-			_openList[key] = std::move(node);
-			_openQueue.emplace(fCost, key);
+			m_openList[key] = std::move(node);
+			m_openQueue.emplace(fCost, key);
 		}
 
 	}
 
-	std::vector<model::Point> PathPlanner::_getBoundary(IVehicleState const& state) const
+	std::vector<model::Point> PathPlanner::getBoundary(IVehicleState const& state) const
 	{
 		throw std::runtime_error("getBoundary not implemented");
 	}
@@ -392,81 +392,81 @@ namespace model::pathPlanning {
 		return { point.X() * model::cos(angle) - point.Y() * model::sin(angle), point.X() * model::sin(angle) + point.Y() * model::cos(angle) };
 	}
 
-	double PathPlanner::_getHeuristics(model::IVehicleState const& start, model::Point const& goalPoint)
+	double PathPlanner::getHeuristics(model::IVehicleState const& start, model::Point const& goalPoint)
 	{
-		return _dubins.simpleDistance(start.getPose(), goalPoint) + start.getVelocity().omega;
+		return m_dubins.simpleDistance(start.getPose(), goalPoint) + start.getVelocity().omega;
 			//+ (start.getSteeringAngle() / start.getMaxSteeringAngle()) * (start.getSteeringAngle() / start.getMaxSteeringAngle());
 	}
 
-	double PathPlanner::_getHeuristics(model::Point const& startPoint, model::Point const& goalPoint)
+	double PathPlanner::getHeuristics(model::Point const& startPoint, model::Point const& goalPoint)
 	{
 		return (startPoint - goalPoint).magnitude();
 
 	}
 
-	double PathPlanner::_getHeuristics(model::IVehicleState const& start, model::Point const& wayPoint, model::Point const& goalPoint)
+	double PathPlanner::getHeuristics(model::IVehicleState const& start, model::Point const& wayPoint, model::Point const& goalPoint)
 	{
-		return _dubins.multipleDistance(start.getPose(), wayPoint, goalPoint) + start.getVelocity().omega;
+		return m_dubins.multipleDistance(start.getPose(), wayPoint, goalPoint) + start.getVelocity().omega;
 			//+ (start.getSteeringAngle() / start.getMaxSteeringAngle()) * (start.getSteeringAngle() / start.getMaxSteeringAngle());
 	}
 
-	std::vector<std::unique_ptr<model::IVehicleState>> PathPlanner::_stepUntilNew(IVehicleState const& state, double distanceStep) const
+	std::vector<std::unique_ptr<model::IVehicleState>> PathPlanner::stepUntilNew(IVehicleState const& state, double distanceStep) const
 	{
-		double diagonalStepSize = _cellSize * 1.5;
-		distanceStep = std::min(std::max(distanceStep, diagonalStepSize), _stepSize);
+		double diagonalStepSize = m_cellSize * 1.5;
+		distanceStep = std::min(std::max(distanceStep, diagonalStepSize), m_stepSize);
 
 		std::vector<std::unique_ptr<IVehicleState>> states;
 		double currentStep = distanceStep;
-		while (currentStep < _stepSize - 1e-8) {
-			//VehicleState currentState = _stepByDistance(state, currentStep, state.getSteeringAngle());
-			states.push_back(_stepByDistance(state, currentStep, state.getTarget().angular));
+		while (currentStep < m_stepSize - 1e-8) {
+			//VehicleState currentState = stepByDistance(state, currentStep, state.getSteeringAngle());
+			states.push_back(stepByDistance(state, currentStep, state.getTarget().angular));
 			currentStep += distanceStep;
 		}
 		return states;
 	}
 
-	bool model::pathPlanning::PathPlanner::_isAtGoal(const model::IVehicleState& state, int index) const
+	bool model::pathPlanning::PathPlanner::isAtGoal(const model::IVehicleState& state, int index) const
 	{
 		if (index == 0) {
-			return (state.getPosition() - _goals.front()).magnitude() < _stepSize;
+			return (state.getPosition() - m_goals.front()).magnitude() < m_stepSize;
 
 		}
 
-		Point relPos = state.getPosition() - _goals.back();
+		Point relPos = state.getPosition() - m_goals.back();
 		Angle theta = state.getOrientation();
 		double xDist = relPos.X() * cos(theta) + relPos.Y() * sin(theta);
 		double yDist = - relPos.X() * sin(theta) + relPos.Y() * cos(theta);
-		return abs(yDist) < _stepSize && abs(xDist) < _stepSize;
+		return abs(yDist) < m_stepSize && abs(xDist) < m_stepSize;
 
 
 	}
 
-	bool PathPlanner::_hasMoreNodes() const {
-		return !_openList.empty() &&
-			_openList.size() < _maxContainerSize &&
-			_closedList.size() < _maxContainerSize;
+	bool PathPlanner::hasMoreNodes() const {
+		return !m_openList.empty() &&
+			m_openList.size() < m_maxContainerSize &&
+			m_closedList.size() < m_maxContainerSize;
 	}
 
 
-	void PathPlanner::_setDubins(double minTurningRadius)
+	void PathPlanner::setDubins(double minTurningRadius)
 	{
-		_dubins = DubinsStateSpace(minTurningRadius);
+		m_dubins = DubinsStateSpace(minTurningRadius);
 	}
 
 	void PathPlanner::clear()
 	{
-		//Point lastGoal= _goals.back();
-		//_goals.clear();
-		//_goals.emplace_back(lastGoal);
-		_openList.clear();
+		//Point lastGoal= m_goals.back();
+		//m_goals.clear();
+		//m_goals.emplace_back(lastGoal);
+		m_openList.clear();
 		std::vector<PQNode> PQTemp;
-		PQTemp.reserve(_maxContainerSize);
-		_openQueue = std::priority_queue<PQNode,
+		PQTemp.reserve(m_maxContainerSize);
+		m_openQueue = std::priority_queue<PQNode,
 			std::vector<PQNode>,
 			std::greater<>>(std::greater<>(), std::move(PQTemp));
-		_closedList.clear();
-		_openList.reserve(_maxContainerSize);
-		_closedList.reserve(_maxContainerSize);
+		m_closedList.clear();
+		m_openList.reserve(m_maxContainerSize);
+		m_closedList.reserve(m_maxContainerSize);
 		//std::cout << "Cleared PathPlanner data\n";
 	}
 }

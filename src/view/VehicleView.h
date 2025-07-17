@@ -23,7 +23,7 @@ namespace view {
 		sf::Vector2f getPosition() const override;
 		model::Angle getOrientation() const;
 	private:
-		const model::IDrawableVehicle* _vehicle;
-		sf::Texture _texture;
+		const model::IDrawableVehicle* m_vehicle;
+		sf::Texture m_texture;
 	};
 }

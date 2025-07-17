@@ -18,6 +18,7 @@ namespace model::diffDrive {
 		static constexpr double currentNoLoad = 0.11; // A
 		static constexpr double angularVelRated = rpmToRadPerSec(100); // RPM to rad/sec
 		static constexpr double currentRated = 0.18; // A
+		
 		static constexpr double torqueRated = kgCmToNm(1.5); // kg * cm to N*m
 		static constexpr double torqueLocked = kgCmToNm(9); // kg * cm to N*m
 		static constexpr double currentLocked = 1; // A

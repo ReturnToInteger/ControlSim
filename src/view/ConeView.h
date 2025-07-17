@@ -16,8 +16,8 @@ namespace view {
         [[nodiscard]] sf::Vector2f getPosition() const override;
         static constexpr float defRadius = 0.15;
     private:
-        sf::Color _typeToColor(const model::Cone * cone) const;
-        const model::Cone* _cone;
-        mutable sf::CircleShape _shape;
+        sf::Color typeToColor(const model::Cone * cone) const;
+        const model::Cone* m_cone;
+        mutable sf::CircleShape m_shape;
     };
 }

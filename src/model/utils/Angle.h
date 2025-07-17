@@ -9,40 +9,40 @@ namespace model {
     // Normalized angle between -PI,PI
     class Angle {
     public:
-        Angle() : _a(0) {}
-        Angle(double a) : _a(normAngle(a)) {}
+        Angle() : m_a(0) {}
+        Angle(double a) : m_a(normAngle(a)) {}
 
         // Explicit conversion to double (avoid accidental conversions)
         explicit operator double() const 
         {
-            return _a;
+            return m_a;
         }
 
         double asRadians() const 
         {
-            return _a;
+            return m_a;
         }
         double asDegrees() const 
         {
-            return _a / std::numbers::pi * 180;;
+            return m_a / std::numbers::pi * 180;;
         }
 
         // Arithmetic operators
         Angle operator+(Angle const& other) const 
         {
-            return Angle(_a + other._a);
+            return Angle(m_a + other.m_a);
         }
         Angle operator-(Angle const& other) const 
         {
-            return Angle(_a - other._a);
+            return Angle(m_a - other.m_a);
         }
         Angle operator+(double val) const 
         {
-            return Angle(_a + val);
+            return Angle(m_a + val);
         }
         Angle operator-(double val) const 
         {
-            return Angle(_a - val);
+            return Angle(m_a - val);
         }
 
         Angle& operator+=(Angle const& other) 
@@ -68,18 +68,18 @@ namespace model {
         // Multiply Angle by double (scale)
         Angle operator*(double val) const 
         {
-            return Angle(_a * val);
+            return Angle(m_a * val);
         }
 
         // Divide Angle by double
         Angle operator/(double val) const 
         {
-            return Angle(_a / val);
+            return Angle(m_a / val);
         }
 
         Angle operator-() const 
         {
-            return Angle(-_a);
+            return Angle(-m_a);
         }
 
         // operator* not defined
@@ -87,22 +87,22 @@ namespace model {
 
         bool isClockwiseTo(Angle const& other) const
         {
-            return normAngle(_a - other._a) > 0;
+            return normAngle(m_a - other.m_a) > 0;
         }
         bool isCounterClockwiseTo(Angle const& other) const 
         {
-            return normAngle(_a - other._a) < 0;
+            return normAngle(m_a - other.m_a) < 0;
         }
 
         friend std::ostream& operator<<(std::ostream& os, Angle const& angle)
         {
-            os << angle._a;
+            os << angle.m_a;
             return os;
         }
 
 
     private:
-        double _a;   // normalized angle in radians
+        double m_a;   // normalized angle in radians
     };
 
     // Functions for convenience

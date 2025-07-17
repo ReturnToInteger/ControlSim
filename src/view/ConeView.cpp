@@ -6,37 +6,37 @@
 
 void view::ConeView::draw(sf::RenderTarget& target, sf::RenderStates states) const  
 {  
-	if (_cone == nullptr) {  
+	if (m_cone == nullptr) {  
 		return;  
 	}  
-	auto position = _cone->getPosition();  
-	_shape.setOrigin(static_cast<float>(_cone->getRadius()), static_cast<float>(_cone->getRadius()));  
-	_shape.setFillColor(_typeToColor(_cone));  
-	_shape.setPosition(static_cast<float>(position.X()), static_cast<float>(position.Y()));  
-	target.draw(_shape);  
+	auto position = m_cone->getPosition();  
+	m_shape.setOrigin(static_cast<float>(m_cone->getRadius()), static_cast<float>(m_cone->getRadius()));  
+	m_shape.setFillColor(typeToColor(m_cone));  
+	m_shape.setPosition(static_cast<float>(position.X()), static_cast<float>(position.Y()));  
+	target.draw(m_shape);  
 }
 
 view::ConeView::ConeView(model::Cone const& cone) : 
-	ItemView(_typeToColor(&cone)), 
-	_cone(&cone), 
-	_shape(static_cast<float>(_cone->getRadius()))
+	ItemView(typeToColor(&cone)), 
+	m_cone(&cone), 
+	m_shape(static_cast<float>(m_cone->getRadius()))
 {
 }
 
-view::ConeView::ConeView() : _cone(nullptr), _shape(defRadius)
+view::ConeView::ConeView() : m_cone(nullptr), m_shape(defRadius)
 {
 }
 
 sf::Vector2f view::ConeView::getPosition() const
 {
-	if (_cone == nullptr) {
+	if (m_cone == nullptr) {
 		return { 0, 0 };
 	}
-	auto position = _cone->getPosition();
+	auto position = m_cone->getPosition();
 	return { static_cast<float>(position.X()),static_cast<float>(position.Y()) };
 }
 
-sf::Color view::ConeView::_typeToColor(const model::Cone* cone) const
+sf::Color view::ConeView::typeToColor(const model::Cone* cone) const
 {
 	if (cone == nullptr) {
 		return sf::Color::Black;

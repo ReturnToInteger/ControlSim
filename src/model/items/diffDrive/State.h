@@ -45,7 +45,7 @@ namespace model::diffDrive
         double getMaxSpeed() const override;
         Twist getVelocity() const override;
         model::VelocityCommand getTarget() const override;
-        double minimumTurningRadius() const override { return _config.vehicle.radius; }
+        double minimumTurningRadius() const override { return m_config.vehicle.radius; }
         std::unique_ptr<IVehicleState> clone() const override { return std::make_unique<State>(*this); }
 
         void setPose(double x, double y, Angle orientation) override;
@@ -58,40 +58,40 @@ namespace model::diffDrive
     private:
 
         //states  
-        Pose _pose;
-        Twist _twist;
-        Accel _accel;
-        double _arch;
-        double _velocity;
-        double _linearAccel;
-        double _angularAccel;
+        Pose m_pose;
+        Twist m_twist;
+        Accel m_accel;
+        double m_arch;
+        double m_velocity;
+        double m_linearAccel;
+        double m_angularAccel;
         //parameters and constraints
-        VehicleConfig _config;
+        VehicleConfig m_config;
         //targets
-        VelocityCommand _targetVelo;
-        WheelState _leftWheel;
-        WheelState _rightWheel;
-        void _setRobotAccel();
-        void _setWheelAccel();
-        void _setTorques();
-        void _integrateToSpeed(double dt);
-        void _integrateToPosition(double dt);
+        VelocityCommand m_targetVelo;
+        WheelState m_leftWheel;
+        WheelState m_rightWheel;
+        void setRobotAccel();
+        void setWheelAccel();
+        void setTorques();
+        void integrateToSpeed(double dt);
+        void integrateToPosition(double dt);
 
     };
 
-    inline Pose State::getPose() const { return _pose; }
+    inline Pose State::getPose() const { return m_pose; }
     inline Point State::getPosition() const
     {
-        return Point(_pose.x, _pose.y);
+        return Point(m_pose.x, m_pose.y);
     }
-    inline Angle State::getOrientation() const { return _pose.theta; }
-    inline double State::getSpeed() const { return _velocity; }
-    inline double State::getLength() const { return _config.vehicle.length; }
-    inline double State::getWidth() const { return _config.vehicle.width; }
+    inline Angle State::getOrientation() const { return m_pose.theta; }
+    inline double State::getSpeed() const { return m_velocity; }
+    inline double State::getLength() const { return m_config.vehicle.length; }
+    inline double State::getWidth() const { return m_config.vehicle.width; }
     inline void State::setTarget(VelocityCommand targetCommand)
     {
-        _targetVelo.linear = model::clamp(targetCommand.linear, -1, 1);
-        _targetVelo.angular = model::clamp(targetCommand.angular, -1, 1);
+        m_targetVelo.linear = model::clamp(targetCommand.linear, -1, 1);
+        m_targetVelo.angular = model::clamp(targetCommand.angular, -1, 1);
     }
-    inline VelocityCommand State::getTarget() const { return _targetVelo; }
+    inline VelocityCommand State::getTarget() const { return m_targetVelo; }
 }

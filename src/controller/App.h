@@ -63,26 +63,26 @@ namespace controller {
 		void handleInputEvent(std::string const& src, events::InputEvent const& e) override;
 
     private:		
-		void _pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index);
-		void _startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda);
+		void pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index);
+		void startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda);
 		// Should be moved to model
-		bool _calcGoal(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& state, model::Point& currentGoal,double maxDist);
+		bool calcGoal(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& state, model::Point& currentGoal,double maxDist);
 
-		std::vector<model::Cone> _cones;
-		std::unique_ptr<view::AppView> _view;
-		std::unique_ptr<model::IVehicle> _vehicle;
-		std::unique_ptr<model::Perception> _perception;
+		std::vector<model::Cone> m_cones;
+		std::unique_ptr<view::AppView> m_view;
+		std::unique_ptr<model::IVehicle> m_vehicle;
+		std::unique_ptr<model::Perception> m_perception;
 
 		// Threading
-		std::mutex _simLock;
-		std::mutex _pathLock;
-		std::condition_variable _resetEvent;
-		const int _threadCount;
-		std::atomic_bool _running;
-		SharedGoals _sharedGoals;
+		std::mutex m_simLock;
+		std::mutex m_pathLock;
+		std::condition_variable m_resetEvent;
+		const int m_threadCount;
+		std::atomic_bool m_running;
+		SharedGoals m_sharedGoals;
 
 		// Need a reader, which will read the map 
-		std::unique_ptr<model::IMapReader> _mapReader;
+		std::unique_ptr<model::IMapReader> m_mapReader;
 
 	};
 }

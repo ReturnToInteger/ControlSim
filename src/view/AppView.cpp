@@ -13,97 +13,97 @@
 
 namespace view {
 	AppView::AppView()
-		: _videoWidth(DefaultAppViewConfig::width),
-		_videoHeight(DefaultAppViewConfig::height),
-		_frameRate(DefaultAppViewConfig::frameRate),
-		_zoom(DefaultAppViewConfig::zoom),
-		_lastX(-1),
-		_gridZoomLimit(defaultGridZoomLimit),
-		_cellSize(0)
+		: m_videoWidth(DefaultAppViewConfig::width),
+		m_videoHeight(DefaultAppViewConfig::height),
+		m_frameRate(DefaultAppViewConfig::frameRate),
+		m_zoom(DefaultAppViewConfig::zoom),
+		m_lastX(-1),
+		m_gridZoomLimit(defaultGridZoomLimit),
+		m_cellSize(0)
 	{
 	}
 
 	AppView::AppView(model::IDrawableVehicle const& vehicle, std::vector<model::Cone> const& map)
-		: _videoWidth(DefaultAppViewConfig::width),
-		_videoHeight(DefaultAppViewConfig::height),
-		_frameRate(DefaultAppViewConfig::frameRate),
-		_zoom(DefaultAppViewConfig::zoom),
-		_lastX(-1),
-		_vehicleView(vehicle, sf::Color::Red),
-		_gridZoomLimit(defaultGridZoomLimit),
-		_cellSize(0)
+		: m_videoWidth(DefaultAppViewConfig::width),
+		m_videoHeight(DefaultAppViewConfig::height),
+		m_frameRate(DefaultAppViewConfig::frameRate),
+		m_zoom(DefaultAppViewConfig::zoom),
+		m_lastX(-1),
+		m_vehicleView(vehicle, sf::Color::Red),
+		m_gridZoomLimit(defaultGridZoomLimit),
+		m_cellSize(0)
 	{
-		_coneViews.reserve(map.size());
+		m_coneViews.reserve(map.size());
 		for (const auto& cone : map) {
-			_coneViews.emplace_back(cone);
-			_itemViewTable.emplace(&cone, &_coneViews.back());
+			m_coneViews.emplace_back(cone);
+			m_itemViewTable.emplace(&cone, &m_coneViews.back());
 		}
 	}
 
 	void AppView::init()
 	{
-		_window.create(sf::VideoMode(_videoWidth, _videoHeight), "Vehicle Simulation");
-		_window.setFramerateLimit(_frameRate);
-		_view.setSize(static_cast<float>(_videoWidth), static_cast<float>(_videoHeight));
-		_view.setCenter(_vehicleView.getPosition());
-		_view.zoom(static_cast<float>(_zoom));
-		_window.setView(_view);
+		m_window.create(sf::VideoMode(m_videoWidth, m_videoHeight), "Vehicle Simulation");
+		m_window.setFramerateLimit(m_frameRate);
+		m_view.setSize(static_cast<float>(m_videoWidth), static_cast<float>(m_videoHeight));
+		m_view.setCenter(m_vehicleView.getPosition());
+		m_view.zoom(static_cast<float>(m_zoom));
+		m_window.setView(m_view);
 	}
 
 	void AppView::render()
 	{
-		_setupGrid(_gridZoomLimit);
-		_window.clear(sf::Color::Black);
-		_view.setCenter(_vehicleView.getPosition());
-		_window.setView(_view);
+		setupGrid(m_gridZoomLimit);
+		m_window.clear(sf::Color::Black);
+		m_view.setCenter(m_vehicleView.getPosition());
+		m_window.setView(m_view);
 		//Drawing
-		_drawGrid();
+		drawGrid();
 		#ifdef ENABLE_DEBUG_DRAW
-		_window.draw(view::DebugDraw::instance());
+		m_window.draw(view::DebugDraw::instance());
 		#endif // ENABLE_DEBUG_DRAW
 
-		for (auto const& coneView : _coneViews) {
-			_window.draw(coneView);
+		for (auto const& coneView : m_coneViews) {
+			m_window.draw(coneView);
 		}
-		for (auto& path : _pathViews) {
-			_window.draw(path);
+		for (auto& path : m_pathViews) {
+			m_window.draw(path);
 		}
-		_window.draw(_vehicleView);
-		//if (_drawables) {
-		//	for (auto const& drawable : _drawables) {
-		//		_window.draw(drawable);
+		m_window.draw(m_vehicleView);
+		//if (m_drawables) {
+		//	for (auto const& drawable : m_drawables) {
+		//		m_window.draw(drawable);
 		//	}
 		//}
 
-		_window.display();
+		m_window.display();
 	}
 
 	void AppView::pollEvents()
 	{
 		sf::Event event;
-		while (_window.pollEvent(event)){
+		while (m_window.pollEvent(event)){
 			if (event.type == sf::Event::Closed) 
 			{
-				_window.close();
+				m_window.close();
 			}
 			else if (event.type == sf::Event::Resized)
 			{
 				// update the view to the new size of the window
 				auto resized = event.size;
-				_videoWidth = resized.width;
-				_videoHeight = resized.height;
-				_view.setSize(static_cast<float>(resized.width), static_cast<float>(resized.height));
-				_view.setCenter(_vehicleView.getPosition());
-				_view.zoom(static_cast<float>(_zoom));
+				m_videoWidth = resized.width;
+				m_videoHeight = resized.height;
+				m_view.setSize(static_cast<float>(resized.width), static_cast<float>(resized.height));
+				m_view.setCenter(m_vehicleView.getPosition());
+				m_view.zoom(static_cast<float>(m_zoom));
 				
-				_notify("AppView", model::events::Resized{});
+				notify("AppView", model::events::Resized{});
 			} 
 			else
 			{
-				model::events::InputEvent e = _translateEventToInput(event);
+				model::events::InputEvent e = translateEventToInput(event);
 				if (!std::holds_alternative<model::events::None>(e))
 				{
-					_notify("AppView", e);
+					notify("AppView", e);
 				}
 			}
 
@@ -112,106 +112,106 @@ namespace view {
 		// Poll keys not in event
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) 
 		{
-			sf::Vector2i pixelPos = sf::Mouse::getPosition(_window);
-			if (_lastX < 0) 
+			sf::Vector2i pixelPos = sf::Mouse::getPosition(m_window);
+			if (m_lastX < 0) 
 			{
-				_lastX = pixelPos.x;
+				m_lastX = pixelPos.x;
 			}
 
-			_notify("AppView", model::events::RightClickDown{ .lastX= _lastX,.currentX= (double)pixelPos.x });
-			_lastX = pixelPos.x;
+			notify("AppView", model::events::RightClickDown{ .lastX= m_lastX,.currentX= (double)pixelPos.x });
+			m_lastX = pixelPos.x;
 		}
 		else 
 		{
-			_lastX = -1;
+			m_lastX = -1;
 		}
 	}
 
 	bool AppView::isOpen() const
 	{
-		return _window.isOpen();
+		return m_window.isOpen();
 	}
 
 	double AppView::getFrameTime() const
 	{
-		return 1.0/(double) _frameRate;
+		return 1.0/(double) m_frameRate;
 	}
 
 	void AppView::close()
 	{
-		_window.close();
+		m_window.close();
 	}
 
 	void AppView::setVehicle(model::IDrawableVehicle const& vehicle)
 	{
-		_vehicleView = view::VehicleView(vehicle, sf::Color::Red);
-		_view.setCenter(_vehicleView.getPosition());
+		m_vehicleView = view::VehicleView(vehicle, sf::Color::Red);
+		m_view.setCenter(m_vehicleView.getPosition());
 	}
 
 	void AppView::setCones(std::vector<model::Cone> const& cones)
 	{
-		_coneViews.clear();
-		_coneViews.reserve(cones.size());
+		m_coneViews.clear();
+		m_coneViews.reserve(cones.size());
 		for (auto const& cone : cones) {
-			_coneViews.emplace_back(cone);	
-			_itemViewTable.emplace(&cone, &_coneViews.back());
+			m_coneViews.emplace_back(cone);	
+			m_itemViewTable.emplace(&cone, &m_coneViews.back());
 		}
 	}
 
 	void AppView::setPath(model::Path const& path)
 	{
-		_pathViews = std::vector<PathView>{ PathView(path) };
+		m_pathViews = std::vector<PathView>{ PathView(path) };
 
 	}
 
 	void AppView::setPath(std::deque<model::Path> const& pathVector)
 	{
 		// TODO: Delete from itemViewTable
-		_pathViews.clear();
+		m_pathViews.clear();
 		if (pathVector.empty()) {
-			_pathViews.emplace_back();
+			m_pathViews.emplace_back();
 			return;
 		}
 		for (auto const& path : pathVector) {
-			_pathViews.emplace_back(path);
-			//_itemViewTable.emplace(&path, _pathViews.back());
+			m_pathViews.emplace_back(path);
+			//m_itemViewTable.emplace(&path, m_pathViews.back());
 		}
-		_pathViews.back().setColor(sf::Color::Green);
+		m_pathViews.back().setColor(sf::Color::Green);
 
 	}
 
 	void AppView::setConeDetectedFlag(const std::unordered_set<const model::Cone*>& detectedCones)
 	{
-		for (auto& coneView : _coneViews) {
+		for (auto& coneView : m_coneViews) {
 			coneView.isDetected = false;
 		}
 		for (auto const& item : detectedCones) {
-			_itemViewTable[item]->isDetected = true;
+			m_itemViewTable[item]->isDetected = true;
 		}
 	}
 
 	void AppView::zoom(double factor)
 	{
-		_zoom = _zoom * factor;
+		m_zoom = m_zoom * factor;
 		//std::cout << delta << "\n";
-		_view.zoom(static_cast<float>(factor));
+		m_view.zoom(static_cast<float>(factor));
 
 	}
 
 	void AppView::rotate(double delta)
 	{
-		_view.rotate(static_cast<float>(delta));
+		m_view.rotate(static_cast<float>(delta));
 	}
 
-	void AppView::_setupGrid(double limit)
+	void AppView::setupGrid(double limit)
 	{
-		sf::Vector2f topLeft(_window.mapPixelToCoords({ 0,0 }));
-		sf::Vector2f bottomRight(_window.mapPixelToCoords(sf::Vector2i( (int)_videoWidth,(int)_videoHeight )));
-		if (_cellSize / _zoom < limit) {
-			_gridLines.clear();
+		sf::Vector2f topLeft(m_window.mapPixelToCoords({ 0,0 }));
+		sf::Vector2f bottomRight(m_window.mapPixelToCoords(sf::Vector2i( (int)m_videoWidth,(int)m_videoHeight )));
+		if (m_cellSize / m_zoom < limit) {
+			m_gridLines.clear();
 			return;
 		}
-		double cellSize = _cellSize;
+		double cellSize = m_cellSize;
 
 		int startX = int(std::floor(topLeft.x / cellSize));
 		int endX = int((std::floor(bottomRight.x / cellSize) + 1));
@@ -236,15 +236,15 @@ namespace view {
 			lines.append(sf::Vertex(sf::Vector2f(static_cast<float>(startX * cellSize), py), lineColor));
 			lines.append(sf::Vertex(sf::Vector2f(static_cast<float>(endX * cellSize), py), lineColor));
 		}
-		_gridLines = lines;
+		m_gridLines = lines;
 	}
 
-	void AppView::_drawGrid()
+	void AppView::drawGrid()
 	{
-		_window.draw(_gridLines);
+		m_window.draw(m_gridLines);
 	}
 
-	model::events::InputEvent view::AppView::_translateEventToInput(sf::Event event)
+	model::events::InputEvent view::AppView::translateEventToInput(sf::Event event)
 	{
 
 		if (event.type == sf::Event::KeyPressed) 
@@ -253,7 +253,7 @@ namespace view {
 			{
 				return model::events::PressedEsc();
 			}
-				//_window.close();
+				//m_window.close();
 			if (event.key.code == sf::Keyboard::LShift) {
 				//// Wait until released
 				//while (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
@@ -265,14 +265,14 @@ namespace view {
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
 			if (event.mouseButton.button == sf::Mouse::Left) {
-				sf::Vector2i pixelPos = sf::Mouse::getPosition(_window);
+				sf::Vector2i pixelPos = sf::Mouse::getPosition(m_window);
 
-				sf::Vector2f worldPos = _window.mapPixelToCoords(pixelPos);
+				sf::Vector2f worldPos = m_window.mapPixelToCoords(pixelPos);
 
 				//std::cout << "Map coords (on button press):\n";
 				//std::cout << "map x: " << worldPos.x << "\n";
 				//std::cout << "map y: " << worldPos.y << "\n";
-				//_clickGlobalPos = model::Point(worldPos.x, worldPos.y);
+				//m_clickGlobalPos = model::Point(worldPos.x, worldPos.y);
 				return model::events::ClickedAt{ .x = (double)worldPos.x, .y = (double)worldPos.y };
 			}
 		}
@@ -295,12 +295,12 @@ namespace view {
 
 //	void AppView::addDrawable(sf::Drawable& drawable)
 //	{
-//		_drawables.emplace_back(drawable);
+//		m_drawables.emplace_back(drawable);
 //	}
 //
 //	void AppView::clearDrawables()
 //	{
-//		_drawables.clear();
+//		m_drawables.clear();
 //	}
 //
 }

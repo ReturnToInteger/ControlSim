@@ -31,22 +31,22 @@ namespace controller {
 		std::unique_ptr<model::IMapReader> mapReader,
 		std::unique_ptr<view::AppView> view,
 		int threadCount)
-		: _mapReader(std::move(mapReader)),
-		_vehicle(std::move(vehicle)),
-		_view(std::move(view)),
-		_threadCount(threadCount),
-		_running(false),
-		_sharedGoals{ 
-			.goals= { _vehicle->getPosition(), _vehicle->getPosition() },
+		: m_mapReader(std::move(mapReader)),
+		m_vehicle(std::move(vehicle)),
+		m_view(std::move(view)),
+		m_threadCount(threadCount),
+		m_running(false),
+		m_sharedGoals{ 
+			.goals= { m_vehicle->getPosition(), m_vehicle->getPosition() },
 			.goalHasChanged= false }
 	{
-		assert(_mapReader != nullptr && "Provide valid arguments.");
-		assert(_vehicle != nullptr && "Provide valid arguments.");
-		//assert(_view != nullptr && "Provide valid arguments.");
+		assert(m_mapReader != nullptr && "Provide valid arguments.");
+		assert(m_vehicle != nullptr && "Provide valid arguments.");
+		//assert(m_view != nullptr && "Provide valid arguments.");
 
-		if (_view)
+		if (m_view)
 		{
-			_view->attach(this);
+			m_view->attach(this);
 		}
 	}
 
@@ -54,41 +54,41 @@ namespace controller {
 	{
 		//Setup
 		// Read the map from the file
-		std::vector<model::Cone> _cones = _mapReader->Read();
+		std::vector<model::Cone> m_cones = m_mapReader->Read();
 
 		//Create perception
 		Angle perceptionAngle = radian(75);
 		double perceptionDistance = 15;
-		_perception = std::make_unique<model::Perception>(_cones, perceptionAngle, perceptionDistance);
+		m_perception = std::make_unique<model::Perception>(m_cones, perceptionAngle, perceptionDistance);
 
 		// Set up view
-		double cellSize = _vehicle->getCellSize();
+		double cellSize = m_vehicle->getCellSize();
 		double frameTime;
-		if (_view) {
-			_view->setVehicle(*_vehicle);
-			_view->setCones(_cones);
-			_view->setGridSize(cellSize);
-			_view->init();
-			frameTime = _view->getFrameTime();
+		if (m_view) {
+			m_view->setVehicle(*m_vehicle);
+			m_view->setCones(m_cones);
+			m_view->setGridSize(cellSize);
+			m_view->init();
+			frameTime = m_view->getFrameTime();
 		}
 		else {
 			frameTime = 1.0 / 60.0; // TO DO: Make NullView
 		}
 
 		// Run pathplanning threads
-		_running.store(true);
-		std::unordered_set<const model::Cone*> detectedCones = _perception->detect(_vehicle->getPose());
+		m_running.store(true);
+		std::unordered_set<const model::Cone*> detectedCones = m_perception->detect(m_vehicle->getPose());
 		std::function<void(int)> pathPlanningLambda = [this, &detectedCones](int index) {
-			_pathPlanningWorker(detectedCones, index);
+			pathPlanningWorker(detectedCones, index);
 			};
 		std::vector<std::thread> threads;
-		_startPlanningThreads(_threadCount, threads, pathPlanningLambda);
+		startPlanningThreads(m_threadCount, threads, pathPlanningLambda);
 
 		// Run the game loop
 		double updateTime = 0;
 		SimpleTimer frameTimer;
 		int iter = 0;
-		while (_view->isOpen()) {
+		while (m_view->isOpen()) {
 			double deltaTime = frameTimer.elapsedSeconds();
 			// Update the vehicle
 			// Locked basically the whole loop, maybe it doesn't need to be like this, but this is fast to compute
@@ -97,49 +97,49 @@ namespace controller {
 			// Gets plannedPath ✓ safe
 			// Gets detectedCones ✓ safe
 			// Sets detectedCones ✓ safe
-			// Modifies _vehicle ✓ safe
+			// Modifies m_vehicle ✓ safe
 			// View reads vehicle?
-			if (_view) {
-				_view->pollEvents();
+			if (m_view) {
+				m_view->pollEvents();
 			}
 			std::deque<model::Path> pathCopy(5);
 			{
-				std::lock_guard<std::mutex> lock(_simLock);
+				std::lock_guard<std::mutex> lock(m_simLock);
 				frameTimer.reset();
 				// Update the state
-				_vehicle->update(model::clamp(deltaTime,frameTime,frameTime*5));
+				m_vehicle->update(model::clamp(deltaTime,frameTime,frameTime*5));
 				// Safely copy for viewing
-				if (_view) {
-					pathCopy=_vehicle->getPlannedPaths().get();
+				if (m_view) {
+					pathCopy=m_vehicle->getPlannedPaths().get();
 				}
 
 				// Detect for mapping
-				detectedCones= _perception->detect(_vehicle->getPose());
+				detectedCones= m_perception->detect(m_vehicle->getPose());
 
 				// Calc goal for path planning
 				double wayPoint1Distance = 10;
 				double wayPoint2Distance = 150;
-				std::unique_ptr<model::IVehicleState> stateCopy=_vehicle->getStateCopy();
-				bool foundCurrent1 = _calcGoal(detectedCones, *stateCopy, _sharedGoals.goals[0], wayPoint1Distance);
-				bool foundCurrent2 = _calcGoal(detectedCones, *stateCopy, _sharedGoals.goals[1], wayPoint2Distance);
+				std::unique_ptr<model::IVehicleState> stateCopy=m_vehicle->getStateCopy();
+				bool foundCurrent1 = calcGoal(detectedCones, *stateCopy, m_sharedGoals.goals[0], wayPoint1Distance);
+				bool foundCurrent2 = calcGoal(detectedCones, *stateCopy, m_sharedGoals.goals[1], wayPoint2Distance);
 				if (foundCurrent1 || foundCurrent2) {
-					_sharedGoals.goalHasChanged.store(true);
+					m_sharedGoals.goalHasChanged.store(true);
 				}
 
 			}
-			if (_view) {
-				_view->setPath(pathCopy);
-				_view->setConeDetectedFlag(detectedCones);
+			if (m_view) {
+				m_view->setPath(pathCopy);
+				m_view->setConeDetectedFlag(detectedCones);
 				// Render the simulation
-				_view->render();
+				m_view->render();
 			}
-			if (!_view)
+			if (!m_view)
 			{
 				std::this_thread::sleep_for(std::chrono::duration<double>(frameTime - deltaTime));
 			}
 			iter++;
 		}
-		_running.store(false);
+		m_running.store(false);
 		for (auto& t : threads) {
 			t.join();
 		}
@@ -152,8 +152,8 @@ namespace controller {
 	// Sets planned path ✓ safe
 	// Reads Perception ✓ safe
 	// Reads VehicleState ✓ safe
-	// Modifies _vehicle ?
-	void App::_pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index)
+	// Modifies m_vehicle ?
+	void App::pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index)
 	{
 		std::cout << "Planning index is: " << index << "\n";
 
@@ -172,15 +172,15 @@ namespace controller {
 		model::Point goal2;
 
 		{
-			std::lock_guard<std::mutex> lock(_simLock);
-			goal1 = _vehicle->getPosition();
+			std::lock_guard<std::mutex> lock(m_simLock);
+			goal1 = m_vehicle->getPosition();
 		} 
 		goal2 = goal1;
 
 		model::VehicleState stateCopy;
 		double filterParam = 0.25;
 		bool foundPath = false;
-		while (_running.load(std::memory_order_relaxed)) {
+		while (m_running.load(std::memory_order_relaxed)) {
 
 			// Read data from main
 			std::unordered_set<const model::Cone*> detectedCopy;
@@ -189,12 +189,12 @@ namespace controller {
 			model::Point previous2(goal2);
 
 			{
-				std::lock_guard<std::mutex> lock(_simLock);
+				std::lock_guard<std::mutex> lock(m_simLock);
 				detectedCopy = detectedCones;
-				stateCopy = _vehicle->getStateCopy();			
+				stateCopy = m_vehicle->getStateCopy();			
 
-				goal1 = _sharedGoals.goals[0];
-				goal2 = _sharedGoals.goals[1];
+				goal1 = m_sharedGoals.goals[0];
+				goal2 = m_sharedGoals.goals[1];
 			} // End of reading
 
 
@@ -203,12 +203,12 @@ namespace controller {
 			goal1 = (1 - filterParam) * goal1 + filterParam * previous1;
 			goal2 = (1 - filterParam) * goal2 + filterParam * previous2;
 			if ((stateCopy->getPosition() - goal1).magnitude() <= (stateCopy->getPosition() - goal2).magnitude()) {
-				_vehicle->setGoal(goal1, index);
-				_vehicle->setGoal(goal2, index);
+				m_vehicle->setGoal(goal1, index);
+				m_vehicle->setGoal(goal2, index);
 			}
 			else {
-				_vehicle->setGoal(goal2, index);
-				_vehicle->setGoal(goal1, index);
+				m_vehicle->setGoal(goal2, index);
+				m_vehicle->setGoal(goal1, index);
 			}
 			#ifdef ENABLE_DEBUG_DRAW
 			view::DebugDraw::instance().circle(goal1, 0.5, sf::Color::Cyan);
@@ -218,30 +218,30 @@ namespace controller {
 			// Dealing with the current pathPlanner
 			std::chrono::duration<double> dur(0);
 			// Only plan if goal was changed
-			if (_sharedGoals.goalHasChanged.load()) {
+			if (m_sharedGoals.goalHasChanged.load()) {
 				// Clear residual data before planning new one
-				_vehicle->clearPath(index);
+				m_vehicle->clearPath(index);
 				// Plan inside timer
 				dur = model::timeFunction("Path planning", [this, &detectedCopy, &stateCopy, &index, &foundPath]() {
-						foundPath = _vehicle->planPath(detectedCopy, *stateCopy, index);				
+						foundPath = m_vehicle->planPath(detectedCopy, *stateCopy, index);				
 						// Sending data back to main
 						{
-							std::lock_guard<std::mutex> lock(_simLock);
-							_vehicle->setPlannedPath(index);
+							std::lock_guard<std::mutex> lock(m_simLock);
+							m_vehicle->setPlannedPath(index);
 						} // End of sending data
 					});
-				_sharedGoals.goalHasChanged.store(false);			
+				m_sharedGoals.goalHasChanged.store(false);			
 			}// End of dealing with the current pathPlanner
 
 			time += dur.count();
 			sortedTime.emplace_back(dur.count());
 			double delayScnd = 0.005;
-			double sleepDur = std::max(delayScnd * _threadCount * (double)(index+1.0) / (double)_threadCount-dur.count(), delayScnd); // Spread out thread execution over time
+			double sleepDur = std::max(delayScnd * m_threadCount * (double)(index+1.0) / (double)m_threadCount-dur.count(), delayScnd); // Spread out thread execution over time
 			std::this_thread::sleep_for(std::chrono::duration<double>(sleepDur)); // Sleep to avoid pointless CPU overload.
 			iter++;
 		}
 		std::ranges::sort(sortedTime);
-		std::lock_guard<std::mutex> lock(_pathLock);
+		std::lock_guard<std::mutex> lock(m_pathLock);
 		std::cout << "________________\n" <<
 			"THREAD ID: " << std::this_thread::get_id() << "\n" <<
 			"Avg. path planning time: " << time / iter << "\n" <<
@@ -252,11 +252,11 @@ namespace controller {
 
 	}
 
-	void controller::App::_startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda)
+	void controller::App::startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda)
 	{
 		// Assuming one planner already exists
 		for (int i = 0; i < threadCount - 1; i++) {
-			_vehicle->addPlanner();
+			m_vehicle->addPlanner();
 		}
 		// Starting threads
 		for (int i = 0; i < threadCount; i++) {
@@ -272,24 +272,24 @@ namespace controller {
 		// Events
 		double rotateSpeed = 6.0;
 		std::visit(Overload{ 
-			[this](model::events::PressedEsc const&) {_view->close(); },
+			[this](model::events::PressedEsc const&) {m_view->close(); },
 			//[this](model::events::ClickedAt const& click) {
-			//		std::lock_guard<std::mutex> lock(_simLock);
+			//		std::lock_guard<std::mutex> lock(m_simLock);
 			//		#ifdef ENABLE_DEBUG_DRAW
 			//		view::DebugDraw::instance().circle(model::Point(click.x, click.y), 0.5, sf::Color::Red);
 			//		#endif // ENABLE_DEBUG_DRAW
 
-			//		_vehicle->setAllGoals(model::Point(click.x,click.y));
+			//		m_vehicle->setAllGoals(model::Point(click.x,click.y));
 			//		},
-			[this](model::events::Scrolled const& s) {_view->zoom(1 - s.delta * 0.25); },
+			[this](model::events::Scrolled const& s) {m_view->zoom(1 - s.delta * 0.25); },
 			[this,  rotateSpeed](model::events::RightClickDown const& c) {
 				double delta = c.currentX- c.lastX;
-				_view->rotate(delta*rotateSpeed*_view->getFrameTime()); 
+				m_view->rotate(delta*rotateSpeed*m_view->getFrameTime()); 
 			},
 			[](auto&&) {}
 			}, e);
 	}
-	bool controller::App::_calcGoal(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& state, model::Point& currentGoal, double maxDist)
+	bool controller::App::calcGoal(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& state, model::Point& currentGoal, double maxDist)
 	{
 		double maxL = 0;
 		double maxR = 0;
@@ -328,7 +328,7 @@ namespace controller {
 		if (maxRCone) 
 		{
 			model::Angle direction = state.getOrientation() + std::numbers::pi / 2.0;
-			model::Point offset(_vehicle->getLength()/2* cos(direction), _vehicle->getLength()/2 * sin(direction));
+			model::Point offset(m_vehicle->getLength()/2* cos(direction), m_vehicle->getLength()/2 * sin(direction));
 			currentGoal=maxRCone->getPosition() + offset;
 
 			//#ifdef ENABLE_DEBUG_DRAW
@@ -339,7 +339,7 @@ namespace controller {
 		if (maxLCone) 
 		{
 			model::Angle direction = state.getOrientation() - std::numbers::pi / 2.0;
-			model::Point offset(_vehicle->getLength()/2 * cos(direction), _vehicle->getLength()/2 * sin(direction));
+			model::Point offset(m_vehicle->getLength()/2 * cos(direction), m_vehicle->getLength()/2 * sin(direction));
 			currentGoal=maxLCone->getPosition()+offset;
 
 			//#ifdef ENABLE_DEBUG_DRAW

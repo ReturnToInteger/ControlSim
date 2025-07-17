@@ -6,11 +6,11 @@ namespace model {
         public Item
     {
     public:
-		ObstacleBase(Point position) : _position(position) {}
-		ObstacleBase(double x, double y) : _position(x, y) {}
-		Point getPosition() const override { return _position; }
+		ObstacleBase(Point position) : m_position(position) {}
+		ObstacleBase(double x, double y) : m_position(x, y) {}
+		Point getPosition() const override { return m_position; }
 		virtual ~ObstacleBase() = default;
 	protected:
-		const Point _position;
+		const Point m_position;
     };
 }

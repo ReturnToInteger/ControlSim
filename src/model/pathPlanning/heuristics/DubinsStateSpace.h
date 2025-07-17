@@ -9,8 +9,8 @@ namespace model {
 		enum Direction { LEFT, RIGHT };
 		class DubinsStateSpace {
 		public:
-			DubinsStateSpace() : _turningRadius(0) {}
-			DubinsStateSpace(double const& turningRadius) : _turningRadius(turningRadius) {}
+			DubinsStateSpace() : m_turningRadius(0) {}
+			DubinsStateSpace(double const& turningRadius) : m_turningRadius(turningRadius) {}
 			// Dubins distance
 			double distance(model::Pose const& start, model::Pose const& end);
 			// Simplified Dubins distance without known end orientation
@@ -22,27 +22,27 @@ namespace model {
 			static constexpr double angleDivision = 8;
 
 		private:
-			double _turningRadius;
+			double m_turningRadius;
 			// CSC distances
-			double _RSR(model::Pose const& start, model::Pose const& end);
-			double _LSL(model::Pose const& start, model::Pose const& end);
-			double _LSR(model::Pose const& start, model::Pose const& end);
-			double _RSL(model::Pose const& start, model::Pose const& end);
+			double RSR(model::Pose const& start, model::Pose const& end);
+			double LSL(model::Pose const& start, model::Pose const& end);
+			double LSR(model::Pose const& start, model::Pose const& end);
+			double RSL(model::Pose const& start, model::Pose const& end);
 			// CCC distances
-			double _RLR(model::Pose const& start, model::Pose const& end);
-			double _LRL(model::Pose const& start, model::Pose const& end);
+			double RLR(model::Pose const& start, model::Pose const& end);
+			double LRL(model::Pose const& start, model::Pose const& end);
 			// simple CS distance
-			double _leftStraight(model::Pose const& start, model::Point const& endPoint);
-			double _rightStraight(model::Pose const& start, model::Point const& endPoint);
+			double leftStraight(model::Pose const& start, model::Point const& endPoint);
+			double rightStraight(model::Pose const& start, model::Point const& endPoint);
 			// Origins
-			model::Point _leftOrigin(model::Pose const& p) const;
-			model::Point _rightOrigin(model::Pose const& p) const;
-			model::Point _startLeftOrig;
-			model::Point _startRightOrig;
-			model::Point _endLeftOrig;
-			model::Point _endRightOrig;
+			model::Point leftOrigin(model::Pose const& p) const;
+			model::Point rightOrigin(model::Pose const& p) const;
+			model::Point m_startLeftOrig;
+			model::Point m_startRightOrig;
+			model::Point m_endLeftOrig;
+			model::Point m_endRightOrig;
 			// Arc length
-			double _arcLength(model::Point const& first, model::Point const& origin, model::Point const& second, Direction dir) const;
+			double arcLength(model::Point const& first, model::Point const& origin, model::Point const& second, Direction dir) const;
 		};
 	}
 }

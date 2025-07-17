@@ -10,6 +10,6 @@ namespace model {
 		// Inherited via IMapReader
 		std::vector<Cone> Read() override;
 	private:
-		const char * _filePath;
+		const char * m_filePath;
 	};
 }
