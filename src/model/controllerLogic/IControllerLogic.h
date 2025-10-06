@@ -8,12 +8,11 @@ namespace model {
 	namespace diffDrive {
 		class State;
 	}
+	template <typename StateType>
 	class IControllerLogic {
 	public:
 		IControllerLogic() = default;
 		virtual ~IControllerLogic() = default;
-		virtual ControlCommand drive(VehicleState const& state, model::Path const& path) = 0;
-		virtual ControlCommand drive(model::diffDrive::State const& state, model::Path const& path) = 0;
-
+		virtual ControlCommand drive(StateType const& state, model::Path const& path) = 0;
 	};
 }

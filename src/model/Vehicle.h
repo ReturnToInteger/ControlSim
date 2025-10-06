@@ -24,7 +24,6 @@
 
 namespace model { 
 
-	class IControllerLogic;
 	class VehicleState;
 	class IVehicleState;
 	class Perception;
@@ -40,7 +39,7 @@ namespace model {
 	template <FromIVehicleState T>
 	class Vehicle : public IVehicle {
 	public:
-		Vehicle(std::unique_ptr<model::IControllerLogic> carControl, std::unique_ptr<model::pathPlanning::PathPlanner> pathPlanner) :
+		Vehicle(std::unique_ptr<model::IControllerLogic<T>> carControl, std::unique_ptr<model::pathPlanning::PathPlanner> pathPlanner) :
 			m_state(std::make_unique<T>()), m_paths(maxHistorySize)
 		{
 			if (carControl == nullptr) {
@@ -152,7 +151,7 @@ namespace model {
 
 	private:  
 		Vehicle() = default;
-		std::unique_ptr<model::IControllerLogic> m_control; 
+		std::unique_ptr<model::IControllerLogic<T>> m_control;
 		std::unique_ptr<T> m_state;
 		//std::unique_ptr<model::Perception> m_perception;
 		std::vector<std::unique_ptr<model::pathPlanning::PathPlanner>> m_pathPlanners;

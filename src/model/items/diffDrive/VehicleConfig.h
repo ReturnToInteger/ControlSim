@@ -12,6 +12,7 @@ namespace model::diffDrive {
     };
 
     struct VehicleConfig {
+        static constexpr double scale = 5;
         static constexpr VehicleConstraints vehicle;
         static constexpr MotorModel motor;
         static constexpr WheelModel wheel;

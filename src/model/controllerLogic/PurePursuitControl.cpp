@@ -102,9 +102,4 @@ namespace model {
 		return center.getPose() - deltaPose;
 	}
 
-	ControlCommand PurePursuitControl::drive(model::diffDrive::State const& state, model::Path const& path)
-	{
-		return ControlCommand();
-	}
-
 }

@@ -52,7 +52,6 @@ namespace model::diffDrive
         void setPose(Pose pose) override;
         void setTarget(model::VelocityCommand targetCommand) override;
 
-        // Update based on state
         void updateState(double dt) override;
 
     private:

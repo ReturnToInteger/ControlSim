@@ -10,15 +10,30 @@ namespace model::diffDrive {
 		m_arch(0),
 		m_velocity(0),
 		m_leftWheel{ 0,0,0,0,0 },
-		m_rightWheel{ 0,0,0,0,0 }
+		m_rightWheel{ 0,0,0,0,0 },
+		m_angularAccel(0),
+		m_linearAccel(0),
+		m_targetVelo(0)
 	{}
 	void model::diffDrive::State::updateState(double dt)
 	{
-		//// TO DO: PID
-		//// setControl();
-		//// P*e + I*int(e) + D*der(e)
-		//double e_lin = m_targetVelo.linear - model::Point(m_twist.vx, m_twist.vy).magnitude();
-		//double e_ang = m_targetVelo.angular - m_twist.omega;
+
+		m_rightWheel.pwm = m_targetVelo.linear + m_targetVelo.angular;
+		m_leftWheel.pwm = m_targetVelo.linear - m_targetVelo.angular;
+		//if (std::abs(m_rightWheel.pwm) > 1) {
+		//	m_leftWheel.pwm += model::clamp(m_rightWheel.pwm > 0 ? 1 - m_rightWheel.pwm : -1 - m_rightWheel.pwm,-1,1);
+		//	m_rightWheel.pwm = model::clamp(m_rightWheel.pwm, -1, 1);
+		//}
+		//if (std::abs(m_leftWheel.pwm) > 1) {
+		//	m_rightWheel.pwm += model::clamp(m_leftWheel.pwm > 0 ? 1 - m_leftWheel.pwm : -1 - m_leftWheel.pwm, -1, 1);
+		//	m_leftWheel.pwm = model::clamp(m_leftWheel.pwm, -1, 1);
+		//}
+		double maxAbs = std::max(std::abs(m_rightWheel.pwm), std::abs(m_leftWheel.pwm));
+		if (maxAbs > 1.0) {
+			m_rightWheel.pwm /= maxAbs;
+			m_leftWheel.pwm /= maxAbs;
+		}
+
 
 		setTorques();
 		setRobotAccel();
@@ -28,17 +43,29 @@ namespace model::diffDrive {
 	}
 	void State::setTorques()
 	{
-		double eps0 = 1e-5;
+		double eps0 = 1e-2;
 
-		m_rightWheel.pwm = 0.5;
-		m_leftWheel.pwm = 0.5;
+		//m_rightWheel.pwm = 1;
+		//m_leftWheel.pwm = 1;
+
 		m_rightWheel.omegaNoLoad = m_config.motor.angularVelNoLoad * m_rightWheel.pwm;
-		double omegaRatio = (abs(m_rightWheel.pwm)> eps0) ? m_rightWheel.omega / m_rightWheel.omegaNoLoad: 0;
+		double omegaRatio = (abs(m_rightWheel.pwm) > eps0) ? m_rightWheel.omega / m_rightWheel.omegaNoLoad : 0;
+		omegaRatio = model::clamp(omegaRatio, 0.0, 1.0);
 		m_rightWheel.torque = m_config.motor.torqueLocked * m_rightWheel.pwm * (1 - omegaRatio)- m_rightWheel.omega*0.001;
+		if (m_rightWheel.torque > m_config.motor.torqueLocked) {
+			std::cout << "RightWheel unclamped: " << m_rightWheel.torque << "\n";
+		}
+		m_rightWheel.torque = model::clamp(m_rightWheel.torque, -m_config.motor.torqueLocked, m_config.motor.torqueLocked);
+
 
 		m_leftWheel.omegaNoLoad = m_config.motor.angularVelNoLoad * m_leftWheel.pwm;
 		omegaRatio = (abs(m_leftWheel.pwm) > eps0) ? m_leftWheel.omega / m_leftWheel.omegaNoLoad : 0;
+		omegaRatio = model::clamp(omegaRatio, 0.0, 1.0);
 		m_leftWheel.torque = m_config.motor.torqueLocked * m_leftWheel.pwm * (1 - omegaRatio)- m_leftWheel.omega * 0.001;
+		if (m_leftWheel.torque > m_config.motor.torqueLocked) {
+			std::cout << "LeftWheel unclamped: " << m_leftWheel.torque << "\n";
+		}
+		m_leftWheel.torque = model::clamp(m_leftWheel.torque, -m_config.motor.torqueLocked, m_config.motor.torqueLocked);
 	}
 	void State::setRobotAccel()
 	{

@@ -36,7 +36,7 @@ namespace model {
 			static constexpr std::array<double, 11> steeringModeHIGH = { 0.0, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6, 0.8, -0.8, 1.0, -1.0 };
 			static constexpr std::array<double, 9> steeringModeSQUARED = { 0.0, 0.06, -0.06, 0.25, -0.25, 0.56, -0.56, 1.0, -1.0 };
 		};
-		static constexpr int defaultContainerSize = 200;
+		static constexpr int defaultContainerSize = 1000;
 
 		// cellSize
 		// stepSize

@@ -213,10 +213,10 @@ namespace view {
 		}
 		double cellSize = m_cellSize;
 
-		int startX = int(std::floor(topLeft.x / cellSize));
-		int endX = int((std::floor(bottomRight.x / cellSize) + 1));
-		int startY = int(std::floor(topLeft.y / cellSize));
-		int endY = int((std::floor(bottomRight.y / cellSize) + 1));
+		int startX = int(std::floor((topLeft.x - m_videoWidth) / cellSize));
+		int endX = int((std::floor((bottomRight.x + m_videoWidth) / cellSize) + 1));
+		int startY = int(std::floor((topLeft.y - m_videoHeight) / cellSize));
+		int endY = int((std::floor((bottomRight.y + m_videoHeight) / cellSize) + 1));
 
 		sf::VertexArray lines(sf::Lines);
 

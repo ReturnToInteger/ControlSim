@@ -18,8 +18,9 @@ static double Mod(double a, double b) {
 }
 
 int main() {
-	const double cellSize = 0.2;
-	const double stepSize = 1.5;
+	using VehicleType = model::VehicleState;
+	const double cellSize = 0.15;
+	const double stepSize = 0.5;
 	const int angleBins = 20;
 	model::pathPlanning::PlannerConfig plannerConfig{
 		.cellSize = cellSize,
@@ -30,7 +31,7 @@ int main() {
 	};
 	
 	controller::App app(
-		std::make_unique<model::Vehicle<model::diffDrive::State>>(std::make_unique<model::PurePursuitControl>(), 
+		std::make_unique<model::Vehicle<VehicleType>>(std::make_unique<controller::KeyboardControl<VehicleType>>(),
 			std::make_unique<model::pathPlanning::PathPlanner>(plannerConfig)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>() /*nullptr*/,

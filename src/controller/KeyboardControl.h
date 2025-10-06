@@ -1,6 +1,8 @@
 #pragma once  
 #include "model/controllerLogic/IControllerLogic.h"  
 #include <model/controllerLogic/ControlCommand.h>
+#include <SFML/Window/Keyboard.hpp>
+
 
 
 namespace model {
@@ -9,21 +11,49 @@ namespace model {
 }
 namespace controller  
 {
+	template <typename StateT>
 	class KeyboardControl :  
-		public model::IControllerLogic  
+		public model::IControllerLogic<StateT>  
 	{ 
 	public:
 		// Inherited via IControllerLogic  
-		model::ControlCommand drive(model::VehicleState const& state, model::Path const& path) override;
+		model::ControlCommand drive(StateT const& state, model::Path const& path) override
+		{
+
+			return { detectSpeed(), detectAngle() };
+
+		}
 		~KeyboardControl() = default;
-		static double detectSpeed();
+		static double detectSpeed()
+		{
+			double speed = 0.0;
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && !sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			{
+				speed = 1.0;
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && !sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+			{
+				speed = -1.0;
+			}
 
-		static double detectAngle();
+			return speed;
+		}
+
+		static double detectAngle() {
+
+			double angle = 0.0;
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+				angle = -1.0;
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+				angle = 1.0;
+			}
+
+			return angle;
+		}
 
 
 
-		// Inherited via IControllerLogic
-		model::ControlCommand drive(model::diffDrive::State const& state, model::Path const& path) override;
 
 	};
 }

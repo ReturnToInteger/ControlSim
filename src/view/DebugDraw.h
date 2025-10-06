@@ -10,8 +10,8 @@ namespace view {
     class DebugDraw : public sf::Drawable {
     public:
         static DebugDraw& instance() {
-            static DebugDraw s_inst;
-            return s_inst;
+            static DebugDraw inst;
+            return inst;
         }
         DebugDraw() : m_circles(2) {}
         void line(sf::Vector2f a, sf::Vector2f b, sf::Color color = sf::Color::Red) {

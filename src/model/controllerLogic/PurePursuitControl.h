@@ -9,12 +9,11 @@ namespace model {
     struct Pose;
 
     class PurePursuitControl :
-        public IControllerLogic
+        public IControllerLogic<VehicleState>
     {
     public:
         PurePursuitControl(int lookAhead = 1) : m_lookAhead(lookAhead), m_previous( 0,0 ) {}
         ControlCommand drive(VehicleState const& state, model::Path const& path) override;
-        ControlCommand drive(model::diffDrive::State const& state, model::Path const& path) override;
         ~PurePursuitControl() = default;
         static constexpr double defaultSpeedInput = .2;
     private:

@@ -166,6 +166,9 @@ namespace model::pathPlanning {
 
 		std::vector<std::unique_ptr<IVehicleState>> path;
 		const PathNode* currentNode = &m_finalNode;
+		if (!currentNode->state) {
+			return;
+		}
 		path.emplace_back(currentNode->state->clone());
 		currentNode = currentNode->parent.get();
 		while (currentNode != nullptr && currentNode->parent.get() != currentNode) {
@@ -394,7 +397,7 @@ namespace model::pathPlanning {
 
 	double PathPlanner::getHeuristics(model::IVehicleState const& start, model::Point const& goalPoint)
 	{
-		return m_dubins.simpleDistance(start.getPose(), goalPoint) + start.getVelocity().omega;
+		return m_dubins.simpleDistance(start.getPose(), goalPoint);// +start.getVelocity().omega;
 			//+ (start.getSteeringAngle() / start.getMaxSteeringAngle()) * (start.getSteeringAngle() / start.getMaxSteeringAngle());
 	}
 
@@ -406,7 +409,7 @@ namespace model::pathPlanning {
 
 	double PathPlanner::getHeuristics(model::IVehicleState const& start, model::Point const& wayPoint, model::Point const& goalPoint)
 	{
-		return m_dubins.multipleDistance(start.getPose(), wayPoint, goalPoint) + start.getVelocity().omega;
+		return m_dubins.multipleDistance(start.getPose(), wayPoint, goalPoint);// +start.getVelocity().omega;
 			//+ (start.getSteeringAngle() / start.getMaxSteeringAngle()) * (start.getSteeringAngle() / start.getMaxSteeringAngle());
 	}
 

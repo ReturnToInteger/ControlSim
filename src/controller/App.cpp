@@ -116,7 +116,7 @@ namespace controller {
 
 				// Calc goal for path planning
 				double wayPoint1Distance = 10;
-				double wayPoint2Distance = 150;
+				double wayPoint2Distance = 50;
 				std::unique_ptr<model::IVehicleState> stateCopy=m_vehicle->getStateCopy();
 				bool foundCurrent1 = calcGoal(detectedCones, *stateCopy, m_sharedGoals.goals[0], wayPoint1Distance);
 				bool foundCurrent2 = calcGoal(detectedCones, *stateCopy, m_sharedGoals.goals[1], wayPoint2Distance);
@@ -216,12 +216,12 @@ namespace controller {
 			// Dealing with the current pathPlanner
 			std::chrono::duration<double> dur(0);
 			// Only plan if goal was changed
-			if (m_sharedGoals.goalHasChanged.load()) {
+			if (/*m_sharedGoals.goalHasChanged.load()*/true) {
 				// Clear residual data before planning new one
 				m_vehicle->clearPath(index);
 				// Plan inside timer
 				dur = model::timeFunction("Path planning", [this, &detectedCopy, &stateCopy, &index, &foundPath]() {
-						foundPath = m_vehicle->planPath(detectedCopy, *stateCopy, index);				
+						foundPath = m_vehicle->planPath(detectedCopy, *stateCopy, index);
 						// Sending data back to main
 						{
 							std::lock_guard<std::mutex> lock(m_simLock);
