@@ -17,7 +17,7 @@ This project started as a Formula Student Car simulation in MATLAB. I revisited 
 ## Requirements
 
 - Visual Studio
- > Tested on Visual Studio 2022; older versions should work if they support C++17.  
+ > Tested on Visual Studio 2022; older versions should work if they support C++23.  
 - C++23
 - SFML 2.6.2 (needed if you want graphics)
 - ImGui 1.89.9
