@@ -4,9 +4,9 @@ This project started as a Formula Student Car simulation in MATLAB. I revisited 
 
 ## Features
 
-- Simulate car movement with custom parameters
+- Simulate car movement with custom parameters, and different car models.
 - Navigate through a map with obstacles, currently has cones as obstacles.
-- Keyboard navigation
+- Keyboard navigation, or self-driving mode
 - Visualize environment using SFML graphics
 - Use either Matlab .mat files, an iterable class of cones, or your own custom class
 - Modular map reader (`IMapReader`), vehicle controller (`IControllerLogic`)
