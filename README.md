@@ -27,7 +27,7 @@ Optional:
  - MATLAB (needed for reading `mat` files using `MatlabMapReader`)
 
 ## How to Run / Setup
-1. **MATLAB support (optional):**  
+1. **MATLAB support (recommended):**  
    - Set your MATLAB install path in CMake
 2. **Setup:**
    - CMake fetches the correct branch of SFML, ImGui, and ImGui-SFML upon loading
