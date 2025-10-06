@@ -30,7 +30,7 @@ int main() {
 	};
 	
 	controller::App app(
-		std::make_unique<model::Vehicle<model::diffDrive::State>>(std::make_unique<model::PurePursuitControl>(), 
+		std::make_unique<model::Vehicle<model::VehicleState>>(std::make_unique<model::PurePursuitControl>(), 
 			std::make_unique<model::pathPlanning::PathPlanner>(plannerConfig)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>() /*nullptr*/,
