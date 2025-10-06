@@ -19,8 +19,8 @@ static double Mod(double a, double b) {
 
 int main() {
 	using VehicleType = model::VehicleState;
-	const double cellSize = 0.15;
-	const double stepSize = 0.5;
+	const double cellSize = 0.2;
+	const double stepSize = 1.5;
 	const int angleBins = 20;
 	model::pathPlanning::PlannerConfig plannerConfig{
 		.cellSize = cellSize,
