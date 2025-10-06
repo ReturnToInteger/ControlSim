@@ -26,17 +26,6 @@ This project started as a Formula Student Car simulation in MATLAB. I revisited 
 Optional:
  - MATLAB (needed for reading `mat` files using `MatlabMapReader`)
 
-## Getting Started
-
-Clone the repository:
-
-```bash
-   git clone https://github.com/yourusername/yourproject.git
-   ```
-
-Open the .sln file in Visual Studio and follow the setup instructions below.
-
-
 ## How to Run / Setup
 1. **MATLAB support (optional):**  
    - Set your MATLAB install path in CMake
