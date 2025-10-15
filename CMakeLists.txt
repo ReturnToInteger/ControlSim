@@ -46,6 +46,13 @@ target_link_libraries(${PROJECT_NAME}  PRIVATE
   "${MATLAB_LIB_DIRS}/libmx.lib"  
 )
 
+set(CPACK_PACKAGE_NAME "ControlSim")
+set(CPACK_PACKAGE_VERSION "0.0.1")
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/release_bundle")
+include(CPack)
+
+
 # Enable clang-tidy
 option(ENABLE_CLANG_TIDY "Enable clang-tidy checks" OFF)
 
