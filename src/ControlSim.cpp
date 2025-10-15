@@ -19,6 +19,7 @@ static double Mod(double a, double b) {
 
 int main() {
 	using VehicleType = model::VehicleState;
+	using ControlMethod = controller::KeyboardControl<VehicleType>;
 	const double cellSize = 0.2;
 	const double stepSize = 1.5;
 	const int angleBins = 20;
@@ -31,7 +32,7 @@ int main() {
 	};
 	
 	controller::App app(
-		std::make_unique<model::Vehicle<VehicleType>>(std::make_unique<controller::KeyboardControl<VehicleType>>(),
+		std::make_unique<model::Vehicle<VehicleType>>(std::make_unique<ControlMethod>(),
 			std::make_unique<model::pathPlanning::PathPlanner>(plannerConfig)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>() /*nullptr*/,

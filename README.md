@@ -4,9 +4,9 @@ This project started as a Formula Student Car simulation in MATLAB. I revisited 
 
 ## Features
 
-- Simulate car movement with custom parameters
+- Simulate car movement with custom parameters, and different car models.
 - Navigate through a map with obstacles, currently has cones as obstacles.
-- Keyboard navigation
+- Keyboard navigation, or self-driving mode
 - Visualize environment using SFML graphics
 - Use either Matlab .mat files, an iterable class of cones, or your own custom class
 - Modular map reader (`IMapReader`), vehicle controller (`IControllerLogic`)
@@ -16,8 +16,8 @@ This project started as a Formula Student Car simulation in MATLAB. I revisited 
 
 ## Requirements
 
-- Visual Studio
- > Tested on Visual Studio 2022; older versions should work if they support C++17.  
+- CMake > 3.31.6 (Visual Studio)
+ > Tested on Visual Studio 2022; older versions should work if they support C++23.  
 - C++23
 - SFML 2.6.2 (needed if you want graphics)
 - ImGui 1.89.9
@@ -26,19 +26,8 @@ This project started as a Formula Student Car simulation in MATLAB. I revisited 
 Optional:
  - MATLAB (needed for reading `mat` files using `MatlabMapReader`)
 
-## Getting Started
-
-Clone the repository:
-
-```bash
-   git clone https://github.com/yourusername/yourproject.git
-   ```
-
-Open the .sln file in Visual Studio and follow the setup instructions below.
-
-
 ## How to Run / Setup
-1. **MATLAB support (optional):**  
+1. **MATLAB support (recommended):**  
    - Set your MATLAB install path in CMake
 2. **Setup:**
    - CMake fetches the correct branch of SFML, ImGui, and ImGui-SFML upon loading
