@@ -10,7 +10,7 @@
 #include "model/perception/Perception.h"
 #include "model/pathPlanning/PathPlanner.h"
 #include "model/utils/ModelUtils.h"
-#include "model/items/ObstacleBase.h"
+#include "model/items/Obstacle.h"
 #include "model/utils/FixSizedQueue.h"
 #include <windows.h>
 #include <string>
