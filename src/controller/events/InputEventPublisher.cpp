@@ -2,7 +2,7 @@
 #include "InputEventHandler.h"
 
 
-void model::events::InputEventPublisher::notify(std::string const& src, model::events::InputEvent const& e) {
+void controller::events::InputEventPublisher::notify(std::string const& src, controller::events::InputEvent const& e) {
 	for (auto it = m_eventHandlers.begin(); it != m_eventHandlers.end(); ) {
 		if (*it) {
 			(*it)->handleInputEvent(src, e);

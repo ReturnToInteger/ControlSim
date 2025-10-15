@@ -263,15 +263,15 @@ namespace controller {
 	}
 	App::~App() = default;
 
-	void controller::App::handleInputEvent(std::string const& src, model::events::InputEvent const& e)
+	void controller::App::handleInputEvent(std::string const& src, controller::events::InputEvent const& e)
 	{
 		// Log
 		std::visit(InputTranslate(), e);
 		// Events
 		double rotateSpeed = 6.0;
 		std::visit(Overload{ 
-			[this](model::events::PressedEsc const&) {m_view->close(); },
-			//[this](model::events::ClickedAt const& click) {
+			[this](controller::events::PressedEsc const&) {m_view->close(); },
+			//[this](controller::events::ClickedAt const& click) {
 			//		std::lock_guard<std::mutex> lock(m_simLock);
 			//		#ifdef ENABLE_DEBUG_DRAW
 			//		view::DebugDraw::instance().circle(model::Point(click.x, click.y), 0.5, sf::Color::Red);
@@ -279,8 +279,8 @@ namespace controller {
 
 			//		m_vehicle->setAllGoals(model::Point(click.x,click.y));
 			//		},
-			[this](model::events::Scrolled const& s) {m_view->zoom(1 - s.delta * 0.25); },
-			[this,  rotateSpeed](model::events::RightClickDown const& c) {
+			[this](controller::events::Scrolled const& s) {m_view->zoom(1 - s.delta * 0.25); },
+			[this,  rotateSpeed](controller::events::RightClickDown const& c) {
 				double delta = c.currentX- c.lastX;
 				m_view->rotate(delta*rotateSpeed*m_view->getFrameTime()); 
 			},

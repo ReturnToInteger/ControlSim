@@ -96,12 +96,12 @@ namespace view {
 				m_view.setCenter(m_vehicleView.getPosition());
 				m_view.zoom(static_cast<float>(m_zoom));
 				
-				notify("AppView", model::events::Resized{});
+				notify("AppView", controller::events::Resized{});
 			} 
 			else
 			{
-				model::events::InputEvent e = translateEventToInput(event);
-				if (!std::holds_alternative<model::events::None>(e))
+				controller::events::InputEvent e = translateEventToInput(event);
+				if (!std::holds_alternative<controller::events::None>(e))
 				{
 					notify("AppView", e);
 				}
@@ -118,7 +118,7 @@ namespace view {
 				m_lastX = pixelPos.x;
 			}
 
-			notify("AppView", model::events::RightClickDown{ .lastX= m_lastX,.currentX= (double)pixelPos.x });
+			notify("AppView", controller::events::RightClickDown{ .lastX= m_lastX,.currentX= (double)pixelPos.x });
 			m_lastX = pixelPos.x;
 		}
 		else 
@@ -244,14 +244,14 @@ namespace view {
 		m_window.draw(m_gridLines);
 	}
 
-	model::events::InputEvent view::AppView::translateEventToInput(sf::Event event)
+	controller::events::InputEvent view::AppView::translateEventToInput(sf::Event event)
 	{
 
 		if (event.type == sf::Event::KeyPressed) 
 		{
 			if (event.key.code == sf::Keyboard::Escape)
 			{
-				return model::events::PressedEsc();
+				return controller::events::PressedEsc();
 			}
 				//m_window.close();
 			if (event.key.code == sf::Keyboard::LShift) {
@@ -259,7 +259,7 @@ namespace view {
 				//while (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
 				//	// Do nothing
 				//}
-				return model::events::PressedLShift();
+				return controller::events::PressedLShift();
 			}
 		}
 		if (event.type == sf::Event::MouseButtonPressed)
@@ -273,24 +273,24 @@ namespace view {
 				//std::cout << "map x: " << worldPos.x << "\n";
 				//std::cout << "map y: " << worldPos.y << "\n";
 				//m_clickGlobalPos = model::Point(worldPos.x, worldPos.y);
-				return model::events::ClickedAt{ .x = (double)worldPos.x, .y = (double)worldPos.y };
+				return controller::events::ClickedAt{ .x = (double)worldPos.x, .y = (double)worldPos.y };
 			}
 		}
 		if (event.type == sf::Event::MouseWheelMoved)
 		{
 			int delta =event.mouseWheel.delta;
-			return model::events::Scrolled{ delta };
+			return controller::events::Scrolled{ delta };
 		}
 		if (event.type == sf::Event::Resized) {
-			return model::events::Resized();
+			return controller::events::Resized();
 		}		
 		if (event.type == sf::Event::LostFocus) {
-			return model::events::LostFocus();
+			return controller::events::LostFocus();
 		}
 		if (event.type == sf::Event::GainedFocus) {
-			return model::events::GainedFocus();
+			return controller::events::GainedFocus();
 		}
-		return model::events::None();
+		return controller::events::None();
 	}
 
 //	void AppView::addDrawable(sf::Drawable& drawable)

@@ -12,7 +12,7 @@
 #include "VehicleView.h"
 #include "ConeView.h"
 #include "PathView.h"
-#include "model/events/InputEventPublisher.h"
+#include "controller/events/InputEventPublisher.h"
 #include "model/utils/IDrawableVehicle.h"
 
 
@@ -27,7 +27,7 @@ namespace view {
 		static constexpr int frameRate = 144;
 		static constexpr double zoom = 1.0 / 8.0;
 	};
-	class AppView : public model::events::InputEventPublisher {
+	class AppView : public controller::events::InputEventPublisher {
 	public:
 		AppView();
 		AppView(model::IDrawableVehicle const& vehicle, std::vector<model::Cone> const& map);
@@ -56,7 +56,7 @@ namespace view {
 	private:
 		void setupGrid(double limit);
 		void drawGrid();
-		model::events::InputEvent translateEventToInput(sf::Event event);
+		controller::events::InputEvent translateEventToInput(sf::Event event);
 		sf::RenderWindow m_window;
 		unsigned int m_videoWidth;
 		unsigned int m_videoHeight;

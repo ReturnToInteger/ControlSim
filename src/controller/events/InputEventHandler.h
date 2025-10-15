@@ -2,13 +2,13 @@
 #include <string>
 #include "InputEventPublisher.h"
 
-namespace model {
+namespace controller {
 	namespace events {
-		using model::events::InputEvent;
+		using controller::events::InputEvent;
 		class InputEventHandler {
 		public:
 			~InputEventHandler() = default;
-			virtual void handleInputEvent(std::string const& src, model::events::InputEvent const& e) = 0;
+			virtual void handleInputEvent(std::string const& src, controller::events::InputEvent const& e) = 0;
 		protected:
 			InputEventHandler() = default;
 		};

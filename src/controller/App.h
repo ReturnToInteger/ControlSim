@@ -4,8 +4,8 @@
 #include <mutex>
 #include <functional>
 #include "model/items/Cone.h"
-#include "model/events/InputEventHandler.h"
-#include "model/events/InputEventPublisher.h"
+#include "controller/events/InputEventHandler.h"
+#include "controller/events/InputEventPublisher.h"
 #include <unordered_set>
 //#include "model/perception/Perception.h"
 
@@ -28,7 +28,7 @@ namespace view {
 }
 
 namespace controller {
-	using model::events::InputEvent;
+	using controller::events::InputEvent;
 	using namespace model;
 	struct InputTranslate {
 		void operator()(events::PressedEsc const&) { std::cout << "Pressed ESC.\n"; }
