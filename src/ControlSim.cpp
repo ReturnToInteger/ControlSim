@@ -7,7 +7,7 @@
 #include "controller/App.h"
 #include "view/AppView.h"
 
-#include "model/mapReaders/MATLAB/MatlabMapReader.h"
+#include "model/mapReaders/MATLAB/MatlabConeReader.h"
 #include "controller/KeyboardControl.h"
 #include "model/controllerLogic/PurePursuitControl.h"
 #include "model/pathPlanning/PathPlanner.h"
@@ -36,7 +36,7 @@ int main() {
 	controller::App app(
 		std::make_unique<model::Vehicle<VehicleType>>(std::make_unique<ControlMethod>(),
 			std::make_unique<model::pathPlanning::PathPlanner>(plannerConfig)),
-		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
+		std::make_unique<model::MatlabConeReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>() /*nullptr*/,
 		threadCount
 	);

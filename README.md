@@ -24,7 +24,7 @@ This project started as a Formula Student Car simulation in MATLAB. I revisited 
 - Imgui-SFML 2.6.x
 
 Optional:
- - MATLAB (needed for reading `mat` files using `MatlabMapReader`)
+ - MATLAB (needed for reading `mat` files using `MatlabConeReader`)
 
 ## How to Run / Setup
 1. **MATLAB support (recommended):**  
@@ -34,7 +34,7 @@ Optional:
 
 ## MATLAB Support
 
-By default, the project includes support for reading `.mat` files using `MatlabMapReader`.
+By default, the project includes support for reading `.mat` files using `MatlabConeReader`.
 
 If you don't have MATLAB installed or don't need this feature:
 
@@ -73,7 +73,7 @@ Called every simulation frame to update the vehicle based on input or planner.
 
 ### Map Readers
 
-- `MatlabMapReader` – Loads cones from a MATLAB `.mat` file (requires MATLAB setup)  
+- `MatlabConeReader` – Loads cones from a MATLAB `.mat` file (requires MATLAB setup)  
 - `ManualConeReader` – Returns a hardcoded set of cones for testing or quick use
 
 ### Controller Logic

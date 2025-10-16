@@ -3,11 +3,11 @@
 #include "model/items/Cone.h"
 
 namespace model {
-	class MatlabMapReader :
+	class MatlabConeReader :
 		public IMapReader 
 	{
 	public:
-		MatlabMapReader(const char * filePath);
+		MatlabConeReader(const char * filePath);
 		// Inherited via IMapReader
 		model::Map Read() override;
 	private:

@@ -1,4 +1,4 @@
-#include "MatlabMapReader.h"
+#include "MatlabConeReader.h"
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -6,11 +6,11 @@
 
 
 namespace model {
-    model::MatlabMapReader::MatlabMapReader(const char * filePath) : m_filePath(filePath)
+    model::MatlabConeReader::MatlabConeReader(const char * filePath) : m_filePath(filePath)
     {
     }
 
-    model::Map model::MatlabMapReader::Read()
+    model::Map model::MatlabConeReader::Read()
     {
         mxArray* ConePosXLft, * ConePosYLft, * ConePosXRgt, * ConePosYRgt/*, * radius*/;
         //const char* file = "TestTrack.mat";
