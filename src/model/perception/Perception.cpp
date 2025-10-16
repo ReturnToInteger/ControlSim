@@ -1,5 +1,5 @@
 #include "Perception.h"
-#include "model/items/Cone.h"
+#include "model/items/obstacles/Cone.h"
 #include "model/utils/Angle.h"
 #include "model/utils/Pose.h"
 #ifdef ENABLE_DEBUG_DRAW

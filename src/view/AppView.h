@@ -7,7 +7,7 @@
 
 
 #include "model/utils/Point.h"
-#include "model/items/Cone.h"
+#include "model/items/obstacles/Cone.h"
 #include "model/items/Path.h"
 #include "VehicleView.h"
 #include "ConeView.h"

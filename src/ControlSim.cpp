@@ -1,6 +1,6 @@
 
 //#include "model/mapReaders/ManualConeReader.h"
-//#include "model/items/Cone.h"
+//#include "model/items/obstacles/Cone.h"
 
 
 #include "model/Vehicle.h"

@@ -2,7 +2,7 @@
 #include "model/controllerLogic/IControllerLogic.h"
 #include "model/perception/Perception.h"
 #include "model/pathPlanning/PathPlanner.h"
-#include "model/items/Cone.h"
+#include "model/items/obstacles/Cone.h"
 #include <cmath>  
 #include <cassert>
 //#include "model/utils/ModelUtils.h"

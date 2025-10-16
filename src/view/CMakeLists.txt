@@ -1,3 +1,3 @@
-file(GLOB SRC_FILES "*.cpp" "*.h")
+file(GLOB SRC_FILES CONFIGURE_DEPENDS "*.cpp" "*.h")
 target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

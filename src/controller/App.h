@@ -3,8 +3,8 @@
 #include <array>
 #include <mutex>
 #include <functional>
-#include "model/items/Cone.h"
-#include "model/items/Obstacle.h"
+#include "model/items/obstacles/Cone.h"
+#include "model/items/obstacles/Obstacle.h"
 #include "model/mapReaders/Map.h"
 #include "controller/events/InputEventHandler.h"
 #include "controller/events/InputEventPublisher.h"

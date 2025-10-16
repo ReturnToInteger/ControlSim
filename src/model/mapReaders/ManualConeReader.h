@@ -2,7 +2,7 @@
 #include "IMapReader.h"
 #include <vector>
 #include <memory>
-#include "model/items/Cone.h"
+#include "model/items/obstacles/Cone.h"
 #include "model/mapReaders/Map.h"
 
 namespace model{

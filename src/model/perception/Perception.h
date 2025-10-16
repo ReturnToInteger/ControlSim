@@ -2,7 +2,7 @@
 #include <vector>
 //#include <model/utils/ModelUtils.h>
 #include <numbers>
-#include "model/items/Obstacle.h"
+#include "model/items/obstacles/Obstacle.h"
 #include "model/utils/Angle.h"
 #include <unordered_set>
 #include "model/mapReaders/Map.h"

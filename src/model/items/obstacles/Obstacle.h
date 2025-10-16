@@ -1,10 +1,10 @@
 #pragma once
-#include "Item.h"
+#include "model/items/Item.h"
 #include "model/utils/Point.h"
 #include "model/IVehicleState.h"
 namespace model {
     class Obstacle :
-        public Item
+		public model::Item
     {
     public:
 		Obstacle(Point position) : m_position(position) {}

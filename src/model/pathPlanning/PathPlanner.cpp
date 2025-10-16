@@ -1,6 +1,6 @@
 ﻿#include "PathPlanner.h"
-#include "model/items/Cone.h"
-#include "model/items/Obstacle.h"
+#include "model/items/obstacles/Cone.h"
+#include "model/items/obstacles/Obstacle.h"
 #include "model/utils/Angle.h"
 #include "model/utils/Pose.h"
 #include <thread>

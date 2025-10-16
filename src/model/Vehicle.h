@@ -13,8 +13,8 @@
 #include <numbers>
 #include "model/IVehicle.h"
 #include "Vehicle.h"
-#include "model/items/Cone.h"
-#include "model/items/Obstacle.h"
+#include "model/items/obstacles/Cone.h"
+#include "model/items/obstacles/Obstacle.h"
 #include <cmath>  
 #include <cassert>
 //#include "model/utils/ModelUtils.h"

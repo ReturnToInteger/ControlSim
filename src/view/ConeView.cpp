@@ -1,5 +1,5 @@
 #include "ConeView.h"
-#include "model/items/Cone.h"
+#include "model/items/obstacles/Cone.h"
 //#include <cassert>
 #include <stdexcept>
 

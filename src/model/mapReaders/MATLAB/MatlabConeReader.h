@@ -1,6 +1,6 @@
 #include "model/mapReaders/IMapReader.h"
 #include "model/mapReaders/Map.h"
-#include "model/items/Cone.h"
+#include "model/items/obstacles/Cone.h"
 
 namespace model {
 	class MatlabConeReader :
