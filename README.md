@@ -39,7 +39,7 @@ By default, the project includes support for reading `.mat` files using `MatlabM
 If you don't have MATLAB installed or don't need this feature:
 
 1. inside `src/model/CMakeLists.txt`, uncomment the `list(...)` command
-2. In `ControlSim.cpp` switch to `ManualMapReader` or another map reader class.
+2. In `ControlSim.cpp` switch to `ManualConeReader` or another map reader class.
 
 ## Extending the App
 
@@ -50,12 +50,12 @@ You can provide custom map readers and control logic by implementing the followi
 ```cpp
 class IMapReader {
 public:
-    virtual std::vector<Cone> Read() = 0;
+    virtual model::Map Read() = 0;
     virtual ~IMapReader() = default;
 };
 ```
 
-Used to load the map (cones). Your implementation is passed to App at startup.
+Used to load the map. Your implementation is passed to App at startup.
 
 ### IControllerLogic
 ```cpp
@@ -74,7 +74,7 @@ Called every simulation frame to update the vehicle based on input or planner.
 ### Map Readers
 
 - `MatlabMapReader` – Loads cones from a MATLAB `.mat` file (requires MATLAB setup)  
-- `ManualMapReader` – Returns a hardcoded set of cones for testing or quick use
+- `ManualConeReader` – Returns a hardcoded set of cones for testing or quick use
 
 ### Controller Logic
 
