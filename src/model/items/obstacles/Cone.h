@@ -3,6 +3,7 @@
 #include "model/utils/Point.h"
 
 namespace model {
+	class IVehicleState;
 	enum class ConeType
 	{
 		LEFT,
