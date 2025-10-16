@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "model/items/Cone.h"
+#include "model/mapReaders/Map.h"
 
 namespace model
 {
@@ -9,7 +10,7 @@ namespace model
 	public:
 		virtual ~IMapReader() = default;
 		// Read the map
-		virtual std::vector<Cone> Read() = 0;
+		virtual model::Map Read() = 0;
 		static constexpr double defaultRadius = 0.15;
 	protected:
 	};

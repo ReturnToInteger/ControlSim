@@ -10,7 +10,7 @@ namespace model {
     {
     }
 
-    std::vector<model::Cone> model::MatlabMapReader::Read()
+    model::Map model::MatlabMapReader::Read()
     {
         mxArray* ConePosXLft, * ConePosYLft, * ConePosXRgt, * ConePosYRgt/*, * radius*/;
         //const char* file = "TestTrack.mat";
@@ -58,7 +58,7 @@ namespace model {
             throw std::invalid_argument("ConePos must be numeric");
         }
 
-        std::vector<model::Cone> map;
+        model::Map map;
         double* x = mxGetPr(ConePosXLft);
         double* y = mxGetPr(ConePosYLft);
         size_t vSize = mxGetNumberOfElements(ConePosXLft);
@@ -66,7 +66,7 @@ namespace model {
 
         //printf("Length: %zu\n", vSize);
         for (size_t i = 0; i < vSize; i++) {
-            map.emplace_back(*x, *y, defaultRadius, ConeType::LEFT);
+            map.addObstacle(std::make_unique<Cone>(*x, *y, defaultRadius, ConeType::LEFT));
             x++;
             y++;
         }
@@ -77,7 +77,7 @@ namespace model {
 
         //printf("Length: %zu\n", vSize);
         for (size_t i = 0; i < vSize; i++) {
-            map.emplace_back(*x, *y, defaultRadius, ConeType::RIGHT);
+            map.addObstacle(std::make_unique<Cone>(*x, *y, defaultRadius, ConeType::LEFT));
             x++;
             y++;
         }

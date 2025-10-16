@@ -1,5 +1,6 @@
 ﻿#include "PathPlanner.h"
 #include "model/items/Cone.h"
+#include "model/items/Obstacle.h"
 #include "model/utils/Angle.h"
 #include "model/utils/Pose.h"
 #include <thread>
@@ -28,7 +29,7 @@ namespace model::pathPlanning {
 		selectSteeringMode(config.steeringMode, m_steeringInputs, m_anglesSize);
 	}
 
-	bool PathPlanner::planPath(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& vehicleState)
+	bool PathPlanner::planPath(std::unordered_set<const model::Obstacle*> const& obstacles, model::IVehicleState const& vehicleState)
 	{
 		setDubins(vehicleState.minimumTurningRadius());
 
@@ -52,7 +53,7 @@ namespace model::pathPlanning {
 		startNode.stage = 0;
 
 		// Check collision for start node
-		auto [isColliding, collisionPoint] = detectCollision(vehicleState, cones);
+		auto [isColliding, collisionPoint] = detectCollision(vehicleState, obstacles);
 		if (!isColliding) {
 			// Add startNode to open list
 			m_openList.emplace(startPQ.key, startNode);
@@ -91,10 +92,10 @@ namespace model::pathPlanning {
 					m_finalNode = currentNode;
 					//return;
 					reachedFirst = true;
-					updateNeightbours(cones, currentNode, 1);
+					updateNeightbours(obstacles, currentNode, 1);
 				}
 				else {
-					updateNeightbours(cones, currentNode, 0);
+					updateNeightbours(obstacles, currentNode, 0);
 				}
 
 			}
@@ -104,7 +105,7 @@ namespace model::pathPlanning {
 					m_finalNode = currentNode;
 					return true;
 				}
-				updateNeightbours(cones, currentNode, 1);
+				updateNeightbours(obstacles, currentNode, 1);
 			}
 			iter++;
 		}
@@ -203,7 +204,7 @@ namespace model::pathPlanning {
 		}
 	}
 
-	void model::pathPlanning::PathPlanner::updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage)
+	void model::pathPlanning::PathPlanner::updateNeightbours(std::unordered_set<const model::Obstacle*> const& obstacles, PathNode const& node, int stage)
 	{
 		//std::cout << "Start of m_uNb\n";
 		auto sharedParent = std::make_shared<PathNode>(node);
@@ -219,7 +220,7 @@ namespace model::pathPlanning {
 			// Check if the new node is in the closed list
 			if (m_closedList.find(newNodeKey) == m_closedList.end()) {
 				//	Interpolate the path between the current node and the new node and check each collision
-				auto [isColliding, contactPose] = checkCollisionWithinStep(3, *node.state, cones);
+				auto [isColliding, contactPose] = checkCollisionWithinStep(3, *node.state, obstacles);
 				// if collision add to closed list
 				if (isColliding) {
 					std::tuple<int, int, int,int> collidingKey = discretizePoint(contactPose,stage);
@@ -262,29 +263,19 @@ namespace model::pathPlanning {
 	}
 
 
-	std::pair<bool, model::Pose> PathPlanner::detectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const
+	std::pair<bool, model::Pose> PathPlanner::detectCollision(IVehicleState const& state, std::unordered_set<const model::Obstacle*> const& obstacles) const
 	{
-		if (cones.empty()) 
+		if (obstacles.empty()) 
 		{
 			return { false, state.getPose() };
 		}
-		model::Point vehiclePosition = state.getPosition();
-		Angle vehicleOrientation = state.getOrientation();
-		double radius = (*cones.begin())->getRadius();
-		double vhclLength = state.getLength();
-		double vhclWidth = state.getWidth();
-		for (auto const& cone : cones) {
-			Point relPos(cone->getPosition() - vehiclePosition);
-			if (relPos.magnitude() > (vhclLength * 1.5 + radius)) 
-			{
-				continue; // If the cone is more than sqrt(2)*length away, skip it
-			}
-			relPos = rotatePoint(relPos, -vehicleOrientation);
-			model::Point clampedPoint(model::clamp(relPos.X(), -vhclLength / 2, vhclLength / 2),
-				model::clamp(relPos.Y(), -vhclWidth / 2, vhclWidth / 2));
-			double distance = (relPos - clampedPoint).magnitude();
-			// within radius and margin for error
-			if (distance < radius) 
+		//model::Point vehiclePosition = state.getPosition();
+		//Angle vehicleOrientation = state.getOrientation();
+		//double radius = (*cones.begin())->getRadius();
+		//double vhclLength = state.getLength();
+		//double vhclWidth = state.getWidth();
+		for (auto const& obstacle : obstacles) {
+			if (obstacle->detectCollision(state)) 
 			{
 				//Point contactPoint = rotatePoint(clampedPoint, vehicleOrientation) + vehiclePosition;
 				return { true, state.getPose() };
@@ -318,9 +309,9 @@ namespace model::pathPlanning {
 		return { false,state.getPose() }; // No collision
 	}
 
-	std::pair<bool, model::Pose> PathPlanner::checkCollisionWithinStep(int stepCount, IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones)
+	std::pair<bool, model::Pose> model::pathPlanning::PathPlanner::checkCollisionWithinStep(int stepCount, IVehicleState const& state, std::unordered_set<const model::Obstacle*> const& obstacles)
 	{
-		if (cones.empty()) 
+		if (obstacles.empty())
 		{
 			return { false, Pose() };
 		}
@@ -330,7 +321,7 @@ namespace model::pathPlanning {
 		Pose contactPose;
 		double currentStep = smallStepSize;
 		while (currentStep < m_stepSize - 1e-8) {
-			auto collisionResult = detectCollision(*stepByDistance(state, currentStep, state.getTarget().angular), cones);
+			auto collisionResult = detectCollision(*stepByDistance(state, currentStep, state.getTarget().angular), obstacles);
 			if (collisionResult.first) 
 			{
 				isColliding = true;
@@ -341,7 +332,7 @@ namespace model::pathPlanning {
 		}
 		if (!isColliding) 
 		{
-			auto collisionResult = detectCollision(*stepByDistance(state, m_stepSize, state.getTarget().angular), cones);
+			auto collisionResult = detectCollision(*stepByDistance(state, m_stepSize, state.getTarget().angular), obstacles);
 			isColliding = collisionResult.first;
 			contactPose = collisionResult.second;
 		}

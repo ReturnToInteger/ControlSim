@@ -50,18 +50,18 @@ namespace controller {
 		}
 		//Setup
 		// Read the map from the file
-		m_cones = m_mapReader->Read();
+		m_map = m_mapReader->Read();
 
 		//Create perception
 		Angle perceptionAngle = radian(75);
 		double perceptionDistance = 15;
-		m_perception = std::make_unique<model::Perception>(m_cones, perceptionAngle, perceptionDistance);
+		m_perception = std::make_unique<model::Perception>(m_map, perceptionAngle, perceptionDistance);
 
 		// Set up view
 		double cellSize = m_vehicle->getCellSize();
 		if (m_view) {
 			m_view->setVehicle(*m_vehicle);
-			m_view->setCones(m_cones);
+			m_view->setMap(m_map);
 			m_view->setGridSize(cellSize);
 			m_view->init();
 			m_frameTime = m_view->getFrameTime();
@@ -75,11 +75,11 @@ namespace controller {
 	{
 		// Run pathplanning threads
 		m_running.store(true);
-		std::unordered_set<const model::Cone*> detectedCones = m_perception->detect(m_vehicle->getPose());
+		std::unordered_set<const model::Obstacle*> detectedObstacles = m_perception->detect(m_vehicle->getPose());
 		//std::function<void(int)> pathPlanningLambda = ;
 		std::vector<std::thread> threads;
-		startPlanningThreads(m_threadCount, threads, [this, &detectedCones](int index) {
-			pathPlanningWorker(detectedCones, index);
+		startPlanningThreads(m_threadCount, threads, [this, &detectedObstacles](int index) {
+			pathPlanningWorker(detectedObstacles, index);
 			});
 
 		// Run the game loop
@@ -93,8 +93,8 @@ namespace controller {
 			// View reads user input for pathPlanning
 			// Sets VehicleState ✓ safe
 			// Gets plannedPath ✓ safe
-			// Gets detectedCones ✓ safe
-			// Sets detectedCones ✓ safe
+			// Gets detectedObstacles ✓ safe
+			// Sets detectedObstacles ✓ safe
 			// Modifies m_vehicle ✓ safe
 			// View reads vehicle?
 			if (m_view) {
@@ -112,14 +112,14 @@ namespace controller {
 				}
 
 				// Detect for mapping
-				detectedCones= m_perception->detect(m_vehicle->getPose());
+				detectedObstacles= m_perception->detect(m_vehicle->getPose());
 
 				// Calc goal for path planning
 				double wayPoint1Distance = 10;
 				double wayPoint2Distance = 50;
 				std::unique_ptr<model::IVehicleState> stateCopy=m_vehicle->getStateCopy();
-				bool foundCurrent1 = calcGoal(detectedCones, *stateCopy, m_sharedGoals.goals[0], wayPoint1Distance);
-				bool foundCurrent2 = calcGoal(detectedCones, *stateCopy, m_sharedGoals.goals[1], wayPoint2Distance);
+				bool foundCurrent1 = calcGoal(detectedObstacles, *stateCopy, m_sharedGoals.goals[0], wayPoint1Distance);
+				bool foundCurrent2 = calcGoal(detectedObstacles, *stateCopy, m_sharedGoals.goals[1], wayPoint2Distance);
 				if (foundCurrent1 || foundCurrent2) {
 					m_sharedGoals.goalHasChanged.store(true);
 				}
@@ -127,7 +127,7 @@ namespace controller {
 			}
 			if (m_view) {
 				m_view->setPath(pathCopy);
-				m_view->setConeDetectedFlag(detectedCones);
+				m_view->setObstacleDetectedFlag(detectedObstacles);
 				// Render the simulation
 				m_view->render();
 			}
@@ -151,7 +151,7 @@ namespace controller {
 	// Reads Perception ✓ safe
 	// Reads VehicleState ✓ safe
 	// Modifies m_vehicle ?
-	void App::pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index)
+	void App::pathPlanningWorker(std::unordered_set<const model::Obstacle*>& detectedObstacles, int const index)
 	{
 		std::cout << "Planning index is: " << index << "\n";
 
@@ -181,14 +181,14 @@ namespace controller {
 		while (m_running.load(std::memory_order_relaxed)) {
 
 			// Read data from main
-			std::unordered_set<const model::Cone*> detectedCopy;
+			std::unordered_set<const model::Obstacle*> detectedCopy;
 			std::unique_ptr<model::IVehicleState> stateCopy;				
 			model::Point previous1(goal1);
 			model::Point previous2(goal2);
 
 			{
 				std::lock_guard<std::mutex> lock(m_simLock);
-				detectedCopy = detectedCones;
+				detectedCopy = detectedObstacles;
 				stateCopy = m_vehicle->getStateCopy();			
 
 				goal1 = m_sharedGoals.goals[0];
@@ -287,7 +287,7 @@ namespace controller {
 			[](auto&&) {}
 			}, e);
 	}
-	bool controller::App::calcGoal(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& state, model::Point& currentGoal, double maxDist)
+	bool controller::App::calcGoal(std::unordered_set<const model::Obstacle*> const& cones, model::IVehicleState const& state, model::Point& currentGoal, double maxDist)
 	{
 		double maxL = 0;
 		double maxR = 0;
@@ -295,8 +295,10 @@ namespace controller {
 		const model::Cone* maxRCone = nullptr;
 		Point pos = state.getPosition();
 		Angle theta = state.getOrientation();
-		for (auto const& cone : cones) 
+		for (auto const& obs : cones) 
 		{
+			const model::Cone* cone = dynamic_cast<const model::Cone*>(obs);
+			if (cone == nullptr) continue;
 			Point relPos = cone->getPosition() - pos;
 			double magnitude = relPos.magnitude();
 			double xDist = relPos.X() * cos(theta) + relPos.Y() * sin(theta);

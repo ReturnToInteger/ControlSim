@@ -2,9 +2,10 @@
 #include <vector>
 //#include <model/utils/ModelUtils.h>
 #include <numbers>
-#include "model/items/Cone.h"
+#include "model/items/Obstacle.h"
 #include "model/utils/Angle.h"
 #include <unordered_set>
+#include "model/mapReaders/Map.h"
 
 namespace model {
 	struct Pose;
@@ -13,13 +14,13 @@ namespace model {
 	class Perception
 	{
 	private:
-		std::vector<model::Cone> const& m_cones;
+		model::Map const& m_map;
 		const double m_viewAngle;
 		const double m_depth;
 	public:
-		Perception(std::vector<model::Cone> const& cones, Angle viewAngle=std::numbers::pi*2.0/3.0, double depth=40);
+		Perception(model::Map const & map, Angle viewAngle=std::numbers::pi*2.0/3.0, double depth=40);
 		~Perception() = default;
-		std::unordered_set<model::Cone const*> detect(model::Pose const& pose);
+		std::unordered_set<model::Obstacle const*> detect(model::Pose const& pose);
 
 	};
 }

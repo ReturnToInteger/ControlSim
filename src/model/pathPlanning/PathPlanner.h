@@ -14,6 +14,7 @@
 #include "model/utils/FixSizedQueue.h"
 
 namespace model {
+	class Obstacle;
 	class Cone;
 	namespace pathPlanning {
 		enum class SteeringMode : std::uint8_t
@@ -60,7 +61,7 @@ namespace model {
 		{
 		public:
 			PathPlanner(PlannerConfig config);
-			bool planPath(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& vehicleState);
+			bool planPath(std::unordered_set<const model::Obstacle*> const& obstacles, model::IVehicleState const& vehicleState);
 			//Sets planned path based on current node
 			void setPlannedPath();
 			const Path& getPlannedPath() const;
@@ -93,12 +94,12 @@ namespace model {
 			DubinsStateSpace m_dubins;
 
 			static void selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
-			void updateNeightbours(std::unordered_set<const model::Cone*> const& cones, PathNode const& node, int stage);
+			void updateNeightbours(std::unordered_set<const model::Obstacle*> const& obstacles, PathNode const& node, int stage);
 			static std::unique_ptr<IVehicleState> stepByDistance(IVehicleState const& state, double distance, double steeringInput);
 			[[nodiscard]] std::tuple<int, int, int,int> discretizePoint(model::Pose const& pose, int stage) const;
 			// Returns if it collides with 100% accuracy, and vehicle pose
 			// More computationally expensive
-			[[nodiscard]] std::pair<bool, model::Pose> detectCollision(IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones) const;
+			[[nodiscard]] std::pair<bool, model::Pose> detectCollision(IVehicleState const& state, std::unordered_set<const model::Obstacle*> const& obstacles) const;
 
 			// Simple collision detection that uses vehicle width
 			// Less computationally expensive
@@ -107,7 +108,7 @@ namespace model {
 			//		Detect collision between a node and one step away by interpolating
 			// Returns the first collision if it happens, and the vehicle's pose
 			// If there is no collision, the return is the vehicle's new pose
-			std::pair<bool, model::Pose> checkCollisionWithinStep(int stepCount, IVehicleState const& state, std::unordered_set<const model::Cone*> const& cones);
+			std::pair<bool, model::Pose> checkCollisionWithinStep(int stepCount, IVehicleState const& state, std::unordered_set<const model::Obstacle*> const & obstacles);
 
 			PathNode createNewNode(PathNode const& node, double steeringInput, int stage) const;
 			void processValidNode(PathNode & node, std::tuple<int, int, int,int> const& key, int stage);

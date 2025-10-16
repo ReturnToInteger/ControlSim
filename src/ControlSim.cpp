@@ -1,5 +1,5 @@
 
-//#include "model/mapReaders/ManualMapReader.h"
+//#include "model/mapReaders/ManualConeReader.h"
 //#include "model/items/Cone.h"
 
 
@@ -19,10 +19,12 @@ static double Mod(double a, double b) {
 
 int main() {
 	using VehicleType = model::VehicleState;
-	using ControlMethod = controller::KeyboardControl<VehicleType>;
+	//using ControlMethod = controller::KeyboardControl<VehicleType>;
+	using ControlMethod = model::PurePursuitControl;
 	const double cellSize = 0.2;
 	const double stepSize = 1.5;
 	const int angleBins = 20;
+	const int threadCount = 1;
 	model::pathPlanning::PlannerConfig plannerConfig{
 		.cellSize = cellSize,
 		.stepSize = stepSize,
@@ -36,7 +38,7 @@ int main() {
 			std::make_unique<model::pathPlanning::PathPlanner>(plannerConfig)),
 		std::make_unique<model::MatlabMapReader>("TestTrack.mat"),
 		std::make_unique<view::AppView>() /*nullptr*/,
-		1
+		threadCount
 	);
 	app.run();
 
@@ -65,7 +67,7 @@ int main() {
 	//map[0].setType(model::ConeType::UNKNOWN);
 	//controller::App app(
 	//	std::make_unique<model::Vehicle>(std::make_unique<model::PurePursuitControl>(), std::make_unique<model::pathPlanning::PathPlanner>(60, 3.0, 1.0)),
-	//	std::make_unique<model::ManualMapReader<std::array<model::Cone,1>>>(map),
+	//	std::make_unique<model::ManualConeReader<std::array<model::Cone,1>>>(map),
 	//	std::make_unique<view::AppView>()
 	//);
 	//app.run();

@@ -23,7 +23,7 @@ namespace view {
 	{
 	}
 
-	AppView::AppView(model::IDrawableVehicle const& vehicle, std::vector<model::Cone> const& map)
+	AppView::AppView(model::IDrawableVehicle const& vehicle, model::Map const& map)
 		: m_videoWidth(DefaultAppViewConfig::width),
 		m_videoHeight(DefaultAppViewConfig::height),
 		m_frameRate(DefaultAppViewConfig::frameRate),
@@ -33,11 +33,11 @@ namespace view {
 		m_gridZoomLimit(defaultGridZoomLimit),
 		m_cellSize(0)
 	{
-		m_coneViews.reserve(map.size());
-		for (const auto& cone : map) {
-			m_coneViews.emplace_back(cone);
-			m_itemViewTable.emplace(&cone, &m_coneViews.back());
-		}
+		//m_coneViews.reserve(map.size());
+		//for (const auto& cone : map.getObstacles()) {
+		//	m_coneViews.emplace_back(cone);
+		//	m_itemViewTable.emplace(cone, &m_coneViews.back());
+		//}
 	}
 
 	void AppView::init()
@@ -148,6 +148,11 @@ namespace view {
 		m_view.setCenter(m_vehicleView.getPosition());
 	}
 
+	void AppView::setMap(model::Map const& map)
+	{
+		m_mapView = view::MapView(map);
+	}
+
 	void AppView::setCones(std::vector<model::Cone> const& cones)
 	{
 		m_coneViews.clear();
@@ -188,6 +193,13 @@ namespace view {
 		for (auto const& item : detectedCones) {
 			m_itemViewTable[item]->isDetected = true;
 		}
+	}
+
+	void AppView::setObstacleDetectedFlag(const std::unordered_set<const model::Obstacle*>& detectedObstacles)
+	{
+		// TODO:
+		// m_mapView set all invisible
+		// m_mapVew set detected to visible
 	}
 
 	void AppView::zoom(double factor)

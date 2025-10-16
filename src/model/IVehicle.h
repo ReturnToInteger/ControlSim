@@ -45,7 +45,7 @@ namespace model {
 		virtual double getCellSize(int i = 0) const = 0;
 
 		virtual void clearPath(int i) = 0;
-		virtual bool planPath(std::unordered_set<const model::Cone*> const& cones, IVehicleState const& state, int i) = 0;
+		virtual bool planPath(std::unordered_set<const model::Obstacle*> const& obstacles, IVehicleState const& state, int i) = 0;
 		virtual void setPlannedPath(int i) = 0;
 		virtual void setGoal(model::Point goal, int i) = 0;
 		virtual void setAllGoals(model::Point goal) = 0;

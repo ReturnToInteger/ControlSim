@@ -7,22 +7,22 @@
 #endif // ENABLE_DEBUG_DRAW
 
 
-model::Perception::Perception(std::vector<model::Cone> const& cones, Angle m_viewAngle, double depth) : m_cones(cones), m_viewAngle(m_viewAngle), m_depth(depth)
+model::Perception::Perception(model::Map const & map, Angle m_viewAngle, double depth) : m_map(map), m_viewAngle(m_viewAngle), m_depth(depth)
 {
 }
 
 
 // Based on detection params, return a pointer to cones which which fall within the range of the "camera"
-std::unordered_set<model::Cone const*> model::Perception::detect(model::Pose const& pose)
+std::unordered_set<model::Obstacle const*> model::Perception::detect(model::Pose const& pose)
 {
-	std::unordered_set<const model::Cone*> detectedCones;
-	for (const auto& cone : m_cones) {
-		model::Point relativePos(cone.getPosition().X()- pose.x, cone.getPosition().Y()-pose.y);
+	std::unordered_set<const model::Obstacle*> detectedObjects;
+	for (const auto& obstacle : m_map.getObstacles()) {
+		model::Point relativePos(obstacle->getPosition().X()- pose.x, obstacle->getPosition().Y()-pose.y);
 		if (relativePos.magnitude() <= m_depth) {
 			Angle angle= std::atan2(relativePos.Y(), relativePos.X());
 			Angle theta = pose.theta;
 			if (angle.isClockwiseTo(theta - m_viewAngle / 2) && angle.isCounterClockwiseTo(theta + m_viewAngle / 2)) {
-				detectedCones.emplace(&cone);
+				detectedObjects.emplace(obstacle.get());
 			}
 		}
 		//detectedCones.emplace_back(&cone);
@@ -47,5 +47,5 @@ std::unordered_set<model::Cone const*> model::Perception::detect(model::Pose con
 	view::DebugDraw::instance().lineStrip(debugDraw);
 #endif // ENABLE_DEBUG_DRAW
 
-	return detectedCones;
+	return detectedObjects;
 }

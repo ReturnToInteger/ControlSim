@@ -14,6 +14,7 @@
 #include "model/IVehicle.h"
 #include "Vehicle.h"
 #include "model/items/Cone.h"
+#include "model/items/Obstacle.h"
 #include <cmath>  
 #include <cassert>
 //#include "model/utils/ModelUtils.h"
@@ -28,6 +29,7 @@ namespace model {
 	class IVehicleState;
 	class Perception;
 	class Cone;
+	class Obstacle;
 	namespace pathPlanning {
 		class PathPlanner;
 	}
@@ -109,10 +111,10 @@ namespace model {
 			if (i >= m_pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
 			m_pathPlanners[i]->clear();
 		}
-		bool planPath(std::unordered_set<const model::Cone*> const& cones, IVehicleState const& state, int i) override
+		bool planPath(std::unordered_set<const model::Obstacle*> const& obstacles, IVehicleState const& state, int i) override
 		{
 			if (i >= m_pathPlanners.size()) { throw std::out_of_range("Index is out of range."); }
-			return m_pathPlanners[i]->planPath(cones, state);
+			return m_pathPlanners[i]->planPath(obstacles, state);
 		}
 		void setPlannedPath(int i) override
 		{

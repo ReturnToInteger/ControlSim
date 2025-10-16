@@ -12,8 +12,10 @@
 #include "VehicleView.h"
 #include "ConeView.h"
 #include "PathView.h"
+#include "MapView.h"
 #include "controller/events/InputEventPublisher.h"
 #include "model/utils/IDrawableVehicle.h"
+#include "model/mapReaders/Map.h"
 
 
 namespace model {
@@ -30,7 +32,7 @@ namespace view {
 	class AppView : public controller::events::InputEventPublisher {
 	public:
 		AppView();
-		AppView(model::IDrawableVehicle const& vehicle, std::vector<model::Cone> const& map);
+		AppView(model::IDrawableVehicle const& vehicle, model::Map const& map);
 		~AppView() = default;
 		AppView(AppView const&) = delete;
 		void init();
@@ -40,10 +42,12 @@ namespace view {
 		double getFrameTime() const;
 		void close();
 		void setVehicle(model::IDrawableVehicle const& vehicle);
+		void setMap(model::Map const& map);
 		void setCones(std::vector<model::Cone> const& cones);
 		void setPath(model::Path const& path);
 		void setPath(std::deque<model::Path> const& pathVector);
 		void setConeDetectedFlag(const std::unordered_set<const model::Cone*>& detectedCones);
+		void setObstacleDetectedFlag(const std::unordered_set<const model::Obstacle*>& detectedObstacles);
 		void setGridSize(double const& cellSize) { m_cellSize = cellSize; }
 		double getWidth() const { return m_videoWidth; }
 		double getHeight() const { return m_videoHeight; }
@@ -72,6 +76,7 @@ namespace view {
 		VehicleView m_vehicleView;
 		std::unordered_map<const model::Item*, ItemView*> m_itemViewTable;
 		std::vector<ConeView> m_coneViews;
+		view::MapView m_mapView;
 
 		std::vector<PathView> m_pathViews;
 		sf::View m_view;

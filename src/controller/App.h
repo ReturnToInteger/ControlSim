@@ -4,6 +4,8 @@
 #include <mutex>
 #include <functional>
 #include "model/items/Cone.h"
+#include "model/items/Obstacle.h"
+#include "model/mapReaders/Map.h"
 #include "controller/events/InputEventHandler.h"
 #include "controller/events/InputEventPublisher.h"
 #include <unordered_set>
@@ -62,12 +64,12 @@ namespace controller {
 		void handleInputEvent(std::string const& src, events::InputEvent const& e) override;
 
     private:		
-		void pathPlanningWorker(std::unordered_set<const model::Cone*>& detectedCones, int const index);
+		void pathPlanningWorker(std::unordered_set<const model::Obstacle*>& detectedCones, int const index);
 		void startPlanningThreads(int threadCount, std::vector<std::thread>& threads, std::function<void(int)> const& loopLambda);
 		// Should be moved to model
-		bool calcGoal(std::unordered_set<const model::Cone*> const& cones, model::IVehicleState const& state, model::Point& currentGoal,double maxDist);
+		bool calcGoal(std::unordered_set<const model::Obstacle*> const& cones, model::IVehicleState const& state, model::Point& currentGoal,double maxDist);
 
-		std::vector<model::Cone> m_cones;
+		model::Map m_map;
 		std::unique_ptr<view::AppView> m_view;
 		std::unique_ptr<model::IVehicle> m_vehicle;
 		std::unique_ptr<model::Perception> m_perception;
