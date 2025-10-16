@@ -38,6 +38,7 @@ namespace model {
 			static constexpr std::array<double, 9> steeringModeSQUARED = { 0.0, 0.06, -0.06, 0.25, -0.25, 0.56, -0.56, 1.0, -1.0 };
 		};
 		static constexpr int defaultContainerSize = 1000;
+		static constexpr int defaultMaxCost = 30;
 
 		// cellSize
 		// stepSize
@@ -55,6 +56,7 @@ namespace model {
 			// Not tested in SINGLE mode currently
 			Waypoints waypoints;
 			int maxContainerSize = defaultContainerSize;
+			int maxCost = defaultMaxCost;
 		};
 
 		class PathPlanner
@@ -87,11 +89,13 @@ namespace model {
 			double m_cellSize;
 			const double* m_steeringInputs = nullptr;
 			int m_maxContainerSize;
+			int m_maxCost;
 			size_t m_anglesSize;
 
 			FixSizedQueue<Point> m_goals;
 			PathNode m_finalNode;
 			DubinsStateSpace m_dubins;
+			Waypoints m_waypointMode;
 
 			static void selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
 			void updateNeightbours(std::unordered_set<const model::Obstacle*> const& obstacles, PathNode const& node, int stage);

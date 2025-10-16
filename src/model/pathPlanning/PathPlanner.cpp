@@ -23,7 +23,9 @@ namespace model::pathPlanning {
 		m_maxContainerSize(config.maxContainerSize),
 		m_dubins(0.0),
 		m_steeringInputs{},
-		m_anglesSize(0)
+		m_anglesSize(0),
+		m_maxCost(config.maxCost),
+		m_waypointMode(config.waypoints)
 	{
 		m_goals.push(Point(0.0, 0.0));
 		selectSteeringMode(config.steeringMode, m_steeringInputs, m_anglesSize);
@@ -92,6 +94,8 @@ namespace model::pathPlanning {
 					m_finalNode = currentNode;
 					//return;
 					reachedFirst = true;
+					if (m_waypointMode == Waypoints::SINGLE)
+						return true;
 					updateNeightbours(obstacles, currentNode, 1);
 				}
 				else {
@@ -359,6 +363,7 @@ namespace model::pathPlanning {
 			heuristics = getHeuristics(*node.state, m_goals.back());
 		}
 		double fCost = node.gCost + heuristics;
+		if (fCost > m_maxCost) return;
 		node.fCost = fCost;
 		// if not in open list, add it
 		auto [it, isInserted] = m_openList.emplace(key, std::move(node));
@@ -436,9 +441,9 @@ namespace model::pathPlanning {
 	}
 
 	bool PathPlanner::hasMoreNodes() const {
-		return !m_openList.empty() &&
+		return !m_openList.empty();/* &&
 			m_openList.size() < m_maxContainerSize &&
-			m_closedList.size() < m_maxContainerSize;
+			m_closedList.size() < m_maxContainerSize;*/
 	}
 
 
