@@ -45,7 +45,7 @@ namespace model::pathPlanning {
 		// Process first node
 		PQNode startPQ {
 			.fCost = getHeuristics(vehicleState, m_goals.front()),
-			.key = discretizePoint(vehicleState.getPose(),0) 
+			.key = discretizePose(vehicleState.getPose(),0)
 		};
 		PathNode startNode;
 		startNode.state = vehicleState.clone();
@@ -219,7 +219,7 @@ namespace model::pathPlanning {
 			newNode.state = stepByDistance(*node.state, m_stepSize, m_steeringInputs[i]);
 			newNode.stage = stage;
 
-			std::tuple<int, int, int,int> newNodeKey = discretizePoint(newNode.state->getPose(),stage);
+			std::tuple<int, int, int, int> newNodeKey = discretizePose(newNode.state->getPose(), stage);
 
 			// Check if the new node is in the closed list
 			if (m_closedList.find(newNodeKey) == m_closedList.end()) {
@@ -227,7 +227,7 @@ namespace model::pathPlanning {
 				auto [isColliding, contactPose] = checkCollisionWithinStep(3, *node.state, obstacles);
 				// if collision add to closed list
 				if (isColliding) {
-					std::tuple<int, int, int,int> collidingKey = discretizePoint(contactPose,stage);
+					std::tuple<int, int, int, int> collidingKey = discretizePose(contactPose, stage);
 					m_closedList.emplace(collidingKey);
 				}
 				else {
@@ -256,7 +256,7 @@ namespace model::pathPlanning {
 		return copy;
 	}
 
-	std::tuple<int, int, int,int> PathPlanner::discretizePoint(model::Pose const& pose,int stage) const
+	std::tuple<int, int, int, int> model::pathPlanning::PathPlanner::discretizePose(model::Pose const& pose, int stage) const
 	{
 		int x = static_cast<int>(pose.x / m_cellSize);
 		int y = static_cast<int>(pose.y / m_cellSize);

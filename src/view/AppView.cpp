@@ -153,13 +153,15 @@ namespace view {
 		m_mapView = view::MapView(map);
 	}
 
-	void AppView::setCones(std::vector<model::Cone> const& cones)
+	void AppView::setCones(model::Map const& cones)
 	{
 		m_coneViews.clear();
 		m_coneViews.reserve(cones.size());
-		for (auto const& cone : cones) {
-			m_coneViews.emplace_back(cone);	
-			m_itemViewTable.emplace(&cone, &m_coneViews.back());
+		for (auto const& obstacle : cones.getObstacles()) {
+			if (auto const* cone = dynamic_cast<const model::Cone*>(obstacle.get())) {
+				m_coneViews.emplace_back(*cone);	
+				m_itemViewTable.emplace(cone, &m_coneViews.back());
+			}
 		}
 	}
 

@@ -9,6 +9,7 @@
 #include "model/utils/Point.h"
 #include "model/items/obstacles/Cone.h"
 #include "model/items/Path.h"
+#include "model/items/Item.h"
 #include "VehicleView.h"
 #include "ConeView.h"
 #include "PathView.h"
@@ -43,7 +44,7 @@ namespace view {
 		void close();
 		void setVehicle(model::IDrawableVehicle const& vehicle);
 		void setMap(model::Map const& map);
-		void setCones(std::vector<model::Cone> const& cones);
+		void setCones(model::Map const& cones);
 		void setPath(model::Path const& path);
 		void setPath(std::deque<model::Path> const& pathVector);
 		void setConeDetectedFlag(const std::unordered_set<const model::Cone*>& detectedCones);

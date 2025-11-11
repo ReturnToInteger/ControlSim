@@ -100,7 +100,7 @@ namespace model {
 			static void selectSteeringMode(SteeringMode const& mode, double const*& steeringInputs, size_t& size);
 			void updateNeightbours(std::unordered_set<const model::Obstacle*> const& obstacles, PathNode const& node, int stage);
 			static std::unique_ptr<IVehicleState> stepByDistance(IVehicleState const& state, double distance, double steeringInput);
-			[[nodiscard]] std::tuple<int, int, int,int> discretizePoint(model::Pose const& pose, int stage) const;
+			[[nodiscard]] std::tuple<int, int, int,int> discretizePose(model::Pose const& pose, int stage) const;
 			// Returns if it collides with 100% accuracy, and vehicle pose
 			// More computationally expensive
 			[[nodiscard]] std::pair<bool, model::Pose> detectCollision(IVehicleState const& state, std::unordered_set<const model::Obstacle*> const& obstacles) const;

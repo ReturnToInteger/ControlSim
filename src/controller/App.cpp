@@ -61,7 +61,7 @@ namespace controller {
 		double cellSize = m_vehicle->getCellSize();
 		if (m_view) {
 			m_view->setVehicle(*m_vehicle);
-			m_view->setMap(m_map);
+			m_view->setCones(m_map);
 			m_view->setGridSize(cellSize);
 			m_view->init();
 			m_frameTime = m_view->getFrameTime();
