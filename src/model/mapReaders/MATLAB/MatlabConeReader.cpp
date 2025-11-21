@@ -77,7 +77,7 @@ namespace model {
 
         //printf("Length: %zu\n", vSize);
         for (size_t i = 0; i < vSize; i++) {
-            map.addObstacle(std::make_unique<Cone>(*x, *y, defaultRadius, ConeType::LEFT));
+            map.addObstacle(std::make_unique<Cone>(*x, *y, defaultRadius, ConeType::RIGHT));
             x++;
             y++;
         }

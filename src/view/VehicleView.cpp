@@ -36,7 +36,7 @@ view::VehicleView::VehicleView()
 view::VehicleView::VehicleView(model::IDrawableVehicle const& vehicle, sf::Color color)
 	: ItemView(color), m_vehicle(&vehicle)
 {
-	if (!m_texture.loadFromFile("car.png"))
+	if (!m_texture.loadFromFile(m_filepath))
 	{
 		throw std::ios_base::failure("Image not found");
 	}

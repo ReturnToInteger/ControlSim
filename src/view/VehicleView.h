@@ -25,5 +25,6 @@ namespace view {
 	private:
 		const model::IDrawableVehicle* m_vehicle;
 		sf::Texture m_texture;
+		const char* m_filepath = "car.png";
 	};
 }

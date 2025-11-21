@@ -1,17 +1,17 @@
 #pragma once
+
 #include "model/mapReaders/IMapReader.h"
 #include "model/mapReaders/Map.h"
-#include "model/items/obstacles/Cone.h"
 
 namespace model {
-	class MatlabConeReader :
-		public IMapReader 
+	class BitmapReader :
+		public IMapReader
 	{
 	public:
-		MatlabConeReader(const char * filePath);
+		BitmapReader(const char* filePath);
 		// Inherited via IMapReader
 		model::Map Read() override;
 	private:
-		const char * m_filePath;
+		const char* m_filePath;
 	};
 }
