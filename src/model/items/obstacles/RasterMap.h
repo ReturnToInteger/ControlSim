@@ -9,9 +9,12 @@ namespace model {
 		public Obstacle
 	{
 	public:
+		model::RasterMap(int width, int height) : data(height, std::vector<float>(width)) {
+
+		}
 		bool detectCollision(model::IVehicleState const& vehicle) const override;
 	private:
-		std::vector<std::vector<int>> data;
+		std::vector<std::vector<float>> data;
 
 	};
 

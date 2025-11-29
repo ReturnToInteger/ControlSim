@@ -7,6 +7,7 @@ namespace model {
 		public model::Item
     {
     public:
+		Obstacle() = default;
 		Obstacle(Point position) : m_position(position) {}
 		Obstacle(double x, double y) : m_position(x, y) {}
 		Point getPosition() const override { return m_position; }
